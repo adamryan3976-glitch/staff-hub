@@ -1,0 +1,1083 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon.svg">
+</head>
+<body>
+<title>WPS Staff Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#16324a">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: phone-first staff app. Bottom tab bar, one column of cards, wider two-column home on tablets. */
+:root{
+  --bg:#eef2f4; --surface:#ffffff; --sunk:#f5f8fa; --ink:#16324a; --muted:#5b6f80; --line:#d3dde4;
+  --accent:#1f6f8b; --accent-ink:#ffffff; --accent-soft:#dcecf2;
+  --ok:#1d7a4e; --ok-soft:#dcf1e6; --warn:#9a5b00; --warn-soft:#fbecd3; --bad:#b4232c; --bad-soft:#fbe0e1;
+  --w1:#1f6f8b; --w2:#e3a72f; --w3:#16324a; --w4:#4fa37a; --w5:#c8553d; --w6:#7c8fb3;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1a24; --surface:#152634; --sunk:#112030; --ink:#e4edf3; --muted:#9db0bf; --line:#2a3f50;
+  --accent:#5fb7d4; --accent-ink:#06202b; --accent-soft:#183c4c;
+  --ok:#5fd19a; --ok-soft:#173a2a; --warn:#f0b357; --warn-soft:#3d2c12; --bad:#ff7d84; --bad-soft:#44191d;
+  --w1:#2b86a6; --w2:#d79b25; --w3:#3b5b78; --w4:#3f9069; --w5:#c0573f; --w6:#6d80a6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1a24; --surface:#152634; --sunk:#112030; --ink:#e4edf3; --muted:#9db0bf; --line:#2a3f50;
+  --accent:#5fb7d4; --accent-ink:#06202b; --accent-soft:#183c4c;
+  --ok:#5fd19a; --ok-soft:#173a2a; --warn:#f0b357; --warn-soft:#3d2c12; --bad:#ff7d84; --bad-soft:#44191d;
+  --w1:#2b86a6; --w2:#d79b25; --w3:#3b5b78; --w4:#3f9069; --w5:#c0573f; --w6:#6d80a6; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;margin:0}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 104px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:22px} h2{font-size:18px} h3{font-size:16px}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+a{color:var(--accent)}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)} .small{font-size:14px} .num{font-variant-numeric:tabular-nums}
+.stack{display:grid;gap:14px} .stack-s{display:grid;gap:8px}
+.row{display:flex;align-items:center;gap:10px} .between{justify-content:space-between} .wrapflex{flex-wrap:wrap}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:4px 14px}
+.top .sub{color:var(--muted);font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.info{background:var(--accent-soft);color:var(--ink)}
+.banner{border-radius:var(--r);padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.banner.warn{background:var(--warn-soft);color:var(--warn)} .banner.info{background:var(--accent-soft);color:var(--ink)} .banner.bad{background:var(--bad-soft);color:var(--bad)}
+.banner b{display:block}
+.btn{border-radius:12px;padding:11px 16px;font-weight:700;background:var(--accent);color:var(--accent-ink);text-align:center}
+.btn.block{width:100%}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.btn.danger{background:var(--surface);color:var(--bad);border:1.5px solid var(--bad)}
+.chipbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:14px;font-weight:700}
+.chipbtn:hover{border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);border-radius:999px;padding:8px 13px;font-size:14px;background:var(--surface)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink);font-weight:700}
+.seg{display:flex;background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;padding:9px 6px;border-radius:9px;font-weight:700;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.list{list-style:none;margin:0;padding:0}
+.list>li{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);min-width:0}
+.list>li:first-child{border-top:0}
+.list .main{flex:1;min-width:0}
+.list .main b{display:block;overflow-wrap:anywhere}
+.list .main small{display:block;color:var(--muted);font-size:14px}
+.avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;background:var(--accent-soft);color:var(--ink);flex:none}
+.linkbtn{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.search{position:relative}
+.search input{padding-left:38px}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.empty{color:var(--muted);font-size:14px;padding-block:8px}
+.grid2{display:grid;gap:14px}
+@media (min-width:700px){.grid2{grid-template-columns:1fr 1fr}}
+/* home */
+.now{display:grid;gap:4px}
+.now .big{font-family:var(--f-display);font-size:28px;font-weight:800;line-height:1.1}
+.timeline{list-style:none;margin:0;padding:0;display:grid}
+.timeline li{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:15px}
+.timeline li:first-child{border-top:0}
+.timeline li.cur{font-weight:700}
+.timeline li.cur .tm{color:var(--accent)}
+.timeline li.past{color:var(--muted)}
+.tm{color:var(--muted);font-variant-numeric:tabular-nums}
+/* duty */
+.duty-block{display:grid;gap:6px}
+.duty-row{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;background:var(--sunk);font-size:15px;flex-wrap:wrap}
+.duty-row.mine{background:var(--accent-soft);font-weight:700}
+.duty-row small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+/* attendance */
+.expected{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.expected .big{font-family:var(--f-display);font-size:34px;font-weight:800}
+.due{font-size:13px;color:var(--accent);font-weight:700}
+.dial{display:grid;grid-template-columns:72px 1fr 72px;align-items:center;gap:8px;margin-block:6px}
+.step{height:72px;border-radius:50%;border:2px solid var(--line);font-family:var(--f-display);font-size:34px;font-weight:800;background:var(--surface)}
+.step:active{transform:scale(.96)}
+.count{text-align:center}
+.count .n{font-family:var(--f-display);font-size:88px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.count .of{color:var(--muted);font-size:15px}
+.count.diff .n{color:var(--bad)}
+.go{width:100%;border-radius:var(--r);padding:18px;font-size:20px;font-weight:700;background:var(--ok);color:var(--surface)}
+.go.diff{background:var(--bad)} .go.sa{background:var(--accent);color:var(--accent-ink)}
+.disc{border:2px solid var(--bad);background:var(--bad-soft)}
+.disc h2{color:var(--bad)}
+.disc ol{margin:8px 0 0;padding-left:20px;display:grid;gap:12px}
+.disc li::marker{font-weight:700;color:var(--bad)}
+.reasons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.reason{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:left;font-size:14px}
+.reason small{display:block;color:var(--muted);font-size:12px}
+.alarm{background:var(--bad);color:var(--surface);border-radius:var(--r);padding:16px}
+.alarm h2{color:var(--surface);font-size:22px}
+.alarm ul{margin:8px 0 12px;padding-left:20px}
+.alarm .btn{background:var(--surface);color:var(--ink)}
+.log{list-style:none;margin:0;padding:0;display:grid}
+.log li{display:grid;grid-template-columns:64px 40px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.log li:first-child{border-top:0}
+.log .t{color:var(--muted)} .log .c{font-weight:700;font-size:18px}
+.log .p{min-width:0} .log .p small{display:block;color:var(--muted);font-size:13px}
+.x{color:var(--muted);padding:6px 8px;border-radius:8px;font-size:13px}
+.x:hover{background:var(--bad-soft);color:var(--bad)}
+.board{display:grid;gap:8px}
+.board .cls{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px;border-radius:12px;background:var(--sunk);border-left:5px solid var(--line)}
+.board .cls.ok{border-left-color:var(--ok)} .board .cls.warn{border-left-color:var(--warn)} .board .cls.bad{border-left-color:var(--bad);background:var(--bad-soft)}
+.board .cls small{color:var(--muted);font-size:13px;grid-column:1/-1}
+/* weekly sheet */
+.sheetwrap{overflow-x:auto}
+.sheet{background:#fff;color:#111;border:1px solid #999;padding:18px;min-width:640px;font-size:12px}
+.sheet h2{font-size:17px;text-align:center;margin-bottom:8px;color:#111}
+.sheet .hdr{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.sheet .hdr span{border-bottom:1px solid #111;padding:0 6px;min-width:120px;display:inline-block;font-weight:700}
+.sheet .inst{font-size:10.5px;margin:0 0 8px;color:#222}
+.sheet table{width:100%;border-collapse:collapse;table-layout:fixed}
+.sheet th,.sheet td{border:1px solid #555;padding:3px 4px;text-align:center;font-variant-numeric:tabular-nums}
+.sheet th{background:#eee;font-weight:700}
+.sheet td.flag{color:#b4232c;font-weight:700}
+.sheet .notes{border:1px solid #555;min-height:60px;padding:6px;margin-top:8px;text-align:left}
+.sheet .notes ul{margin:4px 0 0;padding-left:16px}
+.sheet .pts{font-size:10.5px;margin-top:8px}
+.sheet .pts ul{margin:2px 0 0;padding-left:16px}
+.sheet .rcv{margin-top:10px}
+/* tools */
+.wheelbox{position:relative;width:min(340px,100%);margin:0 auto;aspect-ratio:1;max-width:100%}
+.wheelbox canvas{width:100%;height:100%;display:block}
+.pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid var(--ink);filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.winner{text-align:center;padding:14px;border-radius:var(--r);background:var(--accent-soft)}
+.winner .name{font-family:var(--f-display);font-size:32px;font-weight:800}
+.timerface{position:relative;width:min(300px,100%);aspect-ratio:1;margin:0 auto;max-width:100%}
+.timerface svg{width:100%;height:100%;transform:rotate(-90deg)}
+.timerface .digits{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:64px;font-variant-numeric:tabular-nums}
+.timerface.done .digits{color:var(--bad)}
+.groups{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.group{background:var(--sunk);border-radius:12px;padding:12px;border-top:4px solid var(--w1)}
+.group ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:3px;font-size:15px}
+.namepick{display:flex;flex-wrap:wrap;gap:6px}
+.namepick button{font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.namepick button[aria-pressed="false"]{text-decoration:line-through;color:var(--muted);background:var(--sunk)}
+/* sign-in */
+.signin{min-height:70vh;display:grid;place-items:center;text-align:center}
+.signin .mark{width:84px;height:84px;margin:0 auto 14px}
+/* nav */
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:5}
+.tabs button{flex:1;max-width:140px;padding:8px 2px 10px;font-weight:700;font-size:12px;color:var(--muted);display:grid;justify-items:center;gap:2px;border-top:3px solid transparent}
+.tabs button svg{width:22px;height:22px}
+.tabs button[aria-current="page"]{color:var(--ink);border-top-color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;display:flex;gap:14px;align-items:center;z-index:6;max-width:calc(100% - 32px)}
+.toast button{text-decoration:underline;color:inherit}
+@media (max-width:380px){.reasons{grid-template-columns:1fr}.count .n{font-size:72px}.dial{grid-template-columns:60px 1fr 60px}.step{height:60px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  body{background:#fff}.tabs,.toast,.noprint{display:none!important}
+  .wrap{max-width:none;padding:0}.sheetwrap{overflow:visible}.sheet{border:0;min-width:0;padding:0}
+  @page{size:letter landscape;margin:12mm}
+}
+</style>
+
+<div class="wrap" id="app" aria-live="polite"></div>
+<nav class="tabs noprint" id="tabs" aria-label="Sections" hidden></nav>
+<div id="toast" class="toast noprint" role="status" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ======================================================================
+   SETUP: paste your two values here (see SETUP.md).
+   Leave SCRIPT_URL blank to run the built-in demo with invented data.
+   ====================================================================== */
+const CONFIG = {
+  SCRIPT_URL: '',        // Apps Script web app URL, ends in /exec
+  GOOGLE_CLIENT_ID: ''   // OAuth client ID, ends in .apps.googleusercontent.com
+};
+
+const FRAMED = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+const DEMO = !CONFIG.SCRIPT_URL || FRAMED;
+
+/* ---------- storage ---------- */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const K = {
+  session: 'wps-hub-session', data: 'wps-hub-data', att: DEMO ? 'wps-hub-att-demo' : 'wps-hub-att',
+  outbox: 'wps-hub-outbox', prefs: 'wps-hub-prefs', demoRole: 'wps-hub-demo-role'
+};
+
+/* ---------- helpers ---------- */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = n => (n < 10 ? '0' : '') + n;
+const dkey = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const hhmm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
+const toMins = t => { if (!t) return null; const m = String(t).match(/(\d{1,2}):(\d{2})\s*([ap])?/i); if (!m) return null; let h = +m[1]; if (m[3]) { const pm = /p/i.test(m[3]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; } return h * 60 + (+m[2]); };
+const nowMins = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
+const nice = t => { const m = toMins(t); if (m == null) return ''; let h = Math.floor(m / 60); const mm = pad(m % 60); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + mm + ' ' + ap; };
+const DOW = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const longDate = d => DAYS[d.getDay()] + ', ' + MON[d.getMonth()] + ' ' + d.getDate();
+const monday = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const natural = (a, b) => String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+const initials = n => String(n || '?').replace(/^(Mr|Mrs|Ms|Mx|Mme|M|Dr)\.?\s+/i, '').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const schoolDayIndex = () => { const d = new Date().getDay(); return d >= 1 && d <= 5 ? d - 1 : 0; };
+const isWeekend = () => { const d = new Date().getDay(); return d === 0 || d === 6; };
+const dayMatches = (cell, dayIdx) => {
+  const s = String(cell || '').toLowerCase().trim();
+  if (!s || /every|daily|all|mon\s*[-–]\s*fri/.test(s)) return true;
+  return s.includes(DOW[dayIdx].slice(0, 3).toLowerCase());
+};
+const ICON = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>',
+  duty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/><circle cx="12" cy="10" r="3"/><path d="M4 8l2 1M20 8l-2 1"/></svg>',
+  lookup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  tools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>',
+  search: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  mark: '<svg viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#16324a"/><circle cx="256" cy="256" r="150" fill="none" stroke="#5fb7d4" stroke-width="28"/><path d="M190 260l46 46 90-100" fill="none" stroke="#fff" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+
+/* ---------- attendance constants ---------- */
+const SA_AM = 'Safe Arrival (AM)', SA_PM = 'Safe Arrival (PM)';
+const POINTS = ['Start of period', 'After recess / break', 'After room change', 'After outdoor / trip', 'After assembly / event', 'Unplanned change'];
+const ALL_POINTS = [SA_AM].concat(POINTS, [SA_PM]);
+const TEMP_REASONS = [['At office / sick room', 'Temporarily out, location known'], ['Washroom / water', 'Signed out, location known'], ['With support staff', 'Resource, withdrawal, EA, therapy'], ['Other known location', 'Library, another class, etc.']];
+const PERM_DOWN = [['Early dismissal', 'Signed out by office'], ['Went home sick', 'Office confirmed']];
+const PERM_UP = [['Late arrival', 'Office-confirmed late slip'], ['Returned to class', 'Back from early absence']];
+
+/* ======================================================================
+   DEMO DATA (invented names, only used when SCRIPT_URL is blank)
+   ====================================================================== */
+function demoData(role) {
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const firsts = ['Ava','Liam','Noah','Maya','Ethan','Zara','Owen','Chloe','Aiden','Priya','Lucas','Nora','Mateo','Leah','Jayden','Amira','Caleb','Isla','Ryder','Sofia','Hudson','Aria','Kai','Elena','Miles','Hana','Theo','Layla','Jonah','Ivy','Felix','Ruby','Arjun','Mila','Declan','Yara','Nolan','Emma','Rohan','Clara'];
+  const lasts = ['Abara','Bennett','Castillo','Dhillon','Evans','Fraser','Gill','Hughes','Ibrahim','Jensen','Kowalski','Lam','MacLeod','Nguyen','Osei','Park','Quinn','Rahman','Singh','Tremblay','Underwood','Vasquez','Walsh','Xu','Young','Zhang','Morin','Bouchard','Okafor','Russo'];
+  const rooms = [['Room 101','JK/SK','Ms. Kaur'],['Room 104','1','Mrs. Fraser'],['Room 106','2/3','Demo Teacher'],['Room 110','4','Mr. Osei'],['Room 203','5/6','Ms. Tremblay'],['Room 207','7/8','Mr. Lindqvist']];
+  const students = [];
+  rooms.forEach(([hr, gr]) => {
+    const n = 18 + Math.floor(rnd() * 7);
+    for (let i = 0; i < n; i++) {
+      const g = gr.includes('/') ? gr.split('/')[i % 2] : gr;
+      students.push({ 'First Name': firsts[Math.floor(rnd() * firsts.length)], 'Last Name': lasts[Math.floor(rnd() * lasts.length)], 'Grade': g, 'Homeroom': hr });
+    }
+  });
+  const staff = [
+    { Email: 'demo@example.org', Name: 'Demo Teacher', Role: role, Homeroom: 'Room 106', Room: '106', Extension: '2106', Assignment: 'Grade 2/3' },
+    { Email: 'kaur@example.org', Name: 'Ms. Kaur', Role: 'Teacher', Homeroom: 'Room 101', Room: '101', Extension: '2101', Assignment: 'Kindergarten' },
+    { Email: 'bell@example.org', Name: 'Ms. Bell', Role: 'ECE', Homeroom: 'Room 101', Room: '101', Extension: '2101', Assignment: 'Kindergarten ECE' },
+    { Email: 'fraser@example.org', Name: 'Mrs. Fraser', Role: 'Teacher', Homeroom: 'Room 104', Room: '104', Extension: '2104', Assignment: 'Grade 1' },
+    { Email: 'osei@example.org', Name: 'Mr. Osei', Role: 'Teacher', Homeroom: 'Room 110', Room: '110', Extension: '2110', Assignment: 'Grade 4' },
+    { Email: 'tremblay@example.org', Name: 'Ms. Tremblay', Role: 'Teacher', Homeroom: 'Room 203', Room: '203', Extension: '2203', Assignment: 'Grade 5/6' },
+    { Email: 'lindqvist@example.org', Name: 'Mr. Lindqvist', Role: 'Teacher', Homeroom: 'Room 207', Room: '207', Extension: '2207', Assignment: 'Grade 7/8' },
+    { Email: 'roy@example.org', Name: 'Mme Roy', Role: 'Teacher', Homeroom: '', Room: '112', Extension: '2112', Assignment: 'Core French 1–8' },
+    { Email: 'diaz@example.org', Name: 'Mr. Diaz', Role: 'Teacher', Homeroom: '', Room: 'Gym', Extension: '2300', Assignment: 'Phys. Ed. / Prep coverage' },
+    { Email: 'chen@example.org', Name: 'Ms. Chen', Role: 'EA', Homeroom: '', Room: 'Resource', Extension: '2120', Assignment: 'Educational Assistant' },
+    { Email: 'office@example.org', Name: 'Mrs. Walsh', Role: 'Office', Homeroom: '', Room: 'Office', Extension: '2000', Assignment: 'Office Administrator' },
+    { Email: 'principal@example.org', Name: 'Mr. Bennett', Role: 'Admin', Homeroom: '', Room: 'Office', Extension: '2001', Assignment: 'Principal' }
+  ];
+  const bells = [
+    { Start: '08:30', End: '08:45', Label: 'Yard supervision', 'Attendance Checkpoint': '' },
+    { Start: '08:45', End: '08:50', Label: 'Entry bell', 'Attendance Checkpoint': SA_AM },
+    { Start: '08:50', End: '10:30', Label: 'Learning Block 1', 'Attendance Checkpoint': '' },
+    { Start: '10:30', End: '10:50', Label: 'Nutrition Break 1', 'Attendance Checkpoint': '' },
+    { Start: '10:50', End: '11:10', Label: 'Recess 1', 'Attendance Checkpoint': '' },
+    { Start: '11:10', End: '12:50', Label: 'Learning Block 2', 'Attendance Checkpoint': 'After recess / break' },
+    { Start: '12:50', End: '13:10', Label: 'Nutrition Break 2', 'Attendance Checkpoint': '' },
+    { Start: '13:10', End: '13:30', Label: 'Recess 2', 'Attendance Checkpoint': '' },
+    { Start: '13:30', End: '15:10', Label: 'Learning Block 3', 'Attendance Checkpoint': SA_PM },
+    { Start: '15:10', End: '15:25', Label: 'Dismissal', 'Attendance Checkpoint': '' }
+  ];
+  const blocks = [['Before School','08:30','08:45',['Front Doors','Primary Yard','Junior Yard']],['Nutrition Break 1','10:30','10:50',['Upper Hall','Lower Hall']],['Recess 1','10:50','11:10',['Primary Yard','Junior Yard','Kindie Pad']],['Nutrition Break 2','12:50','13:10',['Upper Hall','Lower Hall']],['Recess 2','13:10','13:30',['Primary Yard','Junior Yard','Kindie Pad']],['After School','15:10','15:25',['Bus Loop','Front Doors']]];
+  const pool = ['Ms. Kaur','Ms. Bell','Mrs. Fraser','Mr. Osei','Ms. Tremblay','Mr. Lindqvist','Mme Roy','Mr. Diaz','Ms. Chen','Mrs. Walsh'];
+  const duty = []; let p = 0;
+  DOW.forEach((day, di) => blocks.forEach(([b, s, e, locs], bi) => locs.forEach((loc, li) => {
+    let who = pool[p++ % pool.length];
+    if ((di + bi) % 3 === 0 && li === 1) who = 'Demo Teacher';
+    duty.push({ Day: day, 'Time Block': b, Start: s, End: e, Location: loc, Staff: who });
+  })));
+  const today = dkey(new Date());
+  const dutyChanges = [{ Date: today, 'Time Block': 'Recess 2', Location: 'Junior Yard', 'Covered By': 'Mr. Diaz', Replacing: '', Note: 'Field trip coverage' }];
+  const schedules = [];
+  rooms.forEach(([hr, , tch]) => DOW.forEach((day, di) => {
+    schedules.push({ Homeroom: hr, Day: day, Start: '08:50', End: '10:30', Subject: 'Literacy', Teacher: tch, Room: hr.replace('Room ', '') });
+    schedules.push({ Homeroom: hr, Day: day, Start: '11:10', End: '12:50', Subject: 'Math', Teacher: tch, Room: hr.replace('Room ', '') });
+    if (di % 2 === 0) {
+      schedules.push({ Homeroom: hr, Day: day, Start: '13:30', End: '14:20', Subject: hr === 'Room 101' ? 'Play-based learning' : 'Core French', Teacher: hr === 'Room 101' ? tch : 'Mme Roy', Room: hr === 'Room 101' ? '101' : '112' });
+      schedules.push({ Homeroom: hr, Day: day, Start: '14:20', End: '15:10', Subject: 'Phys. Ed.', Teacher: 'Mr. Diaz', Room: 'Gym' });
+    } else {
+      schedules.push({ Homeroom: hr, Day: day, Start: '13:30', End: '15:10', Subject: di === 1 ? 'Science & Tech' : 'The Arts', Teacher: tch, Room: hr.replace('Room ', '') });
+    }
+  }));
+  const isOffice = role === 'Admin';
+  return {
+    me: { email: 'demo@example.org', name: isOffice ? 'Mr. Bennett' : 'Demo Teacher', role, homerooms: isOffice ? [] : ['Room 106'] },
+    settings: { 'School Name': 'Winchester Public School', 'Short Name': 'WPS', 'Office Extension': '2000' },
+    staff, students, bells, duty, dutyChanges, schedules
+  };
+}
+function demoLive() {
+  const hrs = homerooms(); const n = nowMins(); const rows = [];
+  hrs.forEach((hr, i) => {
+    if (hr === myHomeroom() && ui.role !== 'Admin') return;
+    const exp = roster(hr).length - (i % 3 === 0 ? 1 : 0);
+    const ago = [6, 14, 22, 9, 95, 31][i % 6];
+    const t = Math.max(8 * 60 + 47, Math.min(n, 15 * 60 + 10) - ago);
+    rows.push({ Homeroom: hr, Time: pad(Math.floor(t / 60)) + ':' + pad(t % 60), Count: i === 3 ? exp - 1 : exp, Expected: exp, Status: i === 3 ? 'Escalated' : 'OK', Checkpoint: 'Start of period', 'Staff Name': teacherOf(hr), Note: i === 3 ? 'Unexplained – office notified' : '' });
+  });
+  return rows;
+}
+
+/* ======================================================================
+   STATE
+   ====================================================================== */
+let session = DEMO ? 'demo' : LS.get(K.session, null);
+let D = null;          // normalized data
+let A = LS.get(K.att, { days: {} });
+let outbox = LS.get(K.outbox, []);
+const prefs = Object.assign({ tab: 'home', hr: '', toolSrc: '', custom: '', dutyMine: false }, LS.get(K.prefs, {}));
+const ui = {
+  tab: prefs.tab, role: DEMO ? LS.get(K.demoRole, 'Teacher') : null,
+  point: null, count: null, disc: null, alarm: false, adjOpen: null, checkView: 'class', weekOffset: 0, week: null, live: null, liveAt: 0,
+  dutyDay: schoolDayIndex(), lookup: 'students', q: '', cls: null, clsView: 'roster', clsDay: schoolDayIndex(),
+  tool: 'wheel', wheelOut: [], winner: null, groupMode: 'count', groupN: 4, absent: {}, groups: null,
+  loading: false, authError: '', syncing: false
+};
+const savePrefs = () => LS.set(K.prefs, prefs);
+const saveAtt = () => LS.set(K.att, A);
+
+/* ---------- normalize ---------- */
+function normalize(raw) {
+  const g = (r, k) => (r[k] == null ? '' : String(r[k]).trim());
+  const d = {
+    me: raw.me, settings: raw.settings || {},
+    staff: (raw.staff || []).map(r => ({ email: g(r, 'Email').toLowerCase(), name: g(r, 'Name'), role: g(r, 'Role') || 'Teacher', homeroom: g(r, 'Homeroom'), room: g(r, 'Room'), ext: g(r, 'Extension'), assignment: g(r, 'Assignment') })).filter(s => s.name || s.email),
+    students: (raw.students || []).map(r => ({ first: g(r, 'First Name'), last: g(r, 'Last Name'), grade: g(r, 'Grade'), homeroom: g(r, 'Homeroom') })).filter(s => s.first || s.last),
+    bells: (raw.bells || []).map(r => ({ start: g(r, 'Start'), end: g(r, 'End'), label: g(r, 'Label'), checkpoint: g(r, 'Attendance Checkpoint') })).filter(b => toMins(b.start) != null).sort((a, b) => toMins(a.start) - toMins(b.start)),
+    duty: (raw.duty || []).map(r => ({ day: g(r, 'Day'), block: g(r, 'Time Block'), start: g(r, 'Start'), end: g(r, 'End'), location: g(r, 'Location'), staff: g(r, 'Staff') })).filter(x => x.location || x.staff),
+    dutyChanges: (raw.dutyChanges || []).map(r => ({ date: g(r, 'Date').slice(0, 10), block: g(r, 'Time Block'), location: g(r, 'Location'), coveredBy: g(r, 'Covered By'), replacing: g(r, 'Replacing'), note: g(r, 'Note') })),
+    schedules: (raw.schedules || []).map(r => ({ homeroom: g(r, 'Homeroom'), day: g(r, 'Day'), start: g(r, 'Start'), end: g(r, 'End'), subject: g(r, 'Subject'), teacher: g(r, 'Teacher'), room: g(r, 'Room') })).filter(x => x.homeroom)
+  };
+  d.students.sort((a, b) => natural(a.last + a.first, b.last + b.first));
+  d.staff.sort((a, b) => natural(a.name.replace(/^\S+\.?\s/, ''), b.name.replace(/^\S+\.?\s/, '')));
+  return d;
+}
+const school = () => (D && D.settings['School Name']) || 'Staff Hub';
+const shortName = () => (D && D.settings['Short Name']) || 'WPS';
+const officeExt = () => (D && D.settings['Office Extension']) || '';
+const isOffice = () => D && /admin|office|principal/i.test(D.me.role || '');
+function homerooms() {
+  const s = new Set(); D.students.forEach(x => x.homeroom && s.add(x.homeroom)); D.staff.forEach(x => x.homeroom && s.add(x.homeroom));
+  return Array.from(s).sort(natural);
+}
+const roster = hr => D.students.filter(s => s.homeroom === hr);
+const teacherOf = hr => D.staff.filter(s => s.homeroom === hr).map(s => s.name).join(', ');
+const gradesOf = hr => Array.from(new Set(roster(hr).map(s => s.grade).filter(Boolean))).sort(natural).join('/');
+function myHomeroom() {
+  const hrs = homerooms();
+  if (prefs.hr && hrs.includes(prefs.hr)) return prefs.hr;
+  return (D.me.homerooms || []).find(h => hrs.includes(h)) || hrs[0] || '';
+}
+function isMe(cell) {
+  if (!cell || !D) return false;
+  const me = [D.me.name, D.me.email, (D.me.email || '').split('@')[0]].filter(Boolean).map(s => s.toLowerCase());
+  return String(cell).split(/,|;|&|\/|\band\b/i).some(p => me.includes(p.trim().toLowerCase()));
+}
+
+/* ======================================================================
+   SERVER
+   ====================================================================== */
+async function api(action, params) {
+  const q = new URLSearchParams(Object.assign({ action, session }, params || {}));
+  const res = await fetch(CONFIG.SCRIPT_URL + '?' + q.toString(), { cache: 'no-store' });
+  const data = await res.json();
+  if (data && data.error === 'session') { signOut('Your sign-in expired. Please sign in again.'); throw new Error('session'); }
+  if (data && data.error) throw new Error(data.error);
+  return data;
+}
+async function apiPost(body) {
+  const res = await fetch(CONFIG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ session }, body)) });
+  const data = await res.json();
+  if (data && data.error === 'session') { signOut('Your sign-in expired. Please sign in again.'); throw new Error('session'); }
+  if (data && data.error) throw new Error(data.error);
+  return data;
+}
+async function loadData(quiet) {
+  if (DEMO) { D = normalize(demoData(ui.role)); seedDemoChecks(); if (isOffice()) ui.checkView = 'board'; render(); return; }
+  const cached = LS.get(K.data, null);
+  if (cached && !D) D = normalize(cached);
+  if (!quiet && !D) { ui.loading = true; render(); }
+  try {
+    const raw = await api('all');
+    LS.set(K.data, raw); D = normalize(raw);
+  } catch (e) {
+    if (e.message !== 'session' && !D) ui.authError = 'Could not load the staff data. Check your connection and try again.';
+    if (e.message !== 'session' && D) toast('Offline – showing the last saved data');
+  }
+  ui.loading = false;
+  if (D && isOffice() && !ui._boardDefault) { ui._boardDefault = true; ui.checkView = 'board'; }
+  render(); flush();
+}
+function loadGis() {
+  return new Promise((resolve, reject) => {
+    if (window.google && google.accounts && google.accounts.oauth2) return resolve();
+    const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+    s.onload = () => resolve(); s.onerror = () => reject(new Error('gis')); document.head.appendChild(s);
+  });
+}
+async function signIn() {
+  ui.authError = ''; ui.loading = true; render();
+  try {
+    await loadGis();
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: CONFIG.GOOGLE_CLIENT_ID, scope: 'openid email profile',
+      callback: async (resp) => {
+        if (resp.error) { ui.loading = false; ui.authError = 'Sign-in was cancelled.'; render(); return; }
+        try {
+          const q = new URLSearchParams({ action: 'login', token: resp.access_token });
+          const r = await fetch(CONFIG.SCRIPT_URL + '?' + q.toString(), { cache: 'no-store' });
+          const data = await r.json();
+          if (data.error) throw new Error(data.error);
+          session = data.session; LS.set(K.session, session);
+          await loadData();
+        } catch (e) { ui.loading = false; ui.authError = e.message === 'not_staff' ? 'That account isn\'t on the staff list. Ask the office to add you, or sign in with your board account.' : 'Sign-in failed. Please try again.'; render(); }
+      }
+    });
+    client.requestAccessToken();
+  } catch (e) { ui.loading = false; ui.authError = 'Google sign-in could not load. Check your connection.'; render(); }
+}
+function signOut(msg) {
+  session = null; D = null; LS.del(K.session); LS.del(K.data);
+  ui.authError = msg || ''; ui.tab = 'home'; render();
+}
+
+/* ---------- attendance sync ---------- */
+function queue(op) { outbox.push(op); LS.set(K.outbox, outbox); flush(); }
+async function flush() {
+  if (DEMO) { outbox = []; LS.set(K.outbox, outbox); return; }
+  if (!outbox.length || ui.syncing || !session || navigator.onLine === false) return;
+  ui.syncing = true; const batch = outbox.slice(0, 50);
+  try {
+    await apiPost({ action: 'attendance', entries: batch });
+    const sent = new Set(batch.map(b => b.op + b.id));
+    outbox = outbox.filter(o => !sent.has(o.op + o.id)); LS.set(K.outbox, outbox);
+  } catch (e) { /* stays queued */ }
+  ui.syncing = false;
+  if (ui.tab === 'check') { const el = document.getElementById('syncstate'); if (el) el.outerHTML = syncPill(); }
+  if (outbox.length && !ui.syncing) setTimeout(flush, 20000);
+}
+window.addEventListener('online', flush);
+const syncPill = () => DEMO ? '<span id="syncstate" class="pill info">Demo – not sent</span>'
+  : outbox.length ? '<span id="syncstate" class="pill warn">' + outbox.length + ' waiting to send</span>'
+  : '<span id="syncstate" class="pill ok">Sent to office</span>';
+
+/* ======================================================================
+   ATTENDANCE MODEL
+   ====================================================================== */
+function dayRec(hr, dk) { const k = (dk || dkey(new Date())) + '|' + hr; return A.days[k] || (A.days[k] = { expected: null, entries: [] }); }
+const enrolled = hr => roster(hr).length;
+const expectedFor = hr => { const d = dayRec(hr); return d.expected == null ? enrolled(hr) : d.expected; };
+function addEntry(hr, e) {
+  const d = dayRec(hr);
+  e.id = uid(); e.date = dkey(new Date()); e.homeroom = hr; e.t = e.t || hhmm(new Date());
+  if (e.expected == null) e.expected = expectedFor(hr);
+  d.entries.push(e); saveAtt();
+  queue({ op: 'add', id: e.id, date: e.date, time: e.t, homeroom: hr, checkpoint: e.point, count: e.count, expected: e.expected, status: e.status, note: e.note || '' });
+  return e;
+}
+function removeEntry(hr, id) {
+  const d = dayRec(hr); const i = d.entries.findIndex(e => e.id === id);
+  if (i < 0) return;
+  const e = d.entries[i]; d.entries.splice(i, 1);
+  if (e.prevExpected !== undefined) d.expected = e.prevExpected;
+  saveAtt(); queue({ op: 'delete', id });
+}
+function seedDemoChecks() {
+  if (ui.role === 'Admin') return;
+  const hr = myHomeroom(); const d = dayRec(hr); if (d.entries.length) return;
+  const n = nowMins(); if (isWeekend() || n < 8 * 60 + 50) return;
+  const en = enrolled(hr);
+  d.entries.push({ id: uid(), t: '08:47', count: en - 1, point: SA_AM, status: 'safe', expected: en, note: '1 absent at Safe Arrival', prevExpected: null });
+  d.expected = en - 1;
+  if (n > 11 * 60 + 12) d.entries.push({ id: uid(), t: '11:12', count: en - 1, point: 'After recess / break', status: 'ok', expected: en - 1 });
+  saveAtt();
+}
+function suggestion(hr) {
+  const n = nowMins(); const d = dayRec(hr); let best = null;
+  (D.bells || []).filter(b => b.checkpoint).forEach(b => {
+    const bm = toMins(b.start);
+    if (n >= bm - 10 && n <= bm + 25) {
+      const done = d.entries.some(e => { const em = toMins(e.t); return e.point === b.checkpoint && em >= bm - 10 && em <= bm + 25; });
+      if (!done && (!best || Math.abs(n - bm) < Math.abs(n - best.m))) best = { m: bm, t: b.start, p: b.checkpoint, label: b.label };
+    }
+  });
+  return best;
+}
+function lastCheck(hr) {
+  const e = dayRec(hr).entries.filter(x => x.status !== 'adjust');
+  return e.length ? e[e.length - 1] : null;
+}
+
+/* ======================================================================
+   VIEWS
+   ====================================================================== */
+const app = document.getElementById('app');
+const tabsEl = document.getElementById('tabs');
+const TABS = [['home', 'Home'], ['check', 'Attendance'], ['duty', 'Yard Duty'], ['lookup', 'Lookup'], ['tools', 'Tools']];
+
+function header(title, sub, right) {
+  return '<header class="top"><div style="min-width:0"><h1>' + title + '</h1>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>' + (right || '') + '</header>';
+}
+function demoBanner() {
+  if (!DEMO || ui.tab !== 'home') return '';
+  return '<div class="banner info noprint"><div><b>Demo with invented names</b>Nothing is saved to a school Sheet. View as:</div><div class="seg" style="min-width:200px"><button type="button" data-act="demoRole" data-arg="Teacher" aria-pressed="' + (ui.role !== 'Admin') + '">Teacher</button><button type="button" data-act="demoRole" data-arg="Admin" aria-pressed="' + (ui.role === 'Admin') + '">Office</button></div></div>';
+}
+
+/* ---------- sign-in ---------- */
+function viewSignin() {
+  return '<div class="signin"><div class="stack" style="max-width:360px">' +
+    '<div class="mark">' + ICON.mark + '</div><h1 style="font-size:28px">WPS Staff Hub</h1>' +
+    '<p class="muted">Attendance checks, yard duty, schedules and classroom tools for Winchester staff. Sign in with your board Google account.</p>' +
+    '<button class="btn block" type="button" data-act="signin"' + (ui.loading ? ' disabled' : '') + '>' + (ui.loading ? 'Checking your account…' : 'Sign in with Google') + '</button>' +
+    (ui.authError ? '<p class="small" style="color:var(--bad)">' + esc(ui.authError) + '</p>' : '') +
+    '</div></div>';
+}
+
+/* ---------- home ---------- */
+function bellNow() {
+  const n = nowMins(); const cur = D.bells.find(b => toMins(b.start) <= n && n < (toMins(b.end) || toMins(b.start) + 1));
+  const next = D.bells.find(b => toMins(b.start) > n);
+  return { cur, next };
+}
+function dutiesFor(dayIdx, mineOnly) {
+  const date = new Date(monday(new Date())); date.setDate(date.getDate() + dayIdx); const dk = dkey(date);
+  const rows = D.duty.filter(r => dayMatches(r.day, dayIdx)).map(r => {
+    const ch = D.dutyChanges.find(c => c.date === dk && c.location.toLowerCase() === r.location.toLowerCase() && (!c.block || c.block.toLowerCase() === r.block.toLowerCase()));
+    return Object.assign({}, r, ch ? { staff: ch.coveredBy || r.staff, covering: ch.replacing || r.staff, note: ch.note } : {});
+  });
+  return mineOnly ? rows.filter(r => isMe(r.staff)) : rows;
+}
+function viewHome() {
+  const now = new Date(); const weekend = isWeekend();
+  const first = (D.me.name || '').replace(/^(Mr|Mrs|Ms|Mx|Mme|M|Dr)\.?\s+/i, '').split(' ')[0];
+  const hr = myHomeroom();
+  const greet = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
+  let h = header(greet + (first && !/demo/i.test(first) ? ', ' + esc(first) : ''), longDate(now) + ' · ' + esc(school()));
+  h += '<div class="stack">' + demoBanner();
+  const { cur, next } = bellNow();
+  h += '<div class="grid2">';
+  // right now
+  h += '<section class="card now"><div class="label">Right now</div>';
+  if (weekend) h += '<div class="big">No school today</div><div class="muted small">Schedules below show Monday.</div>';
+  else if (cur) h += '<div class="big">' + esc(cur.label) + '</div><div class="muted small num">Until ' + nice(cur.end) + (next ? ' · then ' + esc(next.label) : '') + '</div>';
+  else if (next) h += '<div class="big">' + esc(next.label) + ' at ' + nice(next.start) + '</div><div class="muted small">Next bell</div>';
+  else h += '<div class="big">School day is over</div>';
+  if (!weekend && !isOffice() && hr) {
+    const lc = lastCheck(hr); const ago = lc ? nowMins() - toMins(lc.t) : null; const sug = suggestion(hr);
+    h += '<div class="row between wrapflex" style="margin-top:10px">' +
+      (sug ? '<span class="pill warn">Attendance check due ' + nice(sug.t) + '</span>' : lc ? '<span class="pill ' + (ago > 75 ? 'warn' : 'ok') + ' num">' + esc(hr) + ' checked ' + (ago < 1 ? 'just now' : ago + ' min ago') + '</span>' : '<span class="pill warn">No checks yet today</span>') +
+      '<button class="btn" type="button" data-act="tab" data-arg="check">Check now</button></div>';
+  }
+  h += '</section>';
+  // my duty
+  const di = schoolDayIndex(); const mine = dutiesFor(di, true).sort((a, b) => toMins(a.start) - toMins(b.start));
+  h += '<section class="card stack-s"><div class="row between"><div class="label">Your yard duty ' + (weekend ? 'Monday' : 'today') + '</div><button class="linkbtn small" type="button" data-act="tab" data-arg="duty">Full schedule</button></div>';
+  if (!mine.length) h += '<p class="muted">No duty ' + (weekend ? 'on Monday' : 'today') + '.</p>';
+  mine.forEach(r => {
+    const on = !weekend && toMins(r.start) <= nowMins() && nowMins() < toMins(r.end);
+    h += '<div class="duty-row mine"><span>' + esc(r.location) + '<small>' + esc(r.block) + (r.covering && r.covering !== r.staff ? ' · covering for ' + esc(r.covering) : '') + '</small></span><span class="num">' + (on ? '<span class="pill bad">On duty now</span> ' : '') + nice(r.start) + '–' + nice(r.end) + '</span></div>';
+  });
+  h += '</section></div>';
+  // office board or class schedule
+  if (isOffice()) h += viewBoard(true);
+  if (hr && !isOffice()) {
+    const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, di)).sort((a, b) => toMins(a.start) - toMins(b.start));
+    h += '<div class="grid2">';
+    h += '<section class="card stack-s"><div class="row between"><div class="label">' + esc(hr) + ' ' + (weekend ? 'Monday' : 'today') + '</div><button class="linkbtn small" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Class list</button></div>';
+    h += sched.length ? timeline(sched.map(s => ({ start: s.start, end: s.end, title: s.subject, sub: [s.teacher, s.room && 'Room ' + s.room.replace(/^room\s*/i, '')].filter(Boolean).join(' · ') })), weekend) : '<p class="muted">No timetable entered for this class yet.</p>';
+    h += '</section>';
+    h += '<section class="card stack-s"><div class="label">Bell schedule</div>' + timeline(D.bells.map(b => ({ start: b.start, end: b.end, title: b.label })), weekend) + '</section></div>';
+  } else if (!isOffice() || D.bells.length) {
+    h += '<section class="card stack-s"><div class="label">Bell schedule</div>' + timeline(D.bells.map(b => ({ start: b.start, end: b.end, title: b.label })), weekend) + '</section>';
+  }
+  h += '<p class="small muted noprint" style="text-align:center">Signed in as ' + esc(D.me.name || D.me.email) + ' · ' + esc(D.me.role) + (DEMO ? '' : ' · <button class="linkbtn" type="button" data-act="refresh">Refresh data</button> · <button class="linkbtn" type="button" data-act="signout">Sign out</button>') + '</p>';
+  return h + '</div>';
+}
+function timeline(items, weekend) {
+  const n = nowMins();
+  return '<ul class="timeline">' + items.map(i => {
+    const s = toMins(i.start), e = toMins(i.end) || s + 1;
+    const cls = weekend ? '' : n >= s && n < e ? 'cur' : n >= e ? 'past' : '';
+    return '<li class="' + cls + '"><span class="tm">' + nice(i.start) + '</span><span>' + esc(i.title) + (i.sub ? '<small class="muted" style="display:block;font-weight:400;font-size:13px">' + esc(i.sub) + '</small>' : '') + '</span></li>';
+  }).join('') + '</ul>';
+}
+
+/* ---------- attendance ---------- */
+function viewCheck() {
+  const hrs = homerooms();
+  let h = header('Attendance', 'Student Attendance Verification', syncPill());
+  h += '<div class="stack">' + demoBanner();
+  h += '<div class="seg noprint" role="group" aria-label="Attendance view"><button type="button" data-act="checkView" data-arg="class" aria-pressed="' + (ui.checkView === 'class') + '">Check</button><button type="button" data-act="checkView" data-arg="week" aria-pressed="' + (ui.checkView === 'week') + '">Weekly form</button>' + (isOffice() ? '<button type="button" data-act="checkView" data-arg="board" aria-pressed="' + (ui.checkView === 'board') + '">All classes</button>' : '') + '</div>';
+  if (ui.checkView === 'board') return h + viewBoard(false) + '</div>';
+  h += '<div class="field noprint"><label class="label" for="hr-pick">Class you are with</label><select id="hr-pick" data-change="hr">' + hrs.map(x => '<option' + (x === myHomeroom() ? ' selected' : '') + '>' + esc(x) + '</option>').join('') + '</select></div>';
+  if (ui.checkView === 'week') return h + viewWeek() + '</div>';
+  return h + viewCheckClass() + '</div>';
+}
+function viewCheckClass() {
+  const hr = myHomeroom(); if (!hr) return '<p class="empty">No classes yet. Add students to the Students tab of the Sheet.</p>';
+  const d = dayRec(hr), ex = expectedFor(hr), en = enrolled(hr), sug = suggestion(hr);
+  const hasSA = d.entries.some(e => e.point === SA_AM);
+  if (ui.point == null) ui.point = sug ? sug.p : (hasSA ? POINTS[0] : SA_AM);
+  const isSA = ui.point === SA_AM || ui.point === SA_PM;
+  if (ui.count == null) ui.count = ui.point === SA_AM && !hasSA ? en : ex;
+  const diff = !isSA && ui.count !== ex;
+  let h = '';
+  if (isWeekend()) h += '<div class="banner info"><div><b>It\'s the weekend</b>Checks made today won\'t appear on the Monday–Friday form.</div></div>';
+  if (ui.alarm) {
+    h += '<section class="alarm" aria-live="assertive"><h2>Call the office now</h2>' + (officeExt() ? '<p style="margin-top:6px;font-size:18px"><b>Office: ext. ' + esc(officeExt()) + '</b></p>' : '') +
+      '<ul><li>Tell the office and principal/designate the count, the time and where students last were.</li><li>Keep the rest of the class supervised.</li><li>The school starts its response: parent/guardian contact and, if needed, missing-student protocols.</li></ul>' +
+      '<button class="btn block" type="button" data-act="located">Student located – record it</button></section>';
+  }
+  h += '<section class="card"><div class="expected"><div><div class="label">Expected in ' + esc(hr) + ' now</div><div class="big num">' + ex + '</div><div class="muted small num">' + en + ' on the class list' + (en !== ex ? ' · ' + (en - ex) + ' away' : '') + '</div></div>' +
+    '<div class="row"><button class="chipbtn" type="button" data-act="adj" data-arg="down" aria-expanded="' + (ui.adjOpen === 'down') + '">− Left</button><button class="chipbtn" type="button" data-act="adj" data-arg="up" aria-expanded="' + (ui.adjOpen === 'up') + '">+ Arrived</button></div></div>';
+  if (ui.adjOpen) h += '<div class="reasons">' + (ui.adjOpen === 'down' ? PERM_DOWN : PERM_UP).map(r => '<button class="reason" type="button" data-act="adjReason" data-arg="' + esc(r[0]) + '">' + esc(r[0]) + '<small>' + esc(r[1]) + '</small></button>').join('') + '</div>';
+  h += '</section>';
+  h += '<section class="card stack" aria-label="Attendance check"><div><div class="label" style="margin-bottom:8px">Checkpoint' + (sug ? ' <span class="due">· due ' + nice(sug.t) + '</span>' : '') + '</div><div class="chips">' +
+    ALL_POINTS.map(p => '<button class="chip" type="button" data-act="point" data-arg="' + esc(p) + '" aria-pressed="' + (ui.point === p) + '">' + esc(p) + '</button>').join('') + '</div></div>';
+  h += '<div class="dial"><button class="step" type="button" data-act="step" data-arg="-1" aria-label="One fewer">−</button><div class="count' + (diff ? ' diff' : '') + '"><div class="n">' + ui.count + '</div><div class="of">' + (isSA ? 'present at Safe Arrival' : 'counted · expected ' + ex) + '</div></div><button class="step" type="button" data-act="step" data-arg="1" aria-label="One more">+</button></div>';
+  if (!ui.disc) h += '<button class="go' + (isSA ? ' sa' : diff ? ' diff' : '') + '" type="button" data-act="confirm">' + (isSA ? 'Record ' + ui.count + ' present' : diff ? 'Count is ' + ui.count + ' – expected ' + ex : '✓ All ' + ex + ' here') + '</button>';
+  h += '</section>';
+  if (ui.disc) {
+    const Dd = ui.disc, dd = Dd.expected - Dd.count;
+    h += '<section class="card disc" id="disc" aria-live="assertive"><h2>' + (dd > 0 ? dd + ' student' + (dd > 1 ? 's' : '') + ' not accounted for' : Math.abs(dd) + ' more than expected') + '</h2><p class="small">Counted ' + Dd.count + ' of ' + Dd.expected + ' at ' + nice(Dd.t) + '.</p><ol>';
+    h += '<li><b>Recount.</b><div class="reasons"><button class="reason" type="button" data-act="recountOk">Recount matches ' + Dd.expected + '<small>Log as confirmed</small></button><button class="reason" type="button" data-act="recountEdit">Recount is different<small>Change the number</small></button></div></li>';
+    h += '<li><b>Explain it.</b> ' + (dd > 0 ? 'Where are they?' : 'Who joined?') + '<div class="reasons">';
+    if (dd > 0) {
+      h += TEMP_REASONS.map(r => '<button class="reason" type="button" data-act="temp" data-arg="' + esc(r[0]) + '">' + esc(r[0]) + '<small>' + esc(r[1]) + '</small></button>').join('');
+      h += PERM_DOWN.map(r => '<button class="reason" type="button" data-act="perm" data-arg="' + esc(r[0]) + '">' + esc(r[0]) + '<small>Lowers the expected count</small></button>').join('');
+    } else {
+      h += PERM_UP.map(r => '<button class="reason" type="button" data-act="perm" data-arg="' + esc(r[0]) + '">' + esc(r[0]) + '<small>Raises the expected count</small></button>').join('');
+      h += '<button class="reason" type="button" data-act="temp" data-arg="Visiting student">Visiting student<small>From another class</small></button>';
+    }
+    h += '</div></li><li><b>Can\'t explain it?</b><div style="margin-top:8px"><button class="go diff" type="button" data-act="escalate">Notify office now</button></div></li></ol></section>';
+  }
+  h += '<section class="card"><div class="label" style="margin-bottom:6px">Today in ' + esc(hr) + '</div>';
+  if (!d.entries.length) h += '<p class="empty">No checks yet. Start with Safe Arrival, then one tap at each transition.</p>';
+  else {
+    h += '<ul class="log">' + d.entries.slice().reverse().map(e => {
+      const pill = e.status === 'resolved' ? '<span class="pill warn">Explained</span>' : e.status === 'escalated' ? '<span class="pill bad">Office notified</span>' : e.status === 'located' ? '<span class="pill ok">Located</span>' : e.status === 'adjust' ? '<span class="pill info">Count change</span>' : '';
+      return '<li><span class="t num">' + nice(e.t) + '</span><span class="c num">' + e.count + '</span><span class="p">' + esc(e.point) + (e.note ? '<small>' + esc(e.note) + '</small>' : '') + '</span><span class="row" style="gap:4px">' + pill + '<button class="x" type="button" data-act="del" data-arg="' + e.id + '" aria-label="Delete this check">✕</button></span></li>';
+    }).join('') + '</ul>';
+  }
+  return h + '</section>';
+}
+function viewWeek() {
+  const hr = myHomeroom(); const mon = monday(new Date()); mon.setDate(mon.getDate() + ui.weekOffset * 7);
+  const fri = new Date(mon); fri.setDate(mon.getDate() + 4);
+  const wkKey = hr + '|' + dkey(mon);
+  if (!DEMO && (!ui.week || ui.week.key !== wkKey)) { ui.week = { key: wkKey, rows: null }; api('week', { homeroom: hr, monday: dkey(mon) }).then(r => { if (ui.week && ui.week.key === wkKey) { ui.week.rows = r.rows || []; render(); } }).catch(() => { if (ui.week && ui.week.key === wkKey) { ui.week.rows = []; render(); } }); }
+  const days = []; let total = 0, flags = 0; const notes = [];
+  for (let i = 0; i < 5; i++) {
+    const dt = new Date(mon); dt.setDate(mon.getDate() + i); const dk = dkey(dt);
+    const local = (A.days[dk + '|' + hr] || { entries: [] }).entries.map(e => ({ id: e.id, t: e.t, count: e.count, point: e.point, status: e.status, note: e.note }));
+    const ids = new Set(local.map(e => e.id));
+    const server = (ui.week && ui.week.rows || []).filter(r => r.date === dk && !ids.has(r.id)).map(r => ({ id: r.id, t: r.time, count: r.count, point: r.checkpoint, status: r.status, note: r.note }));
+    const all = local.concat(server).sort((a, b) => toMins(a.t) - toMins(b.t));
+    const checks = all.filter(e => e.status !== 'adjust');
+    all.forEach(e => { if (e.note) notes.push(DOW[i].slice(0, 3) + ' ' + nice(e.t) + ' – ' + e.note); if (e.status === 'escalated') flags++; });
+    total += checks.length; days.push(checks);
+  }
+  const rows = Math.max(8, ...days.map(x => x.length));
+  const label = MON[mon.getMonth()] + ' ' + mon.getDate() + ' – ' + MON[fri.getMonth()] + ' ' + fri.getDate() + ', ' + fri.getFullYear();
+  ui._week = { days, notes, label, hr };
+  let h = '<div class="row between noprint"><button class="chipbtn" type="button" data-act="wk" data-arg="-1">‹ Prev</button><h2 class="num" style="text-align:center">' + label + '</h2><button class="chipbtn" type="button" data-act="wk" data-arg="1"' + (ui.weekOffset >= 0 ? ' disabled' : '') + '>Next ›</button></div>';
+  h += '<p class="small muted noprint num">' + total + ' checks' + (flags ? ' · <b style="color:var(--bad)">' + flags + ' office notification' + (flags > 1 ? 's' : '') + '</b>' : '') + (!DEMO && ui.week && ui.week.rows == null ? ' · loading checks from other devices…' : '') + '</p>';
+  h += '<div class="row wrapflex noprint">' + (FRAMED ? '' : '<button class="btn" type="button" data-act="print">Print / save PDF</button>') + '<button class="btn ghost" type="button" data-act="copyWeek">Copy as text</button></div>';
+  if (!DEMO) h += '<p class="small muted noprint">Every check is already in the office\'s Attendance sheet. Print only if your school also keeps paper copies.</p>';
+  h += '<div class="sheetwrap"><div class="sheet"><h2>Student Attendance Confirmation Tracker (Weekly)</h2>';
+  h += '<div class="hdr"><div>School: <span>' + esc(school()) + '</span></div><div>Homeroom/Class: <span>' + esc(hr) + (teacherOf(hr) ? ' – ' + esc(teacherOf(hr)) : '') + '</span></div><div>Week of: <span>' + MON[mon.getMonth()] + ' ' + mon.getDate() + ', ' + mon.getFullYear() + '</span></div></div>';
+  h += '<p class="inst">Counts and times only. Discrepancies were reconfirmed; unexplained discrepancies were reported to the office/principal at the time shown.</p>';
+  h += '<table><thead><tr>' + DOW.map(n => '<th colspan="2">' + n + ' Count:</th>').join('') + '</tr><tr>' + DOW.map(() => '<th>Time</th><th>Count</th>').join('') + '</tr></thead><tbody>';
+  for (let r = 0; r < rows; r++) {
+    h += '<tr>' + days.map(list => { const e = list[r]; return e ? '<td>' + nice(e.t).replace(' ', '&nbsp;') + '</td><td class="' + (e.status === 'escalated' ? 'flag' : '') + '">' + e.count + (e.status === 'escalated' ? '*' : e.status === 'resolved' ? '†' : '') + '</td>' : '<td>&nbsp;</td><td></td>'; }).join('') + '</tr>';
+  }
+  h += '</tbody></table><div class="notes"><b>Notes impacting count:</b>' + (notes.length ? '<ul>' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ul>' : '') + '<div style="margin-top:4px;font-size:10px">† explained discrepancy · * unexplained, office notified</div></div>';
+  h += '<div class="pts"><b>Presence verified at key points, including:</b><ul><li>the beginning of each instructional period, except when full attendance is completed for Safe Arrival;</li><li>following recesses;</li><li>following transitions between learning spaces;</li><li>following planned activities outside the classroom; and</li><li>following unplanned changes in location or learning environment.</li></ul></div>';
+  h += '<div class="rcv">Date received by office: ______________________</div></div></div>';
+  h += '<textarea id="copybox" class="noprint" readonly hidden style="min-height:160px;font:13px/1.4 ui-monospace,monospace"></textarea>';
+  return h;
+}
+function weekText() {
+  const w = ui._week;
+  let t = 'Student Attendance Confirmation Tracker\nSchool: ' + school() + '\nClass: ' + w.hr + '\nWeek: ' + w.label + '\n\n';
+  w.days.forEach((list, i) => { t += DOW[i] + ': ' + (list.length ? list.map(e => nice(e.t) + ' – ' + e.count + (e.status === 'escalated' ? ' (unexplained, office notified)' : e.status === 'resolved' ? ' (explained)' : '')).join('; ') : 'no checks recorded') + '\n'; });
+  return t + '\nNotes impacting count:\n' + (w.notes.length ? w.notes.map(n => '- ' + n).join('\n') : '- none') + '\n';
+}
+function viewBoard(compact) {
+  if (!DEMO && (!ui.live || Date.now() - ui.liveAt > 60000) && !ui._liveLoading) {
+    ui._liveLoading = true;
+    api('live').then(r => { ui.live = r.rows || []; ui.liveAt = Date.now(); ui._liveLoading = false; render(); }).catch(() => { ui._liveLoading = false; });
+  }
+  const rows = DEMO ? demoLive() : (ui.live || []);
+  const n = nowMins(); const inDay = !isWeekend() && n >= 8 * 60 + 45 && n <= 15 * 60 + 15;
+  const hrs = homerooms();
+  const list = hrs.map(hr => {
+    const mine = rows.filter(r => r.Homeroom === hr).sort((a, b) => toMins(a.Time) - toMins(b.Time));
+    const last = mine.filter(r => r.Status !== 'Adjust').pop();
+    const unresolved = mine.some(r => r.Status === 'Escalated') && !mine.some(r => r.Status === 'Located' && toMins(r.Time) >= toMins((mine.filter(x => x.Status === 'Escalated').pop() || {}).Time));
+    const ago = last ? n - toMins(last.Time) : null;
+    const state = unresolved ? 'bad' : !last ? (inDay ? 'warn' : '') : (inDay && ago > 75 ? 'warn' : 'ok');
+    return { hr, last, ago, state, unresolved };
+  });
+  const flagged = list.filter(x => x.state === 'bad').length, stale = list.filter(x => x.state === 'warn').length;
+  let h = '<section class="card stack-s"><div class="row between wrapflex"><div class="label">All classes today</div><div class="row">' +
+    (flagged ? '<span class="pill bad">' + flagged + ' unexplained</span>' : '') + (stale ? '<span class="pill warn">' + stale + ' not checked recently</span>' : '') + (!flagged && !stale ? '<span class="pill ok">All accounted for</span>' : '') +
+    (compact ? '<button class="linkbtn small" type="button" data-act="openBoard">Open</button>' : '') + '</div></div>';
+  if (!DEMO && !ui.live) h += '<p class="empty">Loading…</p>';
+  else h += '<div class="board">' + list.filter(x => !compact || x.state !== 'ok').map(x =>
+    '<div class="cls ' + x.state + '"><b>' + esc(x.hr) + '</b><span class="num">' + (x.last ? x.last.Count + ' / ' + x.last.Expected : '—') + '</span><small class="num">' +
+    esc(teacherOf(x.hr) || 'No teacher listed') + ' · ' + (x.last ? 'last check ' + nice(x.last.Time) + ' (' + x.ago + ' min ago)' + (x.unresolved ? ' · OFFICE NOTIFIED – call ' + esc(x.last['Staff Name'] || 'the class') : '') : 'no checks yet') + '</small></div>').join('') + '</div>';
+  if (compact && !flagged && !stale) h += '<p class="small muted">Every class has checked in within the last 75 minutes.</p>';
+  if (!compact) h += '<p class="small muted">Refreshes every minute. Red means a teacher pressed "Notify office now" and hasn\'t recorded the student as located.</p>';
+  return h + '</section>';
+}
+
+/* ---------- duty ---------- */
+function viewDuty() {
+  const weekend = isWeekend(); const di = ui.dutyDay;
+  const rows = dutiesFor(di, prefs.dutyMine);
+  const blocks = []; rows.forEach(r => { let b = blocks.find(x => x.block === r.block && x.start === r.start); if (!b) blocks.push(b = { block: r.block, start: r.start, end: r.end, rows: [] }); b.rows.push(r); });
+  blocks.sort((a, b) => toMins(a.start) - toMins(b.start));
+  let h = header('Yard Duty', weekend ? 'Showing this coming week' : 'This week');
+  h += '<div class="stack">' + demoBanner();
+  h += '<div class="seg" role="group" aria-label="Day">' + DOW.map((d, i) => '<button type="button" data-act="dutyDay" data-arg="' + i + '" aria-pressed="' + (di === i) + '">' + d.slice(0, 3) + (i === schoolDayIndex() && !weekend ? ' •' : '') + '</button>').join('') + '</div>';
+  h += '<label class="row small" for="dutyMine"><input type="checkbox" id="dutyMine" data-change="dutyMine" style="width:20px;height:20px"' + (prefs.dutyMine ? ' checked' : '') + '> Only my duties</label>';
+  if (!blocks.length) h += '<div class="card"><p class="empty">' + (prefs.dutyMine ? 'You have no duty on ' + DOW[di] + '.' : 'No duty schedule for ' + DOW[di] + ' yet.') + '</p></div>';
+  const isToday = !weekend && di === schoolDayIndex(); const n = nowMins();
+  blocks.forEach(b => {
+    const on = isToday && toMins(b.start) <= n && n < toMins(b.end);
+    h += '<section class="card duty-block"><div class="row between"><h3>' + esc(b.block || 'Duty') + '</h3><span class="row small num">' + (on ? '<span class="pill bad">Now</span>' : '') + nice(b.start) + '–' + nice(b.end) + '</span></div>';
+    b.rows.forEach(r => {
+      const mine = isMe(r.staff);
+      h += '<div class="duty-row' + (mine ? ' mine' : '') + '"><span>' + esc(r.location) + (r.covering && r.covering !== r.staff ? '<small>Change today · covering for ' + esc(r.covering) + (r.note ? ' · ' + esc(r.note) : '') + '</small>' : '') + '</span><span>' + esc(r.staff || 'Unassigned') + (mine ? ' (you)' : '') + '</span></div>';
+    });
+    h += '</section>';
+  });
+  return h + '</div>';
+}
+
+/* ---------- lookup ---------- */
+function viewLookup() {
+  if (ui.cls) return viewClass(ui.cls);
+  let h = header('Lookup', esc(D.students.length + ' students · ' + D.staff.length + ' staff · ' + homerooms().length + ' classes'));
+  h += '<div class="stack">' + demoBanner();
+  h += '<div class="seg" role="group" aria-label="Lookup"><button type="button" data-act="lookup" data-arg="students" aria-pressed="' + (ui.lookup === 'students') + '">Students</button><button type="button" data-act="lookup" data-arg="staff" aria-pressed="' + (ui.lookup === 'staff') + '">Staff</button><button type="button" data-act="lookup" data-arg="classes" aria-pressed="' + (ui.lookup === 'classes') + '">Classes</button></div>';
+  if (ui.lookup !== 'classes') h += '<div class="search">' + ICON.search + '<input id="q" type="search" data-input="q" placeholder="' + (ui.lookup === 'students' ? 'Search students by name, grade or room' : 'Search staff by name, role or room') + '" value="' + esc(ui.q) + '" autocomplete="off"></div>';
+  h += '<section class="card" id="results">' + lookupResults() + '</section>';
+  return h + '</div>';
+}
+function lookupResults() {
+  const q = ui.q.trim().toLowerCase();
+  if (ui.lookup === 'students') {
+    if (!q) return '<p class="empty">Type a name to find a student\'s class and teacher.</p>';
+    const res = D.students.filter(s => (s.first + ' ' + s.last + ' ' + s.last + ' ' + s.homeroom + ' grade ' + s.grade).toLowerCase().includes(q)).slice(0, 60);
+    if (!res.length) return '<p class="empty">No student matches "' + esc(ui.q) + '".</p>';
+    return '<ul class="list">' + res.map(s => '<li><span class="avatar">' + esc(initials(s.first + ' ' + s.last)) + '</span><span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade || '?') + ' · ' + esc(teacherOf(s.homeroom) || 'No teacher listed') + '</small></span><button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button></li>').join('') + '</ul>';
+  }
+  if (ui.lookup === 'staff') {
+    const res = D.staff.filter(s => !q || (s.name + ' ' + s.role + ' ' + s.room + ' ' + s.homeroom + ' ' + s.assignment).toLowerCase().includes(q));
+    if (!res.length) return '<p class="empty">No staff match "' + esc(ui.q) + '".</p>';
+    const di = schoolDayIndex(), n = nowMins();
+    const onNow = isWeekend() ? [] : D.duty.filter(r => dayMatches(r.day, di) && toMins(r.start) <= n && n < toMins(r.end));
+    return '<ul class="list">' + res.map(s => {
+      const duty = onNow.find(r => String(r.staff).toLowerCase().includes(s.name.toLowerCase()));
+      return '<li><span class="avatar">' + esc(initials(s.name)) + '</span><span class="main"><b>' + esc(s.name) + '</b><small>' + esc([s.assignment || s.role, s.room && (/^\d/.test(s.room) ? 'Room ' + s.room : s.room), s.ext && 'ext. ' + s.ext].filter(Boolean).join(' · ')) + '</small>' + (duty ? '<span class="pill warn" style="margin-top:4px">On duty: ' + esc(duty.location) + '</span>' : '') + '</span>' + (s.homeroom ? '<button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button>' : '') + '</li>';
+    }).join('') + '</ul>';
+  }
+  return '<ul class="list">' + homerooms().map(hr => '<li><span class="main"><b>' + esc(hr) + '</b><small>' + esc((gradesOf(hr) ? 'Grade ' + gradesOf(hr) + ' · ' : '') + (teacherOf(hr) || 'No teacher listed')) + '</small></span><span class="muted small num">' + roster(hr).length + ' students</span><button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Open</button></li>').join('') + '</ul>';
+}
+function viewClass(hr) {
+  const list = roster(hr); const di = ui.clsDay;
+  let h = '<header class="top"><div style="min-width:0"><button class="linkbtn small" type="button" data-act="closeClass">‹ Lookup</button><h1 style="margin-top:4px">' + esc(hr) + '</h1><div class="sub">' + esc((gradesOf(hr) ? 'Grade ' + gradesOf(hr) + ' · ' : '') + (teacherOf(hr) || 'No teacher listed')) + '</div></div></header>';
+  h += '<div class="stack"><div class="row wrapflex"><button class="btn" type="button" data-act="checkClass" data-arg="' + esc(hr) + '">Take attendance</button><button class="btn ghost" type="button" data-act="toolsClass" data-arg="' + esc(hr) + '">Use in Tools</button></div>';
+  h += '<div class="seg" role="group" aria-label="Class view"><button type="button" data-act="clsView" data-arg="roster" aria-pressed="' + (ui.clsView === 'roster') + '">Class list (' + list.length + ')</button><button type="button" data-act="clsView" data-arg="sched" aria-pressed="' + (ui.clsView === 'sched') + '">Timetable</button></div>';
+  if (ui.clsView === 'roster') {
+    h += '<section class="card">' + (list.length ? '<ul class="list">' + list.map(s => '<li><span class="avatar">' + esc(initials(s.first + ' ' + s.last)) + '</span><span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade) + '</small></span></li>').join('') + '</ul>' : '<p class="empty">No students listed for this class.</p>') + '</section>';
+  } else {
+    const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, di)).sort((a, b) => toMins(a.start) - toMins(b.start));
+    h += '<div class="seg" role="group" aria-label="Day">' + DOW.map((d, i) => '<button type="button" data-act="clsDay" data-arg="' + i + '" aria-pressed="' + (di === i) + '">' + d.slice(0, 3) + '</button>').join('') + '</div>';
+    h += '<section class="card">' + (sched.length ? timeline(sched.map(s => ({ start: s.start, end: s.end, title: s.subject, sub: [s.teacher, s.room && (/^\d/.test(s.room) ? 'Room ' + s.room : s.room)].filter(Boolean).join(' · ') })), isWeekend() || di !== schoolDayIndex()) : '<p class="empty">No timetable entered for ' + DOW[di] + '.</p>') + '</section>';
+  }
+  return h + '</div>';
+}
+
+/* ---------- tools ---------- */
+function toolNames() {
+  if (prefs.toolSrc === '__custom') return prefs.custom.split(/\n|,/).map(s => s.trim()).filter(Boolean);
+  const hr = prefs.toolSrc && homerooms().includes(prefs.toolSrc) ? prefs.toolSrc : myHomeroom();
+  const list = roster(hr); const dupes = {};
+  list.forEach(s => { dupes[s.first] = (dupes[s.first] || 0) + 1; });
+  return list.map(s => dupes[s.first] > 1 ? s.first + ' ' + (s.last[0] || '') + '.' : s.first);
+}
+function sourcePicker() {
+  const cur = prefs.toolSrc || myHomeroom();
+  return '<div class="stack-s"><label class="label" for="src">Names from</label><select id="src" data-change="toolSrc">' + homerooms().map(hr => '<option value="' + esc(hr) + '"' + (cur === hr ? ' selected' : '') + '>' + esc(hr) + (teacherOf(hr) ? ' – ' + esc(teacherOf(hr)) : '') + '</option>').join('') + '<option value="__custom"' + (cur === '__custom' ? ' selected' : '') + '>My own list…</option></select>' +
+    (cur === '__custom' ? '<textarea id="custom" data-input="custom" rows="4" placeholder="One name per line">' + esc(prefs.custom) + '</textarea>' : '') + '</div>';
+}
+function viewTools() {
+  let h = header('Classroom Tools', '');
+  h += '<div class="stack">' + demoBanner();
+  h += '<div class="seg" role="group" aria-label="Tool"><button type="button" data-act="tool" data-arg="wheel" aria-pressed="' + (ui.tool === 'wheel') + '">Name wheel</button><button type="button" data-act="tool" data-arg="timer" aria-pressed="' + (ui.tool === 'timer') + '">Timer</button><button type="button" data-act="tool" data-arg="groups" aria-pressed="' + (ui.tool === 'groups') + '">Groups</button></div>';
+  if (ui.tool === 'wheel') {
+    const names = toolNames().filter(n => !ui.wheelOut.includes(n));
+    h += '<section class="card stack">' + sourcePicker();
+    h += '<div class="wheelbox"><canvas id="wheel" width="680" height="680" aria-label="Name wheel with ' + names.length + ' names"></canvas><div class="pointer"></div></div>';
+    h += '<button class="go sa" type="button" data-act="spin"' + (names.length < 2 ? ' disabled' : '') + '>Spin</button>';
+    if (ui.winner) h += '<div class="winner" aria-live="polite"><div class="label">Selected</div><div class="name">' + esc(ui.winner) + '</div><div class="row" style="justify-content:center;margin-top:8px"><button class="chipbtn" type="button" data-act="removeWinner">Remove from wheel</button></div></div>';
+    h += '<p class="small muted num">' + names.length + ' names on the wheel' + (ui.wheelOut.length ? ' · ' + ui.wheelOut.length + ' removed · <button class="linkbtn" type="button" data-act="resetWheel">Put everyone back</button>' : '') + '</p></section>';
+  } else if (ui.tool === 'timer') {
+    const T = timer; const rem = Math.max(0, Math.ceil(T.remaining / 1000));
+    h += '<section class="card stack"><div class="timerface' + (T.done ? ' done' : '') + '" id="timerface"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="10"/><circle id="ring" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="' + (326.7 * (1 - (T.total ? T.remaining / T.total : 1))).toFixed(1) + '"/></svg><div class="digits" id="digits" role="timer">' + fmt(rem) + '</div></div>';
+    h += '<div class="chips" style="justify-content:center">' + [1, 2, 3, 5, 10, 15].map(m => '<button class="chip" type="button" data-act="preset" data-arg="' + m + '" aria-pressed="' + (T.total === m * 60000) + '">' + m + ' min</button>').join('') + '</div>';
+    h += '<div class="row" style="justify-content:center"><button class="chipbtn" type="button" data-act="nudge" data-arg="-30">−30 s</button><button class="chipbtn" type="button" data-act="nudge" data-arg="30">+30 s</button><button class="chipbtn" type="button" data-act="nudge" data-arg="60">+1 min</button></div>';
+    h += '<div class="row"><button class="go ' + (T.running ? 'diff' : 'sa') + '" type="button" data-act="timerGo" style="flex:2">' + (T.running ? 'Pause' : T.remaining < T.total && T.remaining > 0 ? 'Resume' : 'Start') + '</button><button class="btn ghost" type="button" data-act="timerReset" style="flex:1;padding:18px">Reset</button></div>';
+    h += '<p class="small muted" style="text-align:center">Plays a chime at zero. Keep the sound on.</p></section>';
+  } else {
+    const names = toolNames();
+    h += '<section class="card stack">' + sourcePicker();
+    h += '<div class="stack-s"><div class="label">Tap anyone who is away</div><div class="namepick">' + names.map(n => '<button type="button" data-act="absent" data-arg="' + esc(n) + '" aria-pressed="' + !ui.absent[n] + '">' + esc(n) + '</button>').join('') + '</div></div>';
+    const present = names.filter(n => !ui.absent[n]).length;
+    h += '<div class="row wrapflex"><div class="seg" style="flex:1;min-width:220px"><button type="button" data-act="groupMode" data-arg="count" aria-pressed="' + (ui.groupMode === 'count') + '">Number of groups</button><button type="button" data-act="groupMode" data-arg="size" aria-pressed="' + (ui.groupMode === 'size') + '">People per group</button></div>' +
+      '<div class="row"><button class="chipbtn" type="button" data-act="groupN" data-arg="-1" aria-label="Fewer">−</button><b class="num" style="min-width:28px;text-align:center;font-size:20px">' + ui.groupN + '</b><button class="chipbtn" type="button" data-act="groupN" data-arg="1" aria-label="More">+</button></div></div>';
+    h += '<button class="go sa" type="button" data-act="makeGroups"' + (present < 2 ? ' disabled' : '') + '>' + (ui.groups ? 'Shuffle again' : 'Make groups') + ' (' + present + ' students)</button></section>';
+    if (ui.groups) {
+      const cols = ['--w1', '--w2', '--w4', '--w5', '--w6', '--w3'];
+      h += '<div class="groups">' + ui.groups.map((g, i) => '<div class="group" style="border-top-color:var(' + cols[i % cols.length] + ')"><b>Group ' + (i + 1) + '</b><span class="muted small"> · ' + g.length + '</span><ul>' + g.map(n => '<li>' + esc(n) + '</li>').join('') + '</ul></div>').join('') + '</div>';
+    }
+  }
+  return h + '</div>';
+}
+const fmt = s => Math.floor(s / 60) + ':' + pad(s % 60);
+
+/* ---------- wheel ---------- */
+let wheelRot = 0, spinning = false;
+function drawWheel() {
+  const c = document.getElementById('wheel'); if (!c) return;
+  const names = toolNames().filter(n => !ui.wheelOut.includes(n));
+  const ctx = c.getContext('2d'); const W = c.width, R = W / 2 - 6; const cs = getComputedStyle(document.documentElement);
+  const cols = ['--w1', '--w2', '--w3', '--w4', '--w5', '--w6'].map(v => cs.getPropertyValue(v).trim());
+  ctx.clearRect(0, 0, W, W); ctx.save(); ctx.translate(W / 2, W / 2); ctx.rotate(wheelRot);
+  const n = Math.max(names.length, 1), seg = Math.PI * 2 / n;
+  for (let i = 0; i < n; i++) {
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, R, i * seg, (i + 1) * seg); ctx.closePath();
+    ctx.fillStyle = names.length ? cols[(i % cols.length + (n % cols.length === 1 && i === n - 1 ? 1 : 0)) % cols.length] : cs.getPropertyValue('--line').trim(); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 2; ctx.stroke();
+    if (names[i]) {
+      ctx.save(); ctx.rotate(i * seg + seg / 2); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      const fs = Math.max(14, Math.min(34, (seg * R) * 0.55)); ctx.font = '700 ' + fs + 'px "Atkinson Hyperlegible", system-ui, sans-serif';
+      ctx.fillStyle = '#ffffff'; let label = names[i]; while (ctx.measureText(label).width > R - 70 && label.length > 3) label = label.slice(0, -2) + '…';
+      ctx.fillText(label, R - 18, 0); ctx.restore();
+    }
+  }
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(W / 2, W / 2, 34, 0, Math.PI * 2); ctx.fillStyle = cs.getPropertyValue('--surface').trim(); ctx.fill();
+  ctx.lineWidth = 4; ctx.strokeStyle = cs.getPropertyValue('--ink').trim(); ctx.stroke();
+}
+function spin() {
+  if (spinning) return; const names = toolNames().filter(n => !ui.wheelOut.includes(n)); if (names.length < 2) return;
+  ui.winner = null; const winEl = document.querySelector('.winner'); if (winEl) winEl.remove();
+  const seg = Math.PI * 2 / names.length; const pick = Math.floor(Math.random() * names.length);
+  const pointer = -Math.PI / 2; const target = pointer - (pick * seg + seg * (0.15 + Math.random() * 0.7));
+  const start = wheelRot; let end = target; while (end < start + Math.PI * 2 * 6) end += Math.PI * 2;
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dur = reduce ? 1 : 4200; const t0 = performance.now(); spinning = true;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur); const e = 1 - Math.pow(1 - p, 4);
+    wheelRot = start + (end - start) * e; drawWheel();
+    if (p < 1) requestAnimationFrame(step); else { spinning = false; wheelRot = end % (Math.PI * 2); ui.winner = names[pick]; chime(1); render(); }
+  };
+  requestAnimationFrame(step);
+}
+
+/* ---------- timer ---------- */
+const timer = { total: 300000, remaining: 300000, running: false, endAt: 0, done: false, iv: null };
+let audio = null, wakeLock = null;
+function chime(times) {
+  try {
+    if (!audio) return; const t = audio.currentTime;
+    for (let i = 0; i < times; i++) {
+      const o = audio.createOscillator(), g = audio.createGain(); o.type = 'sine'; o.frequency.value = i % 2 ? 660 : 880;
+      g.gain.setValueAtTime(0.0001, t + i * 0.45); g.gain.exponentialRampToValueAtTime(0.35, t + i * 0.45 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.45 + 0.4);
+      o.connect(g).connect(audio.destination); o.start(t + i * 0.45); o.stop(t + i * 0.45 + 0.42);
+    }
+  } catch (e) {}
+}
+function ensureAudio() { try { if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)(); if (audio.state === 'suspended') audio.resume(); } catch (e) {} }
+function tick() {
+  if (!timer.running) return;
+  timer.remaining = Math.max(0, timer.endAt - Date.now());
+  const dg = document.getElementById('digits'), ring = document.getElementById('ring');
+  if (dg) dg.textContent = fmt(Math.ceil(timer.remaining / 1000));
+  if (ring) ring.setAttribute('stroke-dashoffset', (326.7 * (1 - timer.remaining / timer.total)).toFixed(1));
+  if (timer.remaining <= 0) { timer.running = false; timer.done = true; clearInterval(timer.iv); chime(4); releaseWake(); if (ui.tab === 'tools') render(); else toast('Timer finished'); }
+}
+async function holdWake() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
+function releaseWake() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg, undo) {
+  const el = document.getElementById('toast');
+  el.innerHTML = '<span>' + esc(msg) + '</span>' + (undo ? '<button type="button" id="undo">Undo</button>' : '');
+  el.hidden = false; clearTimeout(toastTimer);
+  if (undo) document.getElementById('undo').onclick = () => { undo(); el.hidden = true; render(); };
+  toastTimer = setTimeout(() => { el.hidden = true; }, undo ? 7000 : 3000);
+}
+
+/* ======================================================================
+   RENDER + EVENTS
+   ====================================================================== */
+function render() {
+  if (!DEMO && (!session || !D)) {
+    tabsEl.hidden = true;
+    app.innerHTML = session && ui.loading ? '<div class="signin"><p class="muted">Loading staff data…</p></div>' : viewSignin();
+    return;
+  }
+  tabsEl.hidden = false;
+  tabsEl.innerHTML = TABS.map(([k, label]) => '<button type="button" data-tab="' + k + '"' + (ui.tab === k ? ' aria-current="page"' : '') + '>' + ICON[k] + label + '</button>').join('');
+  app.innerHTML = ui.tab === 'check' ? viewCheck() : ui.tab === 'duty' ? viewDuty() : ui.tab === 'lookup' ? viewLookup() : ui.tab === 'tools' ? viewTools() : viewHome();
+  if (ui.tab === 'tools' && ui.tool === 'wheel') drawWheel();
+}
+tabsEl.addEventListener('click', e => {
+  const b = e.target.closest('button[data-tab]'); if (!b) return;
+  ui.tab = b.dataset.tab; prefs.tab = ui.tab; savePrefs();
+  ui.point = null; ui.count = null; ui.disc = null; ui.adjOpen = null; ui.cls = ui.tab === 'lookup' ? ui.cls : null;
+  render(); window.scrollTo(0, 0);
+});
+
+function resetCheck() { ui.point = null; ui.count = null; ui.disc = null; ui.alarm = false; ui.adjOpen = null; }
+const ACTIONS = {
+  signin: () => signIn(),
+  signout: () => signOut(),
+  refresh: () => loadData(true).then(() => toast('Data refreshed')),
+  demoRole: a => { ui.role = a; LS.set(K.demoRole, a); D = normalize(demoData(a)); seedDemoChecks(); ui.checkView = a === 'Admin' ? 'board' : 'class'; render(); },
+  tab: a => { ui.tab = a; prefs.tab = a; savePrefs(); resetCheck(); render(); window.scrollTo(0, 0); },
+  openBoard: () => { ui.tab = 'check'; ui.checkView = 'board'; render(); window.scrollTo(0, 0); },
+  checkView: a => { ui.checkView = a; resetCheck(); render(); },
+  point: a => { const hr = myHomeroom(); ui.point = a; const hasSA = dayRec(hr).entries.some(x => x.point === SA_AM); ui.count = a === SA_AM && !hasSA ? enrolled(hr) : expectedFor(hr); ui.disc = null; render(); },
+  step: a => { ui.count = Math.max(0, Math.min(99, ui.count + (+a))); ui.disc = null; render(); },
+  adj: a => { ui.adjOpen = ui.adjOpen === a ? null : a; render(); },
+  adjReason: a => {
+    const hr = myHomeroom(), d = dayRec(hr), prev = expectedFor(hr), delta = ui.adjOpen === 'down' ? -1 : 1;
+    d.expected = Math.max(0, prev + delta);
+    addEntry(hr, { count: d.expected, point: 'Count change', status: 'adjust', note: a + ': expected ' + prev + ' → ' + d.expected, expected: prev, prevExpected: prev });
+    ui.adjOpen = null; ui.count = null; toast('Expected count is now ' + d.expected); render();
+  },
+  confirm: () => {
+    const hr = myHomeroom(), c = ui.count, ex = expectedFor(hr), pt = ui.point, d = dayRec(hr);
+    if (pt === SA_AM || pt === SA_PM) {
+      const prev = d.expected; const en = enrolled(hr);
+      const e = addEntry(hr, { count: c, point: pt, status: 'safe', expected: pt === SA_AM ? en : ex, prevExpected: prev, note: pt === SA_AM && en - c > 0 ? (en - c) + ' absent at Safe Arrival' : (pt === SA_PM && c !== ex ? 'Afternoon count ' + c + ' (was ' + ex + ')' : '') });
+      d.expected = c; saveAtt(); resetCheck(); render();
+      toast(c + ' recorded – this is now the expected count', () => removeEntry(hr, e.id)); return;
+    }
+    if (c === ex) { const e = addEntry(hr, { count: c, point: pt, status: 'ok' }); resetCheck(); render(); toast(c + ' of ' + ex + ' confirmed at ' + nice(e.t), () => removeEntry(hr, e.id)); return; }
+    ui.disc = { count: c, expected: ex, t: hhmm(new Date()) }; render();
+    const el = document.getElementById('disc'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  },
+  recountOk: () => { const hr = myHomeroom(), Dd = ui.disc; const e = addEntry(hr, { count: Dd.expected, point: ui.point, status: 'ok', note: 'Reconfirmed on recount' }); resetCheck(); render(); toast(Dd.expected + ' confirmed on recount', () => removeEntry(hr, e.id)); },
+  recountEdit: () => { ui.disc = null; render(); },
+  temp: a => { const hr = myHomeroom(), Dd = ui.disc, dd = Dd.expected - Dd.count; addEntry(hr, { t: Dd.t, count: Dd.count, point: ui.point, status: 'resolved', expected: Dd.expected, note: a + ' (' + (dd > 0 ? dd + ' out' : Math.abs(dd) + ' extra') + ')' }); resetCheck(); render(); toast('Logged: ' + a); },
+  perm: a => { const hr = myHomeroom(), Dd = ui.disc, d = dayRec(hr), prev = d.expected; addEntry(hr, { t: Dd.t, count: Dd.count, point: ui.point, status: 'resolved', expected: Dd.expected, note: a + ': expected ' + Dd.expected + ' → ' + Dd.count, prevExpected: prev }); d.expected = Dd.count; saveAtt(); resetCheck(); render(); toast('Expected count is now ' + Dd.count); },
+  escalate: () => { const hr = myHomeroom(), Dd = ui.disc; addEntry(hr, { t: Dd.t, count: Dd.count, point: ui.point, status: 'escalated', expected: Dd.expected, note: 'Unexplained: counted ' + Dd.count + ', expected ' + Dd.expected + '. Office notified.' }); ui.alarm = true; ui.disc = null; render(); window.scrollTo(0, 0); },
+  located: () => { const hr = myHomeroom(); const ex = expectedFor(hr); addEntry(hr, { count: ex, point: 'Student located', status: 'located', note: 'Student located; count back to ' + ex }); ui.alarm = false; render(); toast('Recorded – the office board is updated'); },
+  del: a => { removeEntry(myHomeroom(), a); render(); toast('Check deleted'); },
+  wk: a => { const n = ui.weekOffset + (+a); if (n <= 0) { ui.weekOffset = n; render(); } },
+  print: () => { try { window.print(); } catch (e) {} },
+  copyWeek: () => {
+    const txt = weekText(), box = document.getElementById('copybox');
+    const fallback = () => { box.hidden = false; box.value = txt; box.focus(); box.select(); toast('Text selected – copy it with your keyboard'); };
+    try { navigator.clipboard.writeText(txt).then(() => toast('Week copied'), fallback); } catch (e) { fallback(); }
+  },
+  dutyDay: a => { ui.dutyDay = +a; render(); },
+  lookup: a => { ui.lookup = a; ui.q = ''; render(); const q = document.getElementById('q'); if (q && a !== 'classes') q.focus(); },
+  openClass: a => { ui.tab = 'lookup'; prefs.tab = 'lookup'; savePrefs(); ui.cls = a; ui.clsView = 'roster'; render(); window.scrollTo(0, 0); },
+  closeClass: () => { ui.cls = null; render(); },
+  clsView: a => { ui.clsView = a; render(); },
+  clsDay: a => { ui.clsDay = +a; render(); },
+  checkClass: a => { prefs.hr = a; savePrefs(); ui.tab = 'check'; ui.checkView = 'class'; ui.cls = null; resetCheck(); render(); window.scrollTo(0, 0); },
+  toolsClass: a => { prefs.toolSrc = a; savePrefs(); ui.tab = 'tools'; ui.cls = null; ui.wheelOut = []; ui.winner = null; ui.groups = null; ui.absent = {}; render(); window.scrollTo(0, 0); },
+  tool: a => { ui.tool = a; render(); },
+  spin: () => { ensureAudio(); spin(); },
+  removeWinner: () => { if (ui.winner) ui.wheelOut.push(ui.winner); ui.winner = null; render(); },
+  resetWheel: () => { ui.wheelOut = []; ui.winner = null; render(); },
+  preset: a => { if (timer.running) return; timer.total = timer.remaining = (+a) * 60000; timer.done = false; render(); },
+  nudge: a => {
+    const ms = (+a) * 1000;
+    if (timer.running) { timer.endAt = Math.max(Date.now() + 1000, timer.endAt + ms); timer.total = Math.max(timer.total, timer.endAt - Date.now()); }
+    else { timer.remaining = Math.max(10000, timer.remaining + ms); timer.total = Math.max(timer.remaining, timer.done ? timer.remaining : timer.total + ms); timer.done = false; }
+    tick(); render();
+  },
+  timerGo: () => {
+    ensureAudio();
+    if (timer.running) { timer.running = false; timer.remaining = Math.max(0, timer.endAt - Date.now()); clearInterval(timer.iv); releaseWake(); }
+    else { if (timer.remaining <= 0) timer.remaining = timer.total; timer.done = false; timer.running = true; timer.endAt = Date.now() + timer.remaining; timer.iv = setInterval(tick, 250); holdWake(); }
+    render();
+  },
+  timerReset: () => { timer.running = false; clearInterval(timer.iv); timer.remaining = timer.total; timer.done = false; releaseWake(); render(); },
+  absent: a => { ui.absent[a] = !ui.absent[a]; ui.groups = null; render(); },
+  groupMode: a => { ui.groupMode = a; ui.groupN = a === 'count' ? 4 : 3; ui.groups = null; render(); },
+  groupN: a => { ui.groupN = Math.max(2, Math.min(12, ui.groupN + (+a))); ui.groups = null; render(); },
+  makeGroups: () => {
+    const names = toolNames().filter(n => !ui.absent[n]);
+    for (let i = names.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [names[i], names[j]] = [names[j], names[i]]; }
+    const k = Math.max(1, Math.min(names.length, ui.groupMode === 'count' ? ui.groupN : Math.ceil(names.length / ui.groupN)));
+    const g = Array.from({ length: k }, () => []); names.forEach((n, i) => g[i % k].push(n)); ui.groups = g; render();
+  }
+};
+app.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const fn = ACTIONS[b.dataset.act]; if (fn) fn(b.dataset.arg);
+});
+app.addEventListener('change', e => {
+  const k = e.target.dataset.change; if (!k) return;
+  if (k === 'hr') { prefs.hr = e.target.value; savePrefs(); resetCheck(); ui.week = null; render(); }
+  if (k === 'dutyMine') { prefs.dutyMine = e.target.checked; savePrefs(); render(); }
+  if (k === 'toolSrc') { prefs.toolSrc = e.target.value; savePrefs(); ui.wheelOut = []; ui.winner = null; ui.groups = null; ui.absent = {}; render(); }
+});
+app.addEventListener('input', e => {
+  const k = e.target.dataset.input; if (!k) return;
+  if (k === 'q') { ui.q = e.target.value; const r = document.getElementById('results'); if (r) r.innerHTML = lookupResults(); }
+  if (k === 'custom') { prefs.custom = e.target.value; savePrefs(); ui.wheelOut = []; ui.groups = null; if (ui.tool === 'wheel') { drawWheel(); } }
+});
+app.addEventListener('focusout', e => { if (e.target.dataset.input === 'custom') render(); });
+
+/* keep "now" markers, due checks and the office board fresh */
+setInterval(() => {
+  if (spinning || timer.running) return;
+  const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+  if (ui.disc || ui.alarm) return;
+  if (ui.tab === 'home' || ui.tab === 'duty' || (ui.tab === 'check' && ui.checkView !== 'week')) render();
+}, 60000);
+/* prune attendance kept on this device after 10 weeks */
+(() => { const cut = new Date(); cut.setDate(cut.getDate() - 70); const ck = dkey(cut); Object.keys(A.days).forEach(k => { if (k.slice(0, 10) < ck) delete A.days[k]; }); saveAtt(); })();
+/* installed app: passthrough service worker, same as the DIAC Hub */
+try { if (!FRAMED && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+
+if (DEMO || session) loadData(); else render();
+})();
+</script>
+
+</body>
+</html>
