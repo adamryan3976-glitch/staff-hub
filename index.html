@@ -271,7 +271,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&a
 const pad = n => (n < 10 ? '0' : '') + n;
 const dkey = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const hhmm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
-const toMins = t => { if (!t) return null; const m = String(t).match(/(\d{1,2}):(\d{2})\s*([ap])?/i); if (!m) return null; let h = +m[1]; if (m[3]) { const pm = /p/i.test(m[3]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; } return h * 60 + (+m[2]); };
+const toMins = t => { if (!t) return null; const m = String(t).match(/(\d{1,2}):(\d{2})\s*([ap])?/i); if (!m) return null; let h = +m[1]; if (m[3]) { const pm = /p/i.test(m[3]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; } else if (h >= 1 && h <= 6) h += 12; /* "1:00" with no am/pm on a school schedule means 1 pm */ return h * 60 + (+m[2]); };
 const nowMins = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
 const nice = t => { const m = toMins(t); if (m == null) return ''; let h = Math.floor(m / 60); const mm = pad(m % 60); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + mm + ' ' + ap; };
 const DOW = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
