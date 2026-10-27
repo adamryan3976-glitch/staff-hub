@@ -12,6 +12,7 @@ It's built like the [DIAC Staff Hub](https://github.com/adamryan3976-glitch/DIAC
 |---|---|
 | **Home** | Current bell period, today's yard duty with an "On duty now" flag, your own timetable for the day (or your class's), the bell schedule, and a prompt when an attendance check is due |
 | **Attendance** *(admins can switch it off)* | One-tap Student Attendance Verification at each transition, as required by the DDSB Safe Arrivals Procedure (effective Oct 16, 2026). See below. |
+| **News** | The day's Winchester announcements, read straight from the announcements site's Sheet: character trait, birthdays, staff-only notes, announcements by grade (with photos, videos and links) and student lunchroom monitors. Step to other school days. **Post**, **Present to class** and **My announcements** open the announcements site, which is still where staff post. Home shows a short summary. Shown once **Announcements Sheet** is set on the Settings tab. |
 | **Yard Duty** | Weekly duty schedule by day, a "Only my duties" filter, and one-day swaps from the Duty Changes tab |
 | **Timetables** | Pick any class or any staff member and see their day: all 10 periods plus both recesses and lunch. Opens on today's cycle day with the current period highlighted. Tap a teacher or class name to jump to their timetable. The period times are in `DAY_PLAN` near the top of `index.html`. |
 | **Lookup** | Search students (grade, class, teacher) and staff (role, room, extension, current duty). Open any class for its list and timetable. |

@@ -108,6 +108,28 @@ a{color:var(--accent)}
 .timeline li.cur .tm{color:var(--accent)}
 .timeline li.past{color:var(--muted)}
 .tm{color:var(--muted);font-variant-numeric:tabular-nums}
+/* news */
+.ann{display:grid;gap:8px;padding:14px 0;border-top:1px solid var(--line)}
+.ann:first-child{border-top:0;padding-top:4px}
+.ann h3{font-size:17px}
+.ann .body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.45}
+.ann .body a{color:var(--accent);text-decoration:underline}
+.ann .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.ann.important{border-left:4px solid var(--warn);padding-left:12px;margin-left:-16px;padding-right:0}
+.ann .photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.ann .photos .ph{aspect-ratio:4/3;border-radius:10px;background:var(--sunk);overflow:hidden;display:grid;place-items:center;color:var(--muted);font-size:12px}
+.ann .photos img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.ann .video{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}
+.ann .video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.facts{display:grid;gap:10px}
+.facts .fact{display:grid;gap:2px}
+.facts .fact b{font-size:16px}
+.newsnav{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.newsnav .mid{text-align:center;font-weight:700}
+.lunch details summary{cursor:pointer;font-weight:700;padding:4px 0}
+.lunch .room{padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.lunch .room b{display:block}
+a.btn{display:inline-block;text-decoration:none}
 /* timetables */
 .tt{list-style:none;margin:0;padding:0;display:grid}
 .tt li{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:9px 8px;border-top:1px solid var(--line);font-size:15px;align-items:start;border-radius:10px}
@@ -246,6 +268,8 @@ a{color:var(--accent)}
 .tabs button{flex:1;min-width:0;max-width:140px;padding:8px 1px 10px;font-weight:700;font-size:12px;letter-spacing:-.01em;color:var(--muted);display:grid;justify-items:center;gap:2px;border-top:3px solid transparent}
 .tabs button svg{width:22px;height:22px}
 .tabs.many button{font-size:11px}
+.tabs.lots button{font-size:10.5px;letter-spacing:-.02em}
+.tabs button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tabs button[aria-current="page"]{color:var(--ink);border-top-color:var(--accent)}
 .sw{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
 .sw:first-of-type{border-top:0}
@@ -374,6 +398,7 @@ const ICON = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>',
   duty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/><circle cx="12" cy="10" r="3"/><path d="M4 8l2 1M20 8l-2 1"/></svg>',
+  news: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
   tt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 4v17M3 14h18"/></svg>',
   lookup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
   admin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
@@ -470,11 +495,11 @@ let D = null;          // normalized data
 let demoRaw = null;    // demo only: the raw data admin changes are applied to
 let A = LS.get(K.att, { days: {} });
 let outbox = LS.get(K.outbox, []);
-const prefs = Object.assign({ tab: 'home', hr: '', toolSrc: '', custom: '', dutyMine: false, banish: false, spinLen: 'medium' }, LS.get(K.prefs, {}));
+const prefs = Object.assign({ tab: 'home', hr: '', toolSrc: '', custom: '', dutyMine: false, banish: false, spinLen: 'medium', newsGrade: 'all' }, LS.get(K.prefs, {}));
 const ui = {
   tab: prefs.tab, role: DEMO ? LS.get(K.demoRole, 'Teacher') : null,
   point: null, count: null, disc: null, alarm: false, adjOpen: null, checkView: 'class', weekOffset: 0, week: null, live: null, liveAt: 0,
-  dutyDay: null, ttMode: null, ttSel: null, ttDay: null, ttScroll: false, lookup: 'students', q: '', cls: null, clsView: 'roster', clsDay: null,
+  dutyDay: null, ttMode: null, ttSel: null, ttDay: null, ttScroll: false, news: {}, newsDate: null, lookup: 'students', q: '', cls: null, clsView: 'roster', clsDay: null,
   tool: 'wheel', wheelOut: [], winner: null, groupMode: 'count', groupN: 4, absent: {}, groups: null,
   loading: false, authError: '', syncing: false
 };
@@ -508,6 +533,8 @@ const isOffice = () => D && /admin|office|principal/i.test(D.me.role || '');
 const isAdmin = () => !!D && !!D.me.appAdmin;   // set only by the Sheet's "App Admins" setting
 const flag = (key, def) => { const v = D && D.settings[key]; return v === undefined || v === null || v === '' ? def : /^true$/i.test(String(v)); };
 const showAtt = () => flag('Show Attendance', CONFIG.SHOW_ATTENDANCE);
+const newsOn = () => DEMO || flag('News On', false);
+const newsSite = () => String((D && D.settings['Announcements Site']) || 'https://announcements.winchesterps.ca').replace(/\/+$/, '');
 function homerooms() {
   const s = new Set(); D.students.forEach(x => x.homeroom && s.add(x.homeroom)); D.staff.forEach(x => x.homeroom && s.add(x.homeroom));
   return Array.from(s).sort(natural);
@@ -556,7 +583,7 @@ async function apiPost(body) {
   return data;
 }
 async function loadData(quiet) {
-  if (DEMO) { demoRaw = demoData(ui.role); D = normalize(demoRaw); seedDemoChecks(); if (isOffice()) ui.checkView = 'board'; render(); return; }
+  if (DEMO) { demoRaw = demoData(ui.role); D = normalize(demoRaw); seedDemoChecks(); if (isOffice()) ui.checkView = 'board'; render(); loadNews(dkey(nextSchoolDay(today0()))); return; }
   const cached = LS.get(K.data, null);
   if (cached && !D) D = normalize(cached);
   if (!quiet && !D) { ui.loading = true; render(); }
@@ -570,6 +597,7 @@ async function loadData(quiet) {
   ui.loading = false;
   if (D && isOffice() && !ui._boardDefault) { ui._boardDefault = true; ui.checkView = 'board'; }
   render(); flush();
+  if (D && newsOn()) loadNews(dkey(nextSchoolDay(today0())));
 }
 function loadGis() {
   return new Promise((resolve, reject) => {
@@ -676,8 +704,8 @@ function lastCheck(hr) {
    ====================================================================== */
 const app = document.getElementById('app');
 const tabsEl = document.getElementById('tabs');
-const tabList = () => [['home', 'Home'], ['check', 'Attendance'], ['duty', 'Yard Duty'], ['tt', 'Timetables'], ['lookup', 'Lookup'], ['tools', 'Tools'], ['admin', 'Admin']]
-  .filter(t => (t[0] !== 'check' || showAtt()) && (t[0] !== 'admin' || isAdmin()));
+const tabList = () => [['home', 'Home'], ['news', 'News'], ['check', 'Attendance'], ['duty', 'Yard Duty'], ['tt', 'Timetables'], ['lookup', 'Lookup'], ['tools', 'Tools'], ['admin', 'Admin']]
+  .filter(t => (t[0] !== 'check' || showAtt()) && (t[0] !== 'admin' || isAdmin()) && (t[0] !== 'news' || newsOn()));
 
 function header(title, sub, right) {
   return '<header class="top"><div style="min-width:0"><h1>' + title + '</h1>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>' + (right || '') + '</header>';
@@ -745,6 +773,8 @@ function viewHome() {
     h += '<div class="duty-row mine"><span>' + esc(r.location) + '<small>' + esc(r.block) + (r.covering && r.covering !== r.staff ? ' · covering for ' + esc(r.covering) : '') + (r.dnote ? ' · ' + esc(r.dnote) : '') + (r.indoor ? ' · Indoor: ' + esc(r.indoor) : '') + '</small></span><span class="num">' + (on ? '<span class="pill bad">On duty now</span> ' : '') + nice(r.start) + '–' + nice(r.end) + '</span></div>';
   });
   h += '</section></div>';
+  // announcements
+  if (newsOn()) h += newsHomeCard(dayDate, when);
   // office board or class schedule
   if (showAtt() && isOffice()) h += viewBoard(true);
   const meTT = myTimetable();
@@ -926,6 +956,120 @@ function viewDuty() {
     h += '</section>';
   });
   return h + '</div>';
+}
+
+/* ---------- news (Winchester announcements) ---------- */
+function stepSchoolDay(from, dir) { const d = new Date(from); for (let i = 0; i < 40; i++) { d.setDate(d.getDate() + dir); if (isSchoolDay(d)) return d; } return new Date(from); }
+const GRADE_TABS = [['all', 'All'], ['1-3', 'Gr 1–3'], ['4-6', 'Gr 4–6'], ['7-8', 'Gr 7–8']];
+const GRADE_NAME = { all: 'All grades', '1-3': 'Grades 1–3', '4-6': 'Grades 4–6', '7-8': 'Grades 7–8' };
+const newsPhotoCache = {}; const newsPhotoPending = new Set();
+async function loadNews(k, force) {
+  const c = ui.news[k];
+  if (c && (c.loading || (!force && !c.stale && !c.error))) return;
+  ui.news[k] = Object.assign({}, c && !c.error ? c : {}, { loading: true });
+  try {
+    const r = DEMO ? await Promise.resolve().then(() => demoNews(k)) : await api('news', { date: k });
+    ui.news[k] = Object.assign(r, { at: Date.now() });
+  } catch (e) {
+    ui.news[k] = c && c.announcements && !c.error ? Object.assign(c, { loading: false }) : { error: e.message === 'session' ? 'session' : 'offline', announcements: [] };
+  }
+  if (ui.tab === 'news' || ui.tab === 'home') render();
+}
+function linkText(t) {
+  const re = /(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])/g; let out = '', last = 0, m;
+  t = String(t || '');
+  while ((m = re.exec(t))) { out += esc(t.slice(last, m.index)) + '<a href="' + esc(m[1]) + '" target="_blank" rel="noopener">' + esc(m[1]) + '</a>'; last = m.index + m[1].length; }
+  return out + esc(t.slice(last));
+}
+const forGrade = (a, g) => g === 'all' || a.grades.includes('all') || a.grades.includes(g);
+function annCard(a) {
+  let h = '<article class="ann' + (a.important ? ' important' : '') + '">';
+  if (a.important || a.staffOnly) h += '<div class="meta">' + (a.important ? '<span class="pill warn">Important</span>' : '') + (a.staffOnly ? '<span class="pill info">Staff only</span>' : '') + '</div>';
+  if (a.title) h += '<h3>' + esc(a.title) + '</h3>';
+  h += '<div class="body">' + linkText(a.body) + '</div>';
+  if (a.photoIds && a.photoIds.length) h += '<div class="photos">' + a.photoIds.map(id => '<button type="button" class="ph" data-act="newsPhoto" data-arg="' + esc(id) + '" data-annphoto="' + esc(id) + '" aria-label="Open photo">' + (newsPhotoCache[id] ? '<img src="' + newsPhotoCache[id] + '" alt="">' : 'Loading photo…') + '</button>').join('') + '</div>';
+  if (a.videoEmbed) h += '<div class="video"><iframe src="' + esc(a.videoEmbed) + '" title="Video" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>';
+  else if (a.videoUrl) h += '<a class="btn ghost" href="' + esc(a.videoUrl) + '" target="_blank" rel="noopener">Watch the video</a>';
+  if (a.linkUrl) h += '<div><a class="btn ghost" href="' + esc(a.linkUrl) + '" target="_blank" rel="noopener">' + esc(a.linkLabel || 'Open link') + '</a></div>';
+  h += '<div class="meta">' + esc(a.grades.map(g => GRADE_NAME[g] || g).join(', ') || 'All grades') + (a.authorName ? ' · From ' + esc(a.authorName) : '') + '</div>';
+  return h + '</article>';
+}
+function viewNews() {
+  const t0 = today0(), base = nextSchoolDay(t0), k = ui.newsDate || dkey(base), date = parseDate(k), isToday = k === dkey(t0);
+  const n = ui.news[k]; if (!n || n.stale) loadNews(k, n && n.stale);
+  const cd = cycleDay(date);
+  let h = header('Announcements', (isToday ? 'Today · ' : '') + longDate(date) + (cd ? ' · Day ' + cd : ''));
+  h += '<div class="stack">' + demoBanner();
+  const site = newsSite();
+  h += '<div class="row wrapflex noprint"><a class="btn" href="' + esc(site) + '/?view=new" target="_blank" rel="noopener">Post an announcement</a><a class="btn ghost" href="' + esc(site) + '/" target="_blank" rel="noopener">Present to class</a><a class="btn ghost" href="' + esc(site) + '/?view=mine" target="_blank" rel="noopener">My announcements</a></div>';
+  h += '<div class="newsnav noprint"><button class="chipbtn" type="button" data-act="newsDay" data-arg="-1" aria-label="Previous school day">‹ Prev</button><div class="mid">' + (k === dkey(base) ? '<span class="small muted">' + (isToday ? 'Today' : 'Next school day') + '</span>' : '<button class="linkbtn small" type="button" data-act="newsDay" data-arg="today">Back to ' + (isSchoolDay(t0) ? 'today' : 'next school day') + '</button>') + '</div><button class="chipbtn" type="button" data-act="newsDay" data-arg="1" aria-label="Next school day">Next ›</button></div>';
+  if (!n || (n.loading && !n.announcements)) return h + '<div class="card"><p class="empty">Loading announcements…</p></div></div>';
+  if (n.error === 'not_set') return h + '<div class="card"><p class="empty">The News tab isn\'t connected yet. An admin needs to paste the Winchester Announcements Sheet link into <b>Announcements Sheet</b> on the Settings tab.</p></div></div>';
+  if (n.error) return h + '<div class="card stack-s"><p class="empty">' + (n.error === 'no_access' ? 'The announcements Sheet couldn\'t be opened. The account that deployed the Staff Hub needs view access to it.' : 'Couldn\'t load the announcements. Check your connection.') + '</p><div><button class="btn ghost" type="button" data-act="newsReload">Try again</button></div></div></div>';
+  // facts
+  const b = n.birthdays || { today: [], earlier: [] };
+  h += '<section class="card facts">';
+  if (n.trait) h += '<div class="fact"><span class="label">Character trait this month</span><b>' + esc(n.trait) + '</b></div>';
+  h += '<div class="fact"><span class="label">Birthdays</span>' + (b.today.length ? '<b>' + esc(b.today.join(', ')) + '</b>' : '<span class="muted">None ' + (isToday ? 'today' : 'this day') + '</span>') + (b.earlier.length ? '<span class="small muted">Since the last school day: ' + esc(b.earlier.join(', ')) + '</span>' : '') + '</div>';
+  h += '</section>';
+  // announcements
+  const g = GRADE_TABS.some(x => x[0] === prefs.newsGrade) ? prefs.newsGrade : 'all';
+  const all = n.announcements || [], staff = all.filter(a => a.staffOnly), pub = all.filter(a => !a.staffOnly && forGrade(a, g));
+  if (staff.length) h += '<section class="card"><div class="label" style="margin-bottom:4px">For staff</div>' + staff.map(annCard).join('') + '</section>';
+  h += '<div class="seg" role="group" aria-label="Grades">' + GRADE_TABS.map(([c, l]) => '<button type="button" data-act="newsGrade" data-arg="' + c + '" aria-pressed="' + (c === g) + '">' + l + '</button>').join('') + '</div>';
+  h += '<section class="card">' + (pub.length ? pub.map(annCard).join('') : '<p class="empty">No announcements ' + (g === 'all' ? '' : 'for ' + esc(GRADE_NAME[g]) + ' ') + (isToday ? 'today' : 'on this day') + '.</p>') + '</section>';
+  // lunchroom monitors
+  const rooms = (n.lunch && n.lunch.rooms) || [];
+  if (rooms.length) h += '<section class="card lunch"><details><summary>Student lunchroom monitors (' + rooms.length + ' rooms)</summary>' + rooms.map(r => '<div class="room"><b>' + esc(r.room) + '</b>' + r.duties.map(d => '<span class="muted">' + esc(d.duty) + ':</span> ' + esc(d.names.join(', '))).join('<br>') + '</div>').join('') + '</details></section>';
+  h += '<p class="small muted noprint" style="text-align:center">From the Winchester announcements site' + (n.loading ? ' · updating…' : '') + ' · <button class="linkbtn" type="button" data-act="newsReload">Refresh</button></p>';
+  return h + '</div>';
+}
+function newsHomeCard(dayDate, when) {
+  const k = dkey(dayDate), n = ui.news[k];
+  if (!n) loadNews(k);
+  let h = '<section class="card stack-s"><div class="row between"><div class="label">Announcements ' + esc(when) + '</div><button class="linkbtn small" type="button" data-act="tab" data-arg="news">Read all</button></div>';
+  if (!n || (n.loading && !n.announcements)) return h + '<p class="muted">Loading…</p></section>';
+  if (n.error) return h + '<p class="muted">' + (n.error === 'not_set' ? 'Not connected yet.' : 'Couldn\'t load announcements.') + '</p></section>';
+  const list = n.announcements || [], b = (n.birthdays || {}).today || [];
+  const bits = [];
+  if (n.trait) bits.push('Trait: <b>' + esc(n.trait) + '</b>');
+  if (b.length) bits.push('🎂 ' + esc(b.join(', ')));
+  if (bits.length) h += '<p class="small">' + bits.join(' · ') + '</p>';
+  if (!list.length) return h + '<p class="muted">No announcements ' + esc(when) + '.</p></section>';
+  h += '<ul class="list">' + list.slice(0, 4).map(a => '<li><span class="main"><b>' + esc(a.title || a.body.slice(0, 80)) + '</b><small>' + (a.important ? 'Important · ' : '') + (a.staffOnly ? 'Staff only · ' : '') + esc(a.grades.map(g => GRADE_NAME[g] || g).join(', ')) + '</small></span></li>').join('') + '</ul>';
+  if (list.length > 4) h += '<p class="small muted">+ ' + (list.length - 4) + ' more</p>';
+  return h + '</section>';
+}
+function hydrateNewsPhotos() {
+  document.querySelectorAll('[data-annphoto]').forEach(el => {
+    const id = el.dataset.annphoto;
+    if (newsPhotoCache[id] || newsPhotoPending.has(id)) return;
+    if (DEMO) { el.textContent = 'Photo'; return; }
+    newsPhotoPending.add(id);
+    api('newsPhoto', { id }).then(r => {
+      newsPhotoCache[id] = r.photo || ''; newsPhotoPending.delete(id);
+      document.querySelectorAll('[data-annphoto="' + id + '"]').forEach(x => { x.innerHTML = r.photo ? '<img src="' + r.photo + '" alt="">' : 'Photo unavailable'; });
+    }).catch(() => { newsPhotoPending.delete(id); document.querySelectorAll('[data-annphoto="' + id + '"]').forEach(x => { x.textContent = 'Photo unavailable'; }); });
+  });
+}
+function showNewsPhoto(id) {
+  const src = newsPhotoCache[id]; if (!src) return; closePhoto();
+  const m = document.createElement('div'); m.className = 'photo-modal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', 'Photo');
+  m.innerHTML = '<div class="photo-card" style="width:min(720px,100%)"><img src="' + src + '" alt="" style="max-width:100%;aspect-ratio:auto;object-fit:contain;max-height:70vh"><button class="btn block" type="button" id="photoClose">Close</button></div>';
+  m.addEventListener('click', e => { if (e.target === m || e.target.id === 'photoClose') closePhoto(); });
+  document.body.appendChild(m); document.getElementById('photoClose').focus();
+}
+function demoNews(k) {
+  const d = parseDate(k), m = d.getMonth();
+  const traits = ['Responsibility', 'Respect', 'Empathy', 'Kindness', 'Fairness', 'Honesty', 'Perseverance', 'Inclusiveness', 'Optimism', 'Integrity', 'Cooperation', 'Courage'];
+  const anns = [
+    { id: 'd1', title: 'Picture retakes', body: 'Picture retakes are this Thursday in the library. Bring your form to the office if you would like a retake.', grades: ['all'], important: true, staffOnly: false, authorName: 'Office', photoIds: [] },
+    { id: 'd2', title: 'Staff meeting moved', body: 'This week\'s staff meeting is moved to Wednesday at 3:30 in the library.', grades: ['all'], important: false, staffOnly: true, authorName: 'Mr. Bennett', photoIds: [] },
+    { id: 'd3', title: 'Junior volleyball tryouts', body: 'Grade 5 and 6 volleyball tryouts start at first recess in the gym. Bring running shoes!', grades: ['4-6'], important: false, staffOnly: false, authorName: 'Mr. Diaz', photoIds: [] },
+    { id: 'd4', title: 'Reading buddies', body: 'Grade 7/8 reading buddies meet with Grade 1/2 classes after lunch. More info: https://example.org/buddies', grades: ['1-3', '7-8'], important: false, staffOnly: false, authorName: 'Ms. Tremblay', photoIds: ['demo-photo'] }
+  ];
+  return { date: k, trait: traits[m], birthdays: { today: ['Ava M.', 'Liam P.'], earlier: d.getDay() === 1 ? ['Zara K.'] : [] }, announcements: anns,
+    lunch: { rooms: [{ room: 'Room 104', duties: [{ duty: 'AM Recess', names: ['Keaton'] }, { duty: 'Lunch', names: ['Nathan', 'Ivy'] }] }, { room: 'Room 110', duties: [{ duty: 'Lunch', names: ['Maya'] }] }] } };
 }
 
 /* ---------- timetables ---------- */
@@ -1365,19 +1509,21 @@ function render() {
     return;
   }
   tabsEl.hidden = false;
-  if ((ui.tab === 'check' && !showAtt()) || (ui.tab === 'admin' && !isAdmin())) ui.tab = 'home';
-  tabsEl.classList.toggle('many', tabList().length > 5);
-  tabsEl.innerHTML = tabList().map(([k, label]) => '<button type="button" data-tab="' + k + '"' + (ui.tab === k ? ' aria-current="page"' : '') + '>' + ICON[k] + label + '</button>').join('');
-  app.innerHTML = ui.tab === 'admin' ? viewAdmin() : ui.tab === 'check' ? viewCheck() : ui.tab === 'duty' ? viewDuty() : ui.tab === 'tt' ? viewTimetables() : ui.tab === 'lookup' ? viewLookup() : ui.tab === 'tools' ? viewTools() : viewHome();
+  if ((ui.tab === 'check' && !showAtt()) || (ui.tab === 'admin' && !isAdmin()) || (ui.tab === 'news' && !newsOn())) ui.tab = 'home';
+  const tl = tabList(), SHORT = { duty: 'Duty', tt: 'Timetable' };
+  tabsEl.classList.toggle('many', tl.length > 5); tabsEl.classList.toggle('lots', tl.length > 6);
+  tabsEl.innerHTML = tl.map(([k, label]) => '<button type="button" data-tab="' + k + '"' + (ui.tab === k ? ' aria-current="page"' : '') + ' aria-label="' + label + '">' + ICON[k] + '<span>' + (tl.length > 5 && SHORT[k] || label) + '</span></button>').join('');
+  app.innerHTML = ui.tab === 'admin' ? viewAdmin() : ui.tab === 'check' ? viewCheck() : ui.tab === 'duty' ? viewDuty() : ui.tab === 'tt' ? viewTimetables() : ui.tab === 'news' ? viewNews() : ui.tab === 'lookup' ? viewLookup() : ui.tab === 'tools' ? viewTools() : viewHome();
   if (ui.tab === 'tools' && ui.tool === 'wheel') drawWheel();
   if (ui.ttScroll) { ui.ttScroll = false; const nowRow = app.querySelector('.tt li.now'); if (nowRow) setTimeout(() => { try { nowRow.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} }, 60); }
-  hydratePhotos();
+  hydratePhotos(); hydrateNewsPhotos();
 }
 tabsEl.addEventListener('click', e => {
   const b = e.target.closest('button[data-tab]'); if (!b) return;
   ui.tab = b.dataset.tab; prefs.tab = ui.tab; savePrefs();
   ui.point = null; ui.count = null; ui.disc = null; ui.adjOpen = null; ui.cls = ui.tab === 'lookup' ? ui.cls : null;
   if (ui.tab === 'tt') { ui.ttDay = null; ui.ttScroll = true; }
+  if (ui.tab === 'news') { ui.newsDate = null; const c = ui.news[dkey(nextSchoolDay(today0()))]; if (c && c.at && Date.now() - c.at > 180000) c.stale = true; }
   render(); window.scrollTo(0, 0);
 });
 
@@ -1444,6 +1590,10 @@ const ACTIONS = {
     try { navigator.clipboard.writeText(txt).then(() => toast('Week copied'), fallback); } catch (e) { fallback(); }
   },
   dutyDay: a => { ui.dutyDay = a; render(); },
+  newsGrade: a => { prefs.newsGrade = a; savePrefs(); render(); },
+  newsDay: a => { const cur = parseDate(ui.newsDate) || nextSchoolDay(today0()); ui.newsDate = a === 'today' ? null : dkey(stepSchoolDay(cur, +a)); render(); },
+  newsReload: () => { const k = ui.newsDate || dkey(nextSchoolDay(today0())); delete ui.news[k]; render(); },
+  newsPhoto: a => showNewsPhoto(a),
   ttMode: a => { ui.ttMode = a; ui.ttSel = null; render(); },
   ttDay: a => { ui.ttDay = a; ui.ttScroll = true; render(); },
   ttGo: a => { const i = a.indexOf('|'); ui.tab = 'tt'; prefs.tab = 'tt'; savePrefs(); ui.cls = null; ui.ttMode = a.slice(0, i); ui.ttSel = a.slice(i + 1); ui.ttScroll = true; render(); window.scrollTo(0, 0); },

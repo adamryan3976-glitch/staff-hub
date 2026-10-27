@@ -90,3 +90,18 @@ To load a new duty schedule:
 Only signed-in staff can load photos, and only for the students on screen. The first load after a deploy takes a few seconds while the script caches them; after that it's quick. Gender and birth date from the report are not imported.
 
 To update for a new school year, export a new Photo Report and ask Claude to rebuild both CSVs.
+
+## Timetables
+
+- The **Schedules** tab uses **Day 1–Day 5** in the Day column. These match the Horarium Mon–Fri columns: Mon = Day 1 … Fri = Day 5.
+- The period layout (P1–P10, two recesses and lunch) is `DAY_PLAN` near the top of `index.html`. Edit it there if bell times change.
+
+## News tab (Winchester announcements)
+
+The News tab reads the **Winchester Announcements** Sheet directly. Staff still post on the announcements site.
+
+1. Paste in the latest `Code.gs` and run `setupSheet()` again. This adds two settings: **Announcements Sheet** and **Announcements Site**.
+2. Paste the link to the Winchester Announcements Google Sheet into **Announcements Sheet**. The account that deploys the Staff Hub script needs at least view access to it, and to the lunchroom monitor sheet.
+3. **Deploy > Manage deployments > Edit > New version**. Google asks for approval again, because the script now reads other Sheets and the announcement photos in Drive.
+
+The News tab shows up for everyone once the setting is filled in. Changes on the announcements site appear within about 2 minutes.

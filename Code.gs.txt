@@ -34,6 +34,8 @@ const DEFAULT_SETTINGS = [
   ['Guest Photos', 'TRUE', 'TRUE lets Guest sign-ins (occasional teachers) see student photos'],
   ['Cycle Days', '5', 'Days in the rotation (Day 1 to Day 5). Set to 0 to use Monday to Friday instead.'],
   ['Cycle Anchor Date', '2026-10-27', 'Any school day whose cycle day you know (yyyy-mm-dd)'],
+  ['Announcements Sheet', '', 'Link to the Winchester Announcements Google Sheet. Fills the News tab. The account that deploys this script needs view access.'],
+  ['Announcements Site', 'https://announcements.winchesterps.ca', 'Where the News tab\'s "Post" and "Present" buttons go'],
   ['Cycle Anchor Day', '4', 'The cycle day on the anchor date. The app counts forward and back, skipping weekends and No School Days.']
 ];
 // DDSB 2026-27: dates with NO classes on EITHER calendar. Winchester is dual-calendar, so modified-calendar
@@ -103,6 +105,8 @@ function doGet(e) {
       case 'live': return json_(live_(me));
       case 'week': return json_(week_(me, p.homeroom, p.monday));
       case 'photos': return json_(photos_(me, String(p.keys || '').split('|').filter(String).slice(0, 60)));
+      case 'news': return json_(news_(me, p.date));
+      case 'newsPhoto': return json_(newsPhoto_(me, p.id));
       default:     return json_({ error: 'unknown_action' });
     }
   } catch (err) { return json_({ error: err.message || String(err) }); }
@@ -177,7 +181,8 @@ function all_(me) {
     me: me,
     settings: { 'School Name': s['School Name'], 'Short Name': s['Short Name'], 'Office Extension': s['Office Extension'],
                 'Cycle Days': s['Cycle Days'], 'Cycle Anchor Date': s['Cycle Anchor Date'], 'Cycle Anchor Day': s['Cycle Anchor Day'],
-                'Show Attendance': s['Show Attendance'], 'Allow Board Guests': s['Allow Board Guests'], 'Guest Photos': s['Guest Photos'] },
+                'Show Attendance': s['Show Attendance'], 'Allow Board Guests': s['Allow Board Guests'], 'Guest Photos': s['Guest Photos'],
+                'Announcements Site': s['Announcements Site'] || 'https://announcements.winchesterps.ca', 'News On': sheetId_(s['Announcements Sheet']) ? 'TRUE' : 'FALSE' },
     sheetUrl: isAdmin_(me) ? SpreadsheetApp.getActiveSpreadsheet().getUrl() : '',
     noSchool: rows_('No School Days'),
     staff: rows_('Staff'), students: rows_('Students'), bells: rows_('Bells'),
@@ -238,6 +243,143 @@ function saveAttendance_(me, entries) {
     if (add.length) sh.getRange(sh.getLastRow() + 1, 1, add.length, add[0].length).setValues(add);
     return { ok: true, saved: add.length };
   } finally { lock.releaseLock(); }
+}
+
+/* ======================= News: read from the Winchester Announcements Sheet =======================
+   The announcements site stays the place where staff post. This only reads its Sheet (Announcements,
+   Character Ed, Birthdays and Settings tabs) and the principal's lunchroom monitor sheet. */
+const ANN_GRADE_CODES = ['all', '1-3', '4-6', '7-8'];
+const ANN_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+function sheetId_(url) {
+  const m = String(url || '').match(/\/spreadsheets\/d\/([\w-]{20,})/);
+  if (m) return m[1];
+  return /^[\w-]{20,}$/.test(String(url || '').trim()) ? String(url).trim() : '';
+}
+function annBook_() {
+  const id = sheetId_(settings_()['Announcements Sheet']);
+  if (!id) throw new Error('news_not_set');
+  return SpreadsheetApp.openById(id);
+}
+function annDate_(v, tz) {
+  if (v === '' || v == null) return '';
+  if (Object.prototype.toString.call(v) === '[object Date]') return isNaN(v.getTime()) ? '' : Utilities.formatDate(v, tz, 'yyyy-MM-dd');
+  const s = String(v).trim(); let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2);
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  return m ? m[3] + '-' + ('0' + m[1]).slice(-2) + '-' + ('0' + m[2]).slice(-2) : '';
+}
+const annTrue_ = v => v === true || /^(true|yes)$/i.test(String(v).trim());
+function annWeekday_(d) { const p = d.split('-').map(Number); return new Date(Date.UTC(p[0], p[1] - 1, p[2], 12)).getUTCDay(); }
+function annAddDays_(d, n) { const p = d.split('-').map(Number), x = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12)); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
+function annTab_(book, name) {
+  const sh = book.getSheetByName(name); if (!sh || sh.getLastRow() < 2) return [];
+  const v = sh.getDataRange().getValues(), head = v.shift().map(h => String(h).trim());
+  return v.map((r, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { if (h) o[h] = r[j]; }); return o; });
+}
+function annGrades_(v) {
+  const codes = [];
+  String(v || '').split(',').forEach(p => {
+    const s = String(p).toLowerCase().replace(/grades?/g, '').replace(/[–—]/g, '-').replace(/\s+/g, '').replace(/:$/, '');
+    if (s === 'all' || s === 'allgrades' || (s === '' && String(p).trim())) codes.push('all');
+    else if (ANN_GRADE_CODES.indexOf(s) > -1) codes.push(s);
+  });
+  return codes.indexOf('all') > -1 ? ['all'] : ANN_GRADE_CODES.filter(c => codes.indexOf(c) > -1);
+}
+function annVideo_(url) {
+  const m = String(url || '').match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/i);
+  return m ? 'https://www.youtube-nocookie.com/embed/' + m[1] : '';
+}
+/** Weekends and No School Days (from this Sheet) count as days off for the birthday catch-up. */
+function hubDayOff_(d) {
+  const wd = annWeekday_(d); if (wd === 0 || wd === 6) return true;
+  return rows_('No School Days').some(r => { const a = String(r['Start Date']).slice(0, 10), b = String(r['End Date'] || a).slice(0, 10); return d >= a && d <= b; });
+}
+function news_(me, date) {
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(String(date || '')) ? String(date) : today_();
+  const cache = CacheService.getScriptCache(), ck = 'news2:' + d, hit = cache.get(ck);
+  if (hit) return JSON.parse(hit);
+  let book;
+  try { book = annBook_(); } catch (e) { return { date: d, error: e.message === 'news_not_set' ? 'not_set' : 'no_access', announcements: [] }; }
+  const tz = tz_(), wd = annWeekday_(d);
+  const anns = annTab_(book, 'Announcements').map(r => {
+    const start = annDate_(r.startDate, tz);
+    return { id: String(r.id || ''), row: r._row, title: String(r.title || ''), body: String(r.body || ''), grades: annGrades_(r.grades),
+      staffOnly: annTrue_(r.staffOnly), important: annTrue_(r.important), startDate: start, endDate: annDate_(r.endDate, tz) || start,
+      days: String(r.daysOfWeek || '').split(/[\s,]+/).filter(x => ANN_DAYS.indexOf(x) > -1),
+      authorName: String(r.authorName || ''), linkUrl: String(r.linkUrl || ''), linkLabel: String(r.linkLabel || ''),
+      videoUrl: String(r.videoUrl || ''), photoIds: String(r.photoIds || '').split(/[\s,]+/).filter(String), status: String(r.status || 'active') };
+  }).filter(a => a.id && a.body && a.status === 'active' && a.startDate && a.startDate <= d && a.endDate >= d && (!a.days.length || a.days.indexOf(ANN_DAYS[wd]) > -1))
+    .sort((a, b) => a.important !== b.important ? (a.important ? -1 : 1) : a.startDate !== b.startDate ? (a.startDate < b.startDate ? 1 : -1) : a.row - b.row)
+    .map(a => ({ id: a.id, title: a.title, body: a.body, grades: a.grades, staffOnly: a.staffOnly, important: a.important, startDate: a.startDate, endDate: a.endDate,
+      authorName: a.authorName, linkUrl: /^https?:\/\//i.test(a.linkUrl) ? a.linkUrl : '', linkLabel: a.linkLabel, videoUrl: /^https?:\/\//i.test(a.videoUrl) ? a.videoUrl : '',
+      videoEmbed: annVideo_(a.videoUrl), photoIds: a.photoIds.slice(0, 6) }));
+  // character trait for the month
+  let trait = '';
+  const ce = book.getSheetByName('Character Ed');
+  if (ce && ce.getLastRow() > 0) ce.getRange(1, 1, ce.getLastRow(), 2).getValues().some(r => Number(r[0]) === Number(d.slice(5, 7)) ? (trait = String(r[1] || '').trim(), true) : false);
+  // birthdays: today, plus days off since the last school day
+  const want = {}; want[Number(d.slice(5, 7)) + '-' + Number(d.slice(8, 10))] = d;
+  for (let back = 1; back <= 4; back++) { const x = annAddDays_(d, -back); if (!hubDayOff_(x)) break; want[Number(x.slice(5, 7)) + '-' + Number(x.slice(8, 10))] = x; }
+  const bToday = [], bEarlier = [];
+  annTab_(book, 'Birthdays').forEach(r => { const k = Number(r.month) + '-' + Number(r.day); if (want[k] && r.name) (want[k] === d ? bToday : bEarlier).push(String(r.name)); });
+  const out = { date: d, trait: trait, birthdays: { today: bToday.sort(), earlier: bEarlier.sort() }, announcements: anns, lunch: newsLunch_(book, d) };
+  try { cache.put(ck, JSON.stringify(out), 120); } catch (e) {}
+  return out;
+}
+/** Student lunchroom monitors from the principal's sheet named in the announcements Settings tab. */
+function newsLunch_(book, d) {
+  const wd = annWeekday_(d); if (wd === 0 || wd === 6) return { rooms: [] };
+  const set = {}; annTab_(book, 'Settings').forEach(r => { if (r.key) set[String(r.key).trim()] = String(r.value == null ? '' : r.value).trim(); });
+  const id = sheetId_(set.lunchMonitorUrl || 'https://docs.google.com/spreadsheets/d/1i5qAMYkGx1_jPN5yLYWzYxU0JOQrd4XnTdT_dDZ-wps/edit');
+  if (!id) return { rooms: [] };
+  const cache = CacheService.getScriptCache(); let week = null; const hit = cache.get('newsLunchWeek');
+  if (hit) week = JSON.parse(hit);
+  else {
+    try {
+      const sh = SpreadsheetApp.openById(id).getSheetByName(set.lunchMonitorTab || 'Input');
+      if (!sh) return { rooms: [], error: 'tab' };
+      const values = sh.getDataRange().getDisplayValues(), names = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      let headerRow = -1; const cols = {};
+      for (let r = 0; r < values.length && headerRow < 0; r++) values[r].forEach((v, c) => { const k = String(v).toLowerCase().trim(); if (names.indexOf(k) > -1) { cols[k] = c; headerRow = r; } });
+      week = {};
+      Object.keys(cols).forEach(day => { week[day] = []; });
+      for (let i = headerRow + 1; headerRow > -1 && i < values.length; i++) {
+        const room = String(values[i][0] || '').trim(); if (!room) continue;
+        Object.keys(cols).forEach(day => {
+          const by = {};
+          String(values[i][cols[day]] || '').split(/\r?\n|;/).forEach(line => {
+            line = line.trim(); if (!line) return;
+            const m = line.match(/^(.*?)\s*\(([^)]*)\)\s*$/), name = (m ? m[1] : line).replace(/\s+/g, ' ').trim(), t = (m ? m[2] : '').toLowerCase();
+            if (!name) return;
+            const duties = [], rec = t.indexOf('recess') > -1;
+            if (rec && /\bam\b/.test(t)) duties.push('AM Recess');
+            if (t.indexOf('lunch') > -1) duties.push('Lunch');
+            if (rec && /\bpm\b/.test(t)) duties.push('PM Recess');
+            if (rec && !/\b(am|pm)\b/.test(t)) duties.push('Recess');
+            if (!duties.length) duties.push((m ? m[2] : '').trim() || 'On duty');
+            duties.forEach(x => (by[x] = by[x] || []).push(name));
+          });
+          const order = ['AM Recess', 'Lunch', 'PM Recess'];
+          const list = Object.keys(by).sort((a, b) => ((order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99)) || a.localeCompare(b)).map(x => ({ duty: x, names: by[x] }));
+          if (list.length) week[day].push({ room: room, duties: list });
+        });
+      }
+      cache.put('newsLunchWeek', JSON.stringify(week), 300);
+    } catch (e) { return { rooms: [], error: 'access' }; }
+  }
+  return { rooms: week[['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][wd]] || [] };
+}
+/** An announcement photo as a data: URL. Only files listed on an announcement can be read. */
+function newsPhoto_(me, id) {
+  if (!/^[\w-]{10,}$/.test(String(id || ''))) throw new Error('bad_photo');
+  const cache = CacheService.getScriptCache(), hit = cache.get('np:' + id);
+  if (hit) return { photo: hit };
+  const listed = annTab_(annBook_(), 'Announcements').some(r => String(r.photoIds || '').split(/[\s,]+/).indexOf(id) > -1);
+  if (!listed) throw new Error('bad_photo');
+  const blob = DriveApp.getFileById(id).getBlob();
+  const url = 'data:' + blob.getContentType() + ';base64,' + Utilities.base64Encode(blob.getBytes());
+  if (url.length < 95000) try { cache.put('np:' + id, url, 21600); } catch (e) {}
+  return { photo: url };
 }
 
 /* ======================= helpers ======================= */
