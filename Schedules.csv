@@ -1,0 +1,679 @@
+Homeroom,Day,Start,End,Subject,Teacher,Room
+Room 201,Day 1,08:45,09:45,Social Studies,Sarah Myles,201
+Room 201,Day 1,09:45,10:15,Math,Sarah Myles,201
+Room 201,Day 1,10:30,11:00,Math,Sarah Myles,201
+Room 201,Day 1,11:00,11:30,Art,Sarah Connelly,201
+Room 201,Day 1,12:30,14:00,Language,Erin Wright,201
+Room 201,Day 1,14:15,15:15,Language,Erin Wright,201
+Room 201,Day 2,08:45,09:45,Science,Sarah Myles,201
+Room 201,Day 2,09:45,10:15,Math,Sarah Myles,201
+Room 201,Day 2,10:30,11:00,Math,Sarah Myles,201
+Room 201,Day 2,11:00,11:30,Dance & Drama,Eric Beaton,201
+Room 201,Day 2,12:30,13:00,Phys. Ed.,Eric Beaton,Gym
+Room 201,Day 2,13:00,14:00,Language,Erin Wright,201
+Room 201,Day 2,14:15,15:15,Language,Erin Wright,201
+Room 201,Day 3,08:45,09:15,Phys. Ed.,Eric Beaton,Gym
+Room 201,Day 3,09:15,10:15,Math,Sarah Myles,201
+Room 201,Day 3,10:30,11:00,Book Exchange,Ryan Adams,201
+Room 201,Day 3,11:00,11:30,Art,Sarah Connelly,201
+Room 201,Day 3,12:30,13:00,Art,Sarah Connelly,201
+Room 201,Day 3,13:00,14:00,Language,Erin Wright,201
+Room 201,Day 3,14:15,15:15,Language,Erin Wright,201
+Room 201,Day 4,08:45,09:15,Music,Sarah Myles,201
+Room 201,Day 4,09:15,09:45,Science,Sarah Myles,201
+Room 201,Day 4,09:45,10:15,Math,Sarah Myles,201
+Room 201,Day 4,10:30,11:00,Math,Sarah Myles,201
+Room 201,Day 4,11:00,11:30,Social Studies,Sarah Myles,201
+Room 201,Day 4,12:30,13:00,Phys. Ed.,Eric Beaton,Gym
+Room 201,Day 4,13:00,14:00,Language,Erin Wright,201
+Room 201,Day 4,14:15,15:15,Language,Erin Wright,201
+Room 201,Day 5,08:45,09:15,Music,Sarah Myles,201
+Room 201,Day 5,09:15,09:45,Science,Sarah Myles,201
+Room 201,Day 5,09:45,10:15,Math,Sarah Myles,201
+Room 201,Day 5,10:30,11:00,Math,Sarah Myles,201
+Room 201,Day 5,11:00,11:30,Dance & Drama,Eric Beaton,201
+Room 201,Day 5,12:30,13:00,Language,Erin Wright,201
+Room 201,Day 5,13:00,13:30,DPA,Eric Beaton,201
+Room 201,Day 5,13:30,14:00,Language,Erin Wright,201
+Room 201,Day 5,14:15,15:15,Language,Erin Wright,201
+Room 204,Day 1,08:45,10:15,Language,Lindsay Paulino,204
+Room 204,Day 1,10:30,11:30,Language,Lindsay Paulino,204
+Room 204,Day 1,12:30,13:00,Phys. Ed.,Kristin Dare,Gym
+Room 204,Day 1,13:00,14:00,Math,Lindsay Paulino,204
+Room 204,Day 1,14:15,14:45,Music,Kristin Dare,204
+Room 204,Day 1,14:45,15:15,Social Studies,Lindsay Paulino,204
+Room 204,Day 2,08:45,10:15,Language,Lindsay Paulino,204
+Room 204,Day 2,10:30,11:00,Art,Sarah Connelly,204
+Room 204,Day 2,11:00,11:30,Language,Lindsay Paulino,204
+Room 204,Day 2,12:30,13:30,Math,Lindsay Paulino,204
+Room 204,Day 2,13:30,14:00,Science,Lindsay Paulino,204
+Room 204,Day 2,14:15,14:45,Language,Lindsay Paulino,204
+Room 204,Day 2,14:45,15:15,Social Studies,Lindsay Paulino,204
+Room 204,Day 3,08:45,10:15,Language,Lindsay Paulino,204
+Room 204,Day 3,10:30,11:00,Language,Lindsay Paulino,204
+Room 204,Day 3,11:00,11:30,Science,Lindsay Paulino,204
+Room 204,Day 3,12:30,13:00,Phys. Ed.,Kristin Dare,Gym
+Room 204,Day 3,13:00,13:30,Music,Kristin Dare,204
+Room 204,Day 3,13:30,14:00,Math,Lindsay Paulino,204
+Room 204,Day 3,14:15,14:45,Math,Lindsay Paulino,204
+Room 204,Day 3,14:45,15:15,Social Studies,Lindsay Paulino,204
+Room 204,Day 4,08:45,10:15,Language,Lindsay Paulino,204
+Room 204,Day 4,10:30,11:00,Language,Lindsay Paulino,204
+Room 204,Day 4,11:00,11:30,Art,Sarah Connelly,204
+Room 204,Day 4,12:30,13:30,Math,Lindsay Paulino,204
+Room 204,Day 4,13:30,14:00,Science,Lindsay Paulino,204
+Room 204,Day 4,14:15,14:45,Science,Lindsay Paulino,204
+Room 204,Day 4,14:45,15:15,Social Studies,Lindsay Paulino,204
+Room 204,Day 5,08:45,10:15,Language,Lindsay Paulino,204
+Room 204,Day 5,10:30,11:30,Language,Lindsay Paulino,204
+Room 204,Day 5,12:30,13:00,Phys. Ed.,Kristin Dare,Gym
+Room 204,Day 5,13:00,13:30,Math,Lindsay Paulino,204
+Room 204,Day 5,13:30,14:00,Music,Kristin Dare,204
+Room 204,Day 5,14:15,14:45,Math,Lindsay Paulino,204
+Room 204,Day 5,14:45,15:15,Science,Lindsay Paulino,204
+Room 200,Day 1,08:45,10:15,Language,Kaitlyn Lyons,200
+Room 200,Day 1,10:30,11:30,Math,Kaitlyn Lyons,200
+Room 200,Day 1,12:30,13:00,Phys. Ed.,Eric Beaton,Gym
+Room 200,Day 1,13:00,13:30,Science,Patricia Moloney,200
+Room 200,Day 1,13:30,14:00,Language,Kaitlyn Lyons,200
+Room 200,Day 1,14:15,14:45,Language,Kaitlyn Lyons,200
+Room 200,Day 1,14:45,15:15,Music,Kaitlyn Lyons,200
+Room 200,Day 2,08:45,10:15,Language,Kaitlyn Lyons,200
+Room 200,Day 2,10:30,11:30,Math,Kaitlyn Lyons,200
+Room 200,Day 2,12:30,13:00,Dance & Drama,Patricia Moloney,200
+Room 200,Day 2,13:00,13:30,DPA,Sarah Myles,200
+Room 200,Day 2,13:30,14:00,Art,Meghan Hoefs,200
+Room 200,Day 2,14:15,15:15,Science,Patricia Moloney,200
+Room 200,Day 3,08:45,10:15,Language,Kaitlyn Lyons,200
+Room 200,Day 3,10:30,11:30,Math,Kaitlyn Lyons,200
+Room 200,Day 3,12:30,13:00,Phys. Ed.,Eric Beaton,Gym
+Room 200,Day 3,13:00,13:30,Language,Kaitlyn Lyons,200
+Room 200,Day 3,13:30,14:00,Dance & Drama,Patricia Moloney,200
+Room 200,Day 3,14:15,14:45,Social Studies,Patricia Moloney,200
+Room 200,Day 3,14:45,15:15,Music,Kaitlyn Lyons,200
+Room 200,Day 4,08:45,09:45,Language,Kaitlyn Lyons,200
+Room 200,Day 4,09:45,10:15,DPA,Eric Beaton,200
+Room 200,Day 4,10:30,11:00,Language,Kaitlyn Lyons,200
+Room 200,Day 4,11:00,11:30,Math,Kaitlyn Lyons,200
+Room 200,Day 4,12:30,13:30,Art,Meghan Hoefs,200
+Room 200,Day 4,13:30,14:00,Social Studies,Sarah Myles,200
+Room 200,Day 4,14:15,14:45,Social Studies,Patricia Moloney,200
+Room 200,Day 4,14:45,15:15,Dance & Drama,Patricia Moloney,200
+Room 200,Day 5,08:45,10:15,Language,Kaitlyn Lyons,200
+Room 200,Day 5,10:30,11:30,Math,Kaitlyn Lyons,200
+Room 200,Day 5,12:30,13:00,Phys. Ed.,Eric Beaton,Gym
+Room 200,Day 5,13:00,13:30,Science,Sarah Myles,200
+Room 200,Day 5,13:30,14:00,Social Studies,Patricia Moloney,200
+Room 200,Day 5,14:15,14:45,Social Studies,Patricia Moloney,200
+Room 200,Day 5,14:45,15:15,Health,Kristin Dare,200
+Room 205,Day 1,08:45,10:15,Language,Nicholas Silverwood,205
+Room 205,Day 1,10:30,11:00,Language,Nicholas Silverwood,205
+Room 205,Day 1,11:00,11:30,Social Studies,Nicholas Silverwood,205
+Room 205,Day 1,12:30,13:30,Math,Nicholas Silverwood,205
+Room 205,Day 1,13:30,14:00,Art,Patricia Moloney,205
+Room 205,Day 1,14:15,14:45,Phys. Ed.,Eric Beaton,Gym
+Room 205,Day 1,14:45,15:15,Social Studies,Nicholas Silverwood,205
+Room 205,Day 2,08:45,09:45,Science,Nicholas Silverwood,205
+Room 205,Day 2,09:45,10:15,Math,Nicholas Silverwood,205
+Room 205,Day 2,10:30,11:00,Math,Nicholas Silverwood,205
+Room 205,Day 2,11:00,11:30,Music,Alain Levac,Music Room
+Room 205,Day 2,12:30,14:00,Language,Nicholas Silverwood,205
+Room 205,Day 2,14:15,15:15,Language,Nicholas Silverwood,205
+Room 205,Day 3,08:45,10:15,Language,Nicholas Silverwood,205
+Room 205,Day 3,10:30,11:00,Language,Nicholas Silverwood,205
+Room 205,Day 3,11:00,11:30,Music,Alain Levac,Music Room
+Room 205,Day 3,12:30,13:00,Science,Nicholas Silverwood,205
+Room 205,Day 3,13:00,14:00,Phys. Ed.,Eric Beaton,Gym
+Room 205,Day 3,14:15,15:15,Math,Nicholas Silverwood,205
+Room 205,Day 4,08:45,10:15,Language,Nicholas Silverwood,205
+Room 205,Day 4,10:30,11:30,Language,Nicholas Silverwood,205
+Room 205,Day 4,12:30,13:30,Math,Nicholas Silverwood,205
+Room 205,Day 4,13:30,14:00,Art,Patricia Moloney,205
+Room 205,Day 4,14:15,15:15,Science,Nicholas Silverwood,205
+Room 205,Day 5,08:45,09:15,Language,Nicholas Silverwood,205
+Room 205,Day 5,09:15,10:15,Math,Nicholas Silverwood,205
+Room 205,Day 5,10:30,11:00,Music,Alain Levac,Music Room
+Room 205,Day 5,11:00,11:30,Language,Nicholas Silverwood,205
+Room 205,Day 5,12:30,14:00,Language,Nicholas Silverwood,205
+Room 205,Day 5,14:15,15:15,Social Studies,Nicholas Silverwood,205
+Room 202,Day 1,08:45,10:15,Language,Stacey Wright,202
+Room 202,Day 1,10:30,11:00,Language,Stacey Wright,202
+Room 202,Day 1,11:00,11:30,Social Studies,Stacey Wright,202
+Room 202,Day 1,12:30,13:30,Math,Stacey Wright,202
+Room 202,Day 1,13:30,14:00,Science,Stacey Wright,202
+Room 202,Day 1,14:15,14:45,Science,Stacey Wright,202
+Room 202,Day 1,14:45,15:15,Phys. Ed.,Eric Beaton,Gym
+Room 202,Day 2,08:45,10:15,Language,Stacey Wright,202
+Room 202,Day 2,10:30,11:00,Music,Alain Levac,Music Room
+Room 202,Day 2,11:00,11:30,Language,Stacey Wright,202
+Room 202,Day 2,12:30,13:00,Social Studies,Stacey Wright,202
+Room 202,Day 2,13:00,13:30,Phys. Ed.,Eric Beaton,Gym
+Room 202,Day 2,13:30,14:00,Math,Stacey Wright,202
+Room 202,Day 2,14:15,14:45,Math,Stacey Wright,202
+Room 202,Day 2,14:45,15:15,Science,Stacey Wright,202
+Room 202,Day 3,08:45,10:15,Language,Stacey Wright,202
+Room 202,Day 3,10:30,11:00,Language,Stacey Wright,202
+Room 202,Day 3,11:00,11:30,Social Studies,Stacey Wright,202
+Room 202,Day 3,12:30,13:30,Math,Stacey Wright,202
+Room 202,Day 3,13:30,14:00,Social Studies,Stacey Wright,202
+Room 202,Day 3,14:15,14:45,Language,Stacey Wright,202
+Room 202,Day 3,14:45,15:15,Art,Patricia Moloney,202
+Room 202,Day 4,08:45,10:15,Language,Stacey Wright,202
+Room 202,Day 4,10:30,11:00,Language,Stacey Wright,202
+Room 202,Day 4,11:00,11:30,Music,Alain Levac,Music Room
+Room 202,Day 4,12:30,13:00,Science,Stacey Wright,202
+Room 202,Day 4,13:00,13:30,Phys. Ed.,Eric Beaton,Gym
+Room 202,Day 4,13:30,14:00,Math,Stacey Wright,202
+Room 202,Day 4,14:15,14:45,Math,Stacey Wright,202
+Room 202,Day 4,14:45,15:15,Language,Stacey Wright,202
+Room 202,Day 5,08:45,10:15,Language,Stacey Wright,202
+Room 202,Day 5,10:30,11:00,Language,Stacey Wright,202
+Room 202,Day 5,11:00,11:30,Music,Alain Levac,Music Room
+Room 202,Day 5,12:30,13:00,Science,Stacey Wright,202
+Room 202,Day 5,13:00,13:30,Art,Patricia Moloney,202
+Room 202,Day 5,13:30,14:00,Math,Stacey Wright,202
+Room 202,Day 5,14:15,14:45,Math,Stacey Wright,202
+Room 202,Day 5,14:45,15:15,Language,Stacey Wright,202
+Room 206,Day 1,08:45,09:15,Music,Alain Levac,Music Room
+Room 206,Day 1,09:15,10:15,Language,Graham McMurtrie,206
+Room 206,Day 1,10:30,11:30,Language,Graham McMurtrie,206
+Room 206,Day 1,12:30,13:30,Math,Graham McMurtrie,206
+Room 206,Day 1,13:30,14:00,Science,Graham McMurtrie,206
+Room 206,Day 1,14:15,14:45,Science,Graham McMurtrie,206
+Room 206,Day 1,14:45,15:15,French,Sarah Myles,206
+Room 206,Day 2,08:45,09:15,Music,Alain Levac,Music Room
+Room 206,Day 2,09:15,09:45,Phys. Ed.,Graham McMurtrie,Gym
+Room 206,Day 2,09:45,10:15,Language,Graham McMurtrie,206
+Room 206,Day 2,10:30,11:30,Language,Graham McMurtrie,206
+Room 206,Day 2,12:30,13:30,Math,Graham McMurtrie,206
+Room 206,Day 2,13:30,14:00,Language,Graham McMurtrie,206
+Room 206,Day 2,14:15,14:45,French,Sarah Myles,206
+Room 206,Day 2,14:45,15:15,Social Studies,Graham McMurtrie,206
+Room 206,Day 3,08:45,10:15,Language,Graham McMurtrie,206
+Room 206,Day 3,10:30,11:00,Language,Graham McMurtrie,206
+Room 206,Day 3,11:00,11:30,Art,Graham McMurtrie,206
+Room 206,Day 3,12:30,13:30,Math,Graham McMurtrie,206
+Room 206,Day 3,13:30,14:00,Social Studies,Graham McMurtrie,206
+Room 206,Day 3,14:15,14:45,French,Sarah Myles,206
+Room 206,Day 3,14:45,15:15,Social Studies,Graham McMurtrie,206
+Room 206,Day 4,08:45,09:15,Language,Graham McMurtrie,206
+Room 206,Day 4,09:15,09:45,Phys. Ed.,Graham McMurtrie,Gym
+Room 206,Day 4,09:45,10:15,Language,Graham McMurtrie,206
+Room 206,Day 4,10:30,11:30,Language,Graham McMurtrie,206
+Room 206,Day 4,12:30,13:30,Math,Graham McMurtrie,206
+Room 206,Day 4,13:30,14:00,Art,Graham McMurtrie,206
+Room 206,Day 4,14:15,14:45,Science,Graham McMurtrie,206
+Room 206,Day 4,14:45,15:15,French,Sarah Myles,206
+Room 206,Day 5,08:45,09:15,Music,Alain Levac,Music Room
+Room 206,Day 5,09:15,10:15,Language,Graham McMurtrie,206
+Room 206,Day 5,10:30,11:00,Phys. Ed.,Graham McMurtrie,Gym
+Room 206,Day 5,11:00,11:30,Language,Graham McMurtrie,206
+Room 206,Day 5,12:30,13:00,Language,Graham McMurtrie,206
+Room 206,Day 5,13:00,14:00,Math,Graham McMurtrie,206
+Room 206,Day 5,14:15,14:45,French,Sarah Myles,206
+Room 206,Day 5,14:45,15:15,Art,Graham McMurtrie,206
+Room 203,Day 1,08:45,10:15,Language,Connor McVeen,203
+Room 203,Day 1,10:30,11:30,Math,Connor McVeen,203
+Room 203,Day 1,12:30,13:00,Music,Connor McVeen,203
+Room 203,Day 1,13:00,13:30,Social Studies,Connor McVeen,203
+Room 203,Day 1,13:30,14:00,French,Kristin Dare,203
+Room 203,Day 1,14:15,14:45,Science,Connor McVeen,203
+Room 203,Day 1,14:45,15:15,Phys. Ed.,Connor McVeen,Gym
+Room 203,Day 2,08:45,09:45,Math,Connor McVeen,203
+Room 203,Day 2,09:45,10:15,French,Kristin Dare,203
+Room 203,Day 2,10:30,11:00,Language,Connor McVeen,203
+Room 203,Day 2,11:00,11:30,Art,Sarah Connelly,203
+Room 203,Day 2,12:30,13:00,Language,Connor McVeen,203
+Room 203,Day 2,13:00,13:30,Phys. Ed.,Connor McVeen,Gym
+Room 203,Day 2,13:30,14:00,Language,Connor McVeen,203
+Room 203,Day 2,14:15,14:45,Language,Connor McVeen,203
+Room 203,Day 2,14:45,15:15,Science,Connor McVeen,203
+Room 203,Day 3,08:45,10:15,Language,Connor McVeen,203
+Room 203,Day 3,10:30,11:00,Language,Connor McVeen,203
+Room 203,Day 3,11:00,11:30,Math,Connor McVeen,203
+Room 203,Day 3,12:30,13:00,Math,Connor McVeen,203
+Room 203,Day 3,13:00,14:00,Science,Connor McVeen,203
+Room 203,Day 3,14:15,15:15,French,Kristin Dare,203
+Room 203,Day 4,08:45,09:45,Language,Connor McVeen,203
+Room 203,Day 4,09:45,10:15,French,Kristin Dare,203
+Room 203,Day 4,10:30,11:00,Art,Sarah Connelly,203
+Room 203,Day 4,11:00,11:30,Language,Connor McVeen,203
+Room 203,Day 4,12:30,13:00,Language,Connor McVeen,203
+Room 203,Day 4,13:00,13:30,Phys. Ed.,Connor McVeen,Gym
+Room 203,Day 4,13:30,14:00,Math,Connor McVeen,203
+Room 203,Day 4,14:15,14:45,Math,Connor McVeen,203
+Room 203,Day 4,14:45,15:15,Science,Connor McVeen,203
+Room 203,Day 5,08:45,10:15,Language,Connor McVeen,203
+Room 203,Day 5,10:30,11:00,Social Studies,Connor McVeen,203
+Room 203,Day 5,11:00,11:30,Math,Connor McVeen,203
+Room 203,Day 5,12:30,13:00,Math,Connor McVeen,203
+Room 203,Day 5,13:00,13:30,French,Kristin Dare,203
+Room 203,Day 5,13:30,14:00,Social Studies,Connor McVeen,203
+Room 203,Day 5,14:15,14:45,Social Studies,Connor McVeen,203
+Room 203,Day 5,14:45,15:15,Music,Connor McVeen,203
+Room 207,Day 1,08:45,09:45,Math,Eric Beaton,207
+Room 207,Day 1,09:45,10:15,Language,Sarah Connelly,207
+Room 207,Day 1,10:30,11:00,Language,Sarah Connelly,207
+Room 207,Day 1,11:00,11:30,French,Sarah Myles,207
+Room 207,Day 1,12:30,13:00,Music,Alain Levac,Music Room
+Room 207,Day 1,13:00,14:00,Phys. Ed.,Eric Beaton,Gym
+Room 207,Day 1,14:15,15:15,Art,Patricia Moloney,207
+Room 207,Day 2,08:45,09:45,Math,Eric Beaton,207
+Room 207,Day 2,09:45,10:15,Science,Eric Beaton,207
+Room 207,Day 2,10:30,11:00,Science,Eric Beaton,207
+Room 207,Day 2,11:00,11:30,French,Sarah Myles,207
+Room 207,Day 2,12:30,13:30,Language,Sarah Connelly,207
+Room 207,Day 2,13:30,14:00,Phys. Ed.,Eric Beaton,Gym
+Room 207,Day 2,14:15,14:45,Language,Sarah Connelly,207
+Room 207,Day 2,14:45,15:15,Social Studies,Sarah Connelly,207
+Room 207,Day 3,08:45,09:45,Math,Sarah Connelly,207
+Room 207,Day 3,09:45,10:15,Language,Sarah Connelly,207
+Room 207,Day 3,10:30,11:00,Language,Sarah Connelly,207
+Room 207,Day 3,11:00,11:30,French,Sarah Myles,207
+Room 207,Day 3,12:30,13:00,French,Sarah Myles,207
+Room 207,Day 3,13:00,13:30,Language,Sarah Connelly,207
+Room 207,Day 3,13:30,14:00,Social Studies,Sarah Connelly,207
+Room 207,Day 3,14:15,14:45,Social Studies,Sarah Connelly,207
+Room 207,Day 3,14:45,15:15,Dance & Drama,Sarah Connelly,207
+Room 207,Day 4,08:45,09:45,Math,Eric Beaton,207
+Room 207,Day 4,09:45,10:15,Dance & Drama,Alain Levac,207
+Room 207,Day 4,10:30,11:30,Science,Eric Beaton,207
+Room 207,Day 4,12:30,13:00,Social Studies,Sarah Connelly,207
+Room 207,Day 4,13:00,13:30,Music,Alain Levac,Music Room
+Room 207,Day 4,13:30,14:00,Language,Sarah Connelly,207
+Room 207,Day 4,14:15,15:15,Language,Sarah Connelly,207
+Room 207,Day 5,08:45,09:15,Health,Eric Beaton,207
+Room 207,Day 5,09:15,09:45,Science,Eric Beaton,207
+Room 207,Day 5,09:45,10:15,Math,Eric Beaton,207
+Room 207,Day 5,10:30,11:00,Math,Eric Beaton,207
+Room 207,Day 5,11:00,11:30,French,Sarah Myles,207
+Room 207,Day 5,12:30,13:00,Music,Alain Levac,Music Room
+Room 207,Day 5,13:00,14:00,Language,Sarah Connelly,207
+Room 207,Day 5,14:15,15:15,Language,Sarah Connelly,207
+Room 208,Day 1,08:45,09:45,Math,Jay Moore,208
+Room 208,Day 1,09:45,10:15,French,Kristin Dare,208
+Room 208,Day 1,10:30,11:30,Language,Jay Moore,208
+Room 208,Day 1,12:30,13:00,Language,Jay Moore,208
+Room 208,Day 1,13:00,14:00,Phys. Ed.,Jay Moore,Gym
+Room 208,Day 1,14:15,14:45,Music,Jay Moore,208
+Room 208,Day 1,14:45,15:15,Science,Jay Moore,208
+Room 208,Day 2,08:45,09:15,Social Studies,Jay Moore,208
+Room 208,Day 2,09:15,09:45,French,Kristin Dare,208
+Room 208,Day 2,09:45,10:15,Art,Sarah Connelly,208
+Room 208,Day 2,10:30,11:30,Language,Jay Moore,208
+Room 208,Day 2,12:30,13:30,Language,Jay Moore,208
+Room 208,Day 2,13:30,14:00,Phys. Ed.,Jay Moore,Gym
+Room 208,Day 2,14:15,15:15,Math,Jay Moore,208
+Room 208,Day 3,08:45,10:15,Language,Jay Moore,208
+Room 208,Day 3,10:30,11:00,Language,Jay Moore,208
+Room 208,Day 3,11:00,11:30,Math,Jay Moore,208
+Room 208,Day 3,12:30,13:00,Math,Jay Moore,208
+Room 208,Day 3,13:00,13:30,Social Studies,Jay Moore,208
+Room 208,Day 3,13:30,14:00,French,Kristin Dare,208
+Room 208,Day 3,14:15,15:15,Science,Jay Moore,208
+Room 208,Day 4,08:45,09:15,French,Kristin Dare,208
+Room 208,Day 4,09:15,09:45,Art,Sarah Connelly,208
+Room 208,Day 4,09:45,10:15,Language,Jay Moore,208
+Room 208,Day 4,10:30,11:30,Language,Jay Moore,208
+Room 208,Day 4,12:30,13:30,Math,Jay Moore,208
+Room 208,Day 4,13:30,14:00,Science,Jay Moore,208
+Room 208,Day 4,14:15,14:45,Social Studies,Jay Moore,208
+Room 208,Day 4,14:45,15:15,Music,Jay Moore,208
+Room 208,Day 5,08:45,09:45,Math,Jay Moore,208
+Room 208,Day 5,09:45,10:15,French,Kristin Dare,208
+Room 208,Day 5,10:30,11:00,French,Kristin Dare,208
+Room 208,Day 5,11:00,11:30,Language,Jay Moore,208
+Room 208,Day 5,12:30,14:00,Language,Jay Moore,208
+Room 208,Day 5,14:15,14:45,Social Studies,Jay Moore,208
+Room 208,Day 5,14:45,15:15,Science,Jay Moore,208
+Room 218,Day 1,08:45,10:15,Language,Douglas Bennett,218
+Room 218,Day 1,10:30,11:30,Math,Douglas Bennett,218
+Room 218,Day 1,12:30,13:30,Social Studies,Douglas Bennett,218
+Room 218,Day 1,13:30,14:00,French,Sarah Myles,218
+Room 218,Day 1,14:15,14:45,Science,Douglas Bennett,218
+Room 218,Day 1,14:45,15:15,Music,Alain Levac,Music Room
+Room 218,Day 2,08:45,10:15,Language,Douglas Bennett,218
+Room 218,Day 2,10:30,11:30,Math,Douglas Bennett,218
+Room 218,Day 2,12:30,13:00,Art,Douglas Bennett,218
+Room 218,Day 2,13:00,14:00,Science,Douglas Bennett,218
+Room 218,Day 2,14:15,14:45,Phys. Ed.,Douglas Bennett,Gym
+Room 218,Day 2,14:45,15:15,French,Sarah Myles,218
+Room 218,Day 3,08:45,10:15,Language,Douglas Bennett,218
+Room 218,Day 3,10:30,11:30,Math,Douglas Bennett,218
+Room 218,Day 3,12:30,13:00,Science,Douglas Bennett,218
+Room 218,Day 3,13:00,13:30,Music,Alain Levac,Music Room
+Room 218,Day 3,13:30,14:00,French,Sarah Myles,218
+Room 218,Day 3,14:15,14:45,Phys. Ed.,Douglas Bennett,Gym
+Room 218,Day 3,14:45,15:15,Health,Douglas Bennett,218
+Room 218,Day 4,08:45,10:15,Language,Douglas Bennett,218
+Room 218,Day 4,10:30,11:30,Math,Douglas Bennett,218
+Room 218,Day 4,12:30,13:30,Science,Douglas Bennett,218
+Room 218,Day 4,13:30,14:00,Phys. Ed.,Douglas Bennett,Gym
+Room 218,Day 4,14:15,14:45,French,Sarah Myles,218
+Room 218,Day 4,14:45,15:15,Music,Alain Levac,Music Room
+Room 218,Day 5,08:45,10:15,Language,Douglas Bennett,218
+Room 218,Day 5,10:30,11:30,Math,Douglas Bennett,218
+Room 218,Day 5,12:30,13:00,Art,Douglas Bennett,218
+Room 218,Day 5,13:00,13:30,Health,Douglas Bennett,218
+Room 218,Day 5,13:30,14:00,Social Studies,Douglas Bennett,218
+Room 218,Day 5,14:15,14:45,Social Studies,Douglas Bennett,218
+Room 218,Day 5,14:45,15:15,French,Sarah Myles,218
+Room 217,Day 1,08:45,10:15,Language,Meghan Hoefs,217
+Room 217,Day 1,10:30,11:30,Math,Meghan Hoefs,217
+Room 217,Day 1,12:30,13:00,Health,Meghan Hoefs,217
+Room 217,Day 1,13:00,13:30,French,Sarah Myles,217
+Room 217,Day 1,13:30,14:00,Music,Alain Levac,Music Room
+Room 217,Day 1,14:15,14:45,Social Studies,Meghan Hoefs,217
+Room 217,Day 1,14:45,15:15,Science,Meghan Hoefs,217
+Room 217,Day 2,08:45,10:15,Language,Meghan Hoefs,217
+Room 217,Day 2,10:30,11:30,Math,Meghan Hoefs,217
+Room 217,Day 2,12:30,13:00,Health,Meghan Hoefs,217
+Room 217,Day 2,13:00,13:30,Social Studies,Meghan Hoefs,217
+Room 217,Day 2,13:30,14:00,French,Sarah Myles,217
+Room 217,Day 2,14:15,15:15,Phys. Ed.,Eric Beaton,Gym
+Room 217,Day 3,08:45,10:15,Language,Meghan Hoefs,217
+Room 217,Day 3,10:30,11:30,Math,Meghan Hoefs,217
+Room 217,Day 3,12:30,13:00,Drama,Meghan Hoefs,217
+Room 217,Day 3,13:00,14:00,Science,Meghan Hoefs,217
+Room 217,Day 3,14:15,14:45,Music,Alain Levac,Music Room
+Room 217,Day 3,14:45,15:15,French,Sarah Myles,217
+Room 217,Day 4,08:45,10:15,Language,Meghan Hoefs,217
+Room 217,Day 4,10:30,11:30,Math,Meghan Hoefs,217
+Room 217,Day 4,12:30,13:00,Music,Alain Levac,Music Room
+Room 217,Day 4,13:00,13:30,French,Sarah Myles,217
+Room 217,Day 4,13:30,14:00,Phys. Ed.,Eric Beaton,Gym
+Room 217,Day 4,14:15,14:45,Social Studies,Meghan Hoefs,217
+Room 217,Day 4,14:45,15:15,Art,Meghan Hoefs,217
+Room 217,Day 5,08:45,10:15,Language,Meghan Hoefs,217
+Room 217,Day 5,10:30,11:30,Math,Meghan Hoefs,217
+Room 217,Day 5,12:30,13:00,French,Sarah Myles,217
+Room 217,Day 5,13:00,13:30,Social Studies,Meghan Hoefs,217
+Room 217,Day 5,13:30,14:00,Art,Meghan Hoefs,217
+Room 217,Day 5,14:15,15:15,Science,Meghan Hoefs,217
+Room 216,Day 1,08:45,09:45,Language,Gavin Whillans,216
+Room 216,Day 1,09:45,10:15,Phys. Ed.,Gavin Whillans,Gym
+Room 216,Day 1,10:30,11:00,Language,Gavin Whillans,216
+Room 216,Day 1,11:00,11:30,Math,Gavin Whillans,216
+Room 216,Day 1,12:30,13:00,Math,Gavin Whillans,216
+Room 216,Day 1,13:00,13:30,French,Kristin Dare,216
+Room 216,Day 1,13:30,14:00,Music,Gavin Whillans,216
+Room 216,Day 1,14:15,14:45,Language,Gavin Whillans,216
+Room 216,Day 1,14:45,15:15,Language,Sierra Perkins,216
+Room 216,Day 2,08:45,09:15,French,Kristin Dare,216
+Room 216,Day 2,09:15,09:45,Art,Sarah Connelly,216
+Room 216,Day 2,09:45,10:15,Language,Gavin Whillans,216
+Room 216,Day 2,10:30,11:30,Language,Gavin Whillans,216
+Room 216,Day 2,12:30,13:30,Math,Gavin Whillans,216
+Room 216,Day 2,13:30,14:00,Language,Gavin Whillans,216
+Room 216,Day 2,14:15,15:15,Science,Gavin Whillans,216
+Room 216,Day 3,08:45,09:15,Language,Gavin Whillans,216
+Room 216,Day 3,09:15,10:15,Phys. Ed.,Gavin Whillans,Gym
+Room 216,Day 3,10:30,11:30,French,Kristin Dare,216
+Room 216,Day 3,12:30,14:00,Language,Gavin Whillans,216
+Room 216,Day 3,14:15,15:15,Math,Gavin Whillans,216
+Room 216,Day 4,08:45,09:45,Language,Gavin Whillans,216
+Room 216,Day 4,09:45,10:15,Art,Sarah Connelly,216
+Room 216,Day 4,10:30,11:00,French,Kristin Dare,216
+Room 216,Day 4,11:00,11:30,Math,Gavin Whillans,216
+Room 216,Day 4,12:30,13:00,Math,Gavin Whillans,216
+Room 216,Day 4,13:00,14:00,Science,Gavin Whillans,216
+Room 216,Day 4,14:15,14:45,Language,Gavin Whillans,216
+Room 216,Day 4,14:45,15:15,Language,Sierra Perkins,216
+Room 216,Day 5,08:45,09:15,French,Kristin Dare,216
+Room 216,Day 5,09:15,10:15,Math,Gavin Whillans,216
+Room 216,Day 5,10:30,11:30,Language,Gavin Whillans,216
+Room 216,Day 5,12:30,13:00,Science,Gavin Whillans,216
+Room 216,Day 5,13:00,14:00,Language,Sierra Perkins,216
+Room 216,Day 5,14:15,15:15,Music,Gavin Whillans,216
+Room 213,Day 1,08:45,10:15,Language,Rachel Wilson,213
+Room 213,Day 1,10:30,11:30,French,Alain Levac,Music Room
+Room 213,Day 1,12:30,13:30,Math,Rachel Wilson,213
+Room 213,Day 1,13:30,14:00,Art,Rachel Wilson,213
+Room 213,Day 1,14:15,15:15,Science,Daniel Paquin,213
+Room 213,Day 2,08:45,09:15,Language,Rachel Wilson,213
+Room 213,Day 2,09:15,10:15,French,Alain Levac,Music Room
+Room 213,Day 2,10:30,11:30,Language,Rachel Wilson,213
+Room 213,Day 2,12:30,13:30,Math,Rachel Wilson,213
+Room 213,Day 2,13:30,14:00,Health,Rachel Wilson,213
+Room 213,Day 2,14:15,15:15,Science,Daniel Paquin,213
+Room 213,Day 3,08:45,09:15,Language,Rachel Wilson,213
+Room 213,Day 3,09:15,10:15,Music,Alain Levac,Music Room
+Room 213,Day 3,10:30,11:30,Phys. Ed.,Eric Beaton,Gym
+Room 213,Day 3,12:30,13:30,Math,Rachel Wilson,213
+Room 213,Day 3,13:30,14:00,Language,Rachel Wilson,213
+Room 213,Day 3,14:15,14:45,Language,Rachel Wilson,213
+Room 213,Day 3,14:45,15:15,History & Geography,Rachel Wilson,213
+Room 213,Day 4,08:45,10:15,Language,Rachel Wilson,213
+Room 213,Day 4,10:30,11:00,French,Alain Levac,Music Room
+Room 213,Day 4,11:00,11:30,Art,Rachel Wilson,213
+Room 213,Day 4,12:30,13:30,Math,Rachel Wilson,213
+Room 213,Day 4,13:30,14:00,History & Geography,Rachel Wilson,213
+Room 213,Day 4,14:15,14:45,Phys. Ed.,Eric Beaton,Gym
+Room 213,Day 4,14:45,15:15,History & Geography,Rachel Wilson,213
+Room 213,Day 5,08:45,09:15,Language,Rachel Wilson,213
+Room 213,Day 5,09:15,09:45,Music,Alain Levac,Music Room
+Room 213,Day 5,09:45,10:15,Language,Rachel Wilson,213
+Room 213,Day 5,10:30,11:30,Language,Rachel Wilson,213
+Room 213,Day 5,12:30,13:30,Math,Rachel Wilson,213
+Room 213,Day 5,13:30,14:00,Language,Rachel Wilson,213
+Room 213,Day 5,14:15,14:45,History & Geography,Rachel Wilson,213
+Room 213,Day 5,14:45,15:15,Health,Rachel Wilson,213
+Room 211,Day 1,08:45,10:15,Language,Sierra Perkins,211
+Room 211,Day 1,10:30,11:00,Art,Kayla Tanaka,211
+Room 211,Day 1,11:00,11:30,Math,Sierra Perkins,211
+Room 211,Day 1,12:30,13:00,Math,Sierra Perkins,211
+Room 211,Day 1,13:00,13:30,DPA,Gavin Whillans,211
+Room 211,Day 1,13:30,14:00,Science,Sierra Perkins,211
+Room 211,Day 1,14:15,14:45,Science,Sierra Perkins,211
+Room 211,Day 1,14:45,15:15,French,Kristin Dare,211
+Room 211,Day 2,08:45,10:15,Language,Sierra Perkins,211
+Room 211,Day 2,10:30,11:00,Art,Kayla Tanaka,211
+Room 211,Day 2,11:00,11:30,French,Kristin Dare,211
+Room 211,Day 2,12:30,13:30,Math,Sierra Perkins,211
+Room 211,Day 2,13:30,14:00,Language,Sierra Perkins,211
+Room 211,Day 2,14:15,15:15,Music,Sierra Perkins,211
+Room 211,Day 3,08:45,09:45,French,Kristin Dare,211
+Room 211,Day 3,09:45,10:15,Language,Sierra Perkins,211
+Room 211,Day 3,10:30,11:30,Language,Sierra Perkins,211
+Room 211,Day 3,12:30,13:30,Math,Sierra Perkins,211
+Room 211,Day 3,13:30,14:00,Music,Sierra Perkins,211
+Room 211,Day 3,14:15,14:45,Language,Sierra Perkins,211
+Room 211,Day 3,14:45,15:15,Science,Sierra Perkins,211
+Room 211,Day 4,08:45,09:15,Language,Sierra Perkins,211
+Room 211,Day 4,09:15,09:45,French,Kristin Dare,211
+Room 211,Day 4,09:45,10:15,Language,Sierra Perkins,211
+Room 211,Day 4,10:30,11:30,Language,Sierra Perkins,211
+Room 211,Day 4,12:30,13:30,Math,Sierra Perkins,211
+Room 211,Day 4,13:30,14:00,Science,Sierra Perkins,211
+Room 211,Day 4,14:15,14:45,Science,Sierra Perkins,211
+Room 211,Day 4,14:45,15:15,Phys. Ed.,Gavin Whillans,Gym
+Room 211,Day 5,08:45,09:15,Language,Sierra Perkins,211
+Room 211,Day 5,09:15,09:45,French,Kristin Dare,211
+Room 211,Day 5,09:45,10:15,Language,Sierra Perkins,211
+Room 211,Day 5,10:30,11:30,Language,Sierra Perkins,211
+Room 211,Day 5,12:30,13:00,Language,Sierra Perkins,211
+Room 211,Day 5,13:00,14:00,Phys. Ed.,Gavin Whillans,Gym
+Room 211,Day 5,14:15,15:15,Math,Sierra Perkins,211
+Room 215,Day 1,08:45,10:15,Language,Daniel Paquin,215
+Room 215,Day 1,10:30,11:30,Math,Daniel Paquin,215
+Room 215,Day 1,12:30,13:00,Drama,Daniel Paquin,215
+Room 215,Day 1,13:00,13:30,French,Alain Levac,Music Room
+Room 215,Day 1,13:30,14:00,Health,Daniel Paquin,215
+Room 215,Day 1,14:15,15:15,History & Geography,Rachel Wilson,215
+Room 215,Day 2,08:45,10:15,Language,Daniel Paquin,215
+Room 215,Day 2,10:30,11:30,Math,Daniel Paquin,215
+Room 215,Day 2,12:30,13:00,Art,Daniel Paquin,215
+Room 215,Day 2,13:00,13:30,Music,Alain Levac,Music Room
+Room 215,Day 2,13:30,14:00,French,Alain Levac,Music Room
+Room 215,Day 2,14:15,15:15,History & Geography,Rachel Wilson,215
+Room 215,Day 3,08:45,10:15,Language,Daniel Paquin,215
+Room 215,Day 3,10:30,11:30,Math,Daniel Paquin,215
+Room 215,Day 3,12:30,13:00,French,Alain Levac,Music Room
+Room 215,Day 3,13:00,14:00,Science,Daniel Paquin,215
+Room 215,Day 3,14:15,14:45,Phys. Ed.,Eric Beaton,Gym
+Room 215,Day 3,14:45,15:15,Drama,Daniel Paquin,215
+Room 215,Day 4,08:45,10:15,Language,Daniel Paquin,215
+Room 215,Day 4,10:30,11:30,Math,Daniel Paquin,215
+Room 215,Day 4,12:30,13:00,Art,Daniel Paquin,215
+Room 215,Day 4,13:00,13:30,Health,Daniel Paquin,215
+Room 215,Day 4,13:30,14:00,Music,Alain Levac,Music Room
+Room 215,Day 4,14:15,14:45,Music,Alain Levac,Music Room
+Room 215,Day 4,14:45,15:15,Science,Daniel Paquin,215
+Room 215,Day 5,08:45,10:15,Language,Daniel Paquin,215
+Room 215,Day 5,10:30,11:30,Math,Daniel Paquin,215
+Room 215,Day 5,12:30,13:00,Science,Daniel Paquin,215
+Room 215,Day 5,13:00,14:00,French,Alain Levac,Music Room
+Room 215,Day 5,14:15,15:15,Phys. Ed.,Eric Beaton,Gym
+Room 100,Day 1,08:45,09:15,Kindergarten,Joy Dodds,100
+Room 100,Day 1,09:15,10:15,Kindergarten,Kayla Tanaka,100
+Room 100,Day 1,10:30,11:00,Phys. Ed.,Joy Dodds,Gym
+Room 100,Day 1,11:00,11:30,Kindergarten,Kristin Dare,100
+Room 100,Day 1,12:30,14:00,Kindergarten,Joy Dodds,100
+Room 100,Day 1,14:15,15:15,Kindergarten,Joy Dodds,100
+Room 100,Day 2,08:45,10:15,Kindergarten,Joy Dodds,100
+Room 100,Day 2,10:30,11:00,Kindergarten,Joy Dodds,100
+Room 100,Day 2,11:00,11:30,Kindergarten,Kayla Tanaka,100
+Room 100,Day 2,12:30,14:00,Kindergarten,Joy Dodds,100
+Room 100,Day 2,14:15,15:15,Kindergarten,Joy Dodds,100
+Room 100,Day 3,08:45,09:15,Kindergarten,Joy Dodds,100
+Room 100,Day 3,09:15,10:15,Kindergarten,Kayla Tanaka,100
+Room 100,Day 3,10:30,11:30,Kindergarten,Joy Dodds,100
+Room 100,Day 3,12:30,14:00,Kindergarten,Joy Dodds,100
+Room 100,Day 3,14:15,15:15,Kindergarten,Joy Dodds,100
+Room 100,Day 4,08:45,09:45,Kindergarten,Joy Dodds,100
+Room 100,Day 4,09:45,10:15,Phys. Ed.,Joy Dodds,Gym
+Room 100,Day 4,10:30,11:30,Kindergarten,Kayla Tanaka,100
+Room 100,Day 4,12:30,14:00,Kindergarten,Joy Dodds,100
+Room 100,Day 4,14:15,15:15,Kindergarten,Joy Dodds,100
+Room 100,Day 5,08:45,10:15,Kindergarten,Joy Dodds,100
+Room 100,Day 5,10:30,11:30,Kindergarten,Joy Dodds,100
+Room 100,Day 5,12:30,14:00,Kindergarten,Joy Dodds,100
+Room 100,Day 5,14:15,15:15,Kindergarten,Joy Dodds,100
+Room 102,Day 1,08:45,09:45,Phys. Ed.,Shelby Dubyk,Gym
+Room 102,Day 1,09:45,10:15,Kindergarten,Shelby Dubyk,102
+Room 102,Day 1,10:30,11:00,Kindergarten,Shelby Dubyk,102
+Room 102,Day 1,11:00,11:30,Kindergarten,Kayla Tanaka,102
+Room 102,Day 1,12:30,14:00,Kindergarten,Shelby Dubyk,102
+Room 102,Day 1,14:15,15:15,Kindergarten,Shelby Dubyk,102
+Room 102,Day 2,08:45,09:15,Kindergarten,Shelby Dubyk,102
+Room 102,Day 2,09:15,10:15,Kindergarten,Kayla Tanaka,102
+Room 102,Day 2,10:30,11:30,Kindergarten,Shelby Dubyk,102
+Room 102,Day 2,12:30,14:00,Kindergarten,Shelby Dubyk,102
+Room 102,Day 2,14:15,15:15,Kindergarten,Shelby Dubyk,102
+Room 102,Day 3,08:45,10:15,Kindergarten,Shelby Dubyk,102
+Room 102,Day 3,10:30,11:30,Kindergarten,Kayla Tanaka,102
+Room 102,Day 3,12:30,14:00,Kindergarten,Shelby Dubyk,102
+Room 102,Day 3,14:15,15:15,Kindergarten,Shelby Dubyk,102
+Room 102,Day 4,08:45,09:15,Kindergarten,Shelby Dubyk,102
+Room 102,Day 4,09:15,10:15,Kindergarten,Kayla Tanaka,102
+Room 102,Day 4,10:30,11:30,Kindergarten,Shelby Dubyk,102
+Room 102,Day 4,12:30,14:00,Kindergarten,Shelby Dubyk,102
+Room 102,Day 4,14:15,15:15,Kindergarten,Shelby Dubyk,102
+Room 102,Day 5,08:45,09:45,Kindergarten,Shelby Dubyk,102
+Room 102,Day 5,09:45,10:15,Phys. Ed.,Shelby Dubyk,Gym
+Room 102,Day 5,10:30,11:30,Kindergarten,Shelby Dubyk,102
+Room 102,Day 5,12:30,14:00,Kindergarten,Shelby Dubyk,102
+Room 102,Day 5,14:15,14:45,Kindergarten,Kristin Dare,102
+Room 102,Day 5,14:45,15:15,Kindergarten,Shelby Dubyk,102
+Room 111,Day 1,08:45,09:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 1,09:15,09:45,Kindergarten,Ryan Adams,111
+Room 111,Day 1,09:45,10:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 1,10:30,11:00,Homeroom,Melanie Kanellis,111
+Room 111,Day 1,11:00,11:30,Phys. Ed.,Melanie Kanellis,Gym
+Room 111,Day 1,12:30,14:00,Homeroom,Melanie Kanellis,111
+Room 111,Day 1,14:15,15:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 2,08:45,09:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 2,09:15,09:45,Kindergarten,Ryan Adams,111
+Room 111,Day 2,09:45,10:15,Phys. Ed.,Melanie Kanellis,Gym
+Room 111,Day 2,10:30,11:30,Homeroom,Melanie Kanellis,111
+Room 111,Day 2,12:30,14:00,Homeroom,Melanie Kanellis,111
+Room 111,Day 2,14:15,15:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 3,08:45,09:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 3,09:15,10:15,Kindergarten,Ryan Adams,111
+Room 111,Day 3,10:30,11:30,Homeroom,Melanie Kanellis,111
+Room 111,Day 3,12:30,14:00,Homeroom,Melanie Kanellis,111
+Room 111,Day 3,14:15,15:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 4,08:45,10:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 4,10:30,11:30,Kindergarten,Ryan Adams,111
+Room 111,Day 4,12:30,14:00,Homeroom,Melanie Kanellis,111
+Room 111,Day 4,14:15,15:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 5,08:45,10:15,Homeroom,Melanie Kanellis,111
+Room 111,Day 5,10:30,11:30,Kindergarten,Ryan Adams,111
+Room 111,Day 5,12:30,14:00,Homeroom,Melanie Kanellis,111
+Room 111,Day 5,14:15,15:15,Homeroom,Melanie Kanellis,111
+Room 103,Day 1,08:45,10:15,Kindergarten,Stefani Murray,103
+Room 103,Day 1,10:30,11:00,Kindergarten,Ryan Adams,103
+Room 103,Day 1,11:00,11:30,Kindergarten,Stefani Murray,103
+Room 103,Day 1,12:30,13:30,Kindergarten,Stefani Murray,103
+Room 103,Day 1,13:30,14:00,Kindergarten,Gavin Whillans,103
+Room 103,Day 1,14:15,15:15,Kindergarten,Stefani Murray,103
+Room 103,Day 2,08:45,10:15,Kindergarten,Stefani Murray,103
+Room 103,Day 2,10:30,11:00,Phys. Ed.,Stefani Murray,Gym
+Room 103,Day 2,11:00,11:30,Kindergarten,Stefani Murray,103
+Room 103,Day 2,12:30,13:30,Kindergarten,Stefani Murray,103
+Room 103,Day 2,13:30,14:00,Kindergarten,Patricia Moloney,103
+Room 103,Day 2,14:15,15:15,Kindergarten,Stefani Murray,103
+Room 103,Day 3,08:45,10:15,Kindergarten,Stefani Murray,103
+Room 103,Day 3,10:30,11:30,Kindergarten,Stefani Murray,103
+Room 103,Day 3,12:30,14:00,Kindergarten,Stefani Murray,103
+Room 103,Day 3,14:15,14:45,Kindergarten,Daniel Paquin,103
+Room 103,Day 3,14:45,15:15,Kindergarten,Stefani Murray,103
+Room 103,Day 4,08:45,10:15,Homeroom,Stefani Murray,103
+Room 103,Day 4,10:30,11:00,Phys. Ed.,Stefani Murray,Gym
+Room 103,Day 4,11:00,11:30,Homeroom,Stefani Murray,103
+Room 103,Day 4,12:30,14:00,Homeroom,Stefani Murray,103
+Room 103,Day 4,14:15,14:45,Kindergarten,Daniel Paquin,103
+Room 103,Day 4,14:45,15:15,Homeroom,Stefani Murray,103
+Room 103,Day 5,08:45,10:15,Homeroom,Stefani Murray,103
+Room 103,Day 5,10:30,11:30,Homeroom,Stefani Murray,103
+Room 103,Day 5,12:30,13:30,Homeroom,Stefani Murray,103
+Room 103,Day 5,13:30,14:00,Kindergarten,Daniel Paquin,103
+Room 103,Day 5,14:15,15:15,Kindergarten,Gavin Whillans,103
+Room 101,Day 1,08:45,09:45,Phys. Ed.,Michelle Shepherd,Gym
+Room 101,Day 1,09:45,10:15,Homeroom,Michelle Shepherd,101
+Room 101,Day 1,10:30,11:00,Kindergarten,Rachel Wilson,101
+Room 101,Day 1,11:00,11:30,Homeroom,Michelle Shepherd,101
+Room 101,Day 1,12:30,14:00,Homeroom,Michelle Shepherd,101
+Room 101,Day 1,14:15,15:15,Homeroom,Michelle Shepherd,101
+Room 101,Day 2,08:45,10:15,Homeroom,Michelle Shepherd,101
+Room 101,Day 2,10:30,11:30,Homeroom,Michelle Shepherd,101
+Room 101,Day 2,12:30,14:00,Homeroom,Michelle Shepherd,101
+Room 101,Day 2,14:15,15:15,Kindergarten,Sarah Connelly,101
+Room 101,Day 3,08:45,09:45,Homeroom,Michelle Shepherd,101
+Room 101,Day 3,09:45,10:15,Kindergarten,Rachel Wilson,101
+Room 101,Day 3,10:30,11:00,Kindergarten,Rachel Wilson,101
+Room 101,Day 3,11:00,11:30,Homeroom,Michelle Shepherd,101
+Room 101,Day 3,12:30,13:30,Homeroom,Michelle Shepherd,101
+Room 101,Day 3,13:30,14:00,Kindergarten,Sarah Connelly,101
+Room 101,Day 3,14:15,15:15,Homeroom,Michelle Shepherd,101
+Room 101,Day 4,08:45,09:45,Homeroom,Michelle Shepherd,101
+Room 101,Day 4,09:45,10:15,Kindergarten,Ryan Adams,101
+Room 101,Day 4,10:30,11:30,Homeroom,Michelle Shepherd,101
+Room 101,Day 4,12:30,14:00,Homeroom,Michelle Shepherd,101
+Room 101,Day 4,14:15,15:15,Homeroom,Michelle Shepherd,101
+Room 101,Day 5,08:45,09:15,Homeroom,Michelle Shepherd,101
+Room 101,Day 5,09:15,09:45,Phys. Ed.,Michelle Shepherd,Gym
+Room 101,Day 5,09:45,10:15,Kindergarten,Ryan Adams,101
+Room 101,Day 5,10:30,11:30,Homeroom,Michelle Shepherd,101
+Room 101,Day 5,12:30,14:00,Homeroom,Michelle Shepherd,101
+Room 101,Day 5,14:15,15:15,Homeroom,Michelle Shepherd,101
+Room 209,Day 1,08:45,10:15,SSP,Patricia Moloney,209
+Room 209,Day 1,10:30,11:30,SSP,Patricia Moloney,209
+Room 209,Day 1,12:30,14:00,Integrated into classes,,
+Room 209,Day 1,14:15,15:15,Integrated into classes,,
+Room 209,Day 2,08:45,10:15,SSP,Patricia Moloney,209
+Room 209,Day 2,10:30,11:30,SSP,Patricia Moloney,209
+Room 209,Day 2,12:30,14:00,Integrated into classes,,
+Room 209,Day 2,14:15,15:15,Integrated into classes,,
+Room 209,Day 3,08:45,10:15,SSP,Patricia Moloney,209
+Room 209,Day 3,10:30,11:30,SSP,Patricia Moloney,209
+Room 209,Day 3,12:30,14:00,Integrated into classes,,
+Room 209,Day 3,14:15,15:15,Integrated into classes,,
+Room 209,Day 4,08:45,10:15,SSP,Patricia Moloney,209
+Room 209,Day 4,10:30,11:30,SSP,Patricia Moloney,209
+Room 209,Day 4,12:30,14:00,Integrated into classes,,
+Room 209,Day 4,14:15,15:15,Integrated into classes,,
+Room 209,Day 5,08:45,10:15,SSP,Patricia Moloney,209
+Room 209,Day 5,10:30,11:30,SSP,Patricia Moloney,209
+Room 209,Day 5,12:30,14:00,Integrated into classes,,
+Room 209,Day 5,14:15,15:15,Integrated into classes,,

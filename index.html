@@ -108,6 +108,27 @@ a{color:var(--accent)}
 .timeline li.cur .tm{color:var(--accent)}
 .timeline li.past{color:var(--muted)}
 .tm{color:var(--muted);font-variant-numeric:tabular-nums}
+/* timetables */
+.tt{list-style:none;margin:0;padding:0;display:grid}
+.tt li{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:9px 8px;border-top:1px solid var(--line);font-size:15px;align-items:start;border-radius:10px}
+.tt li:first-child{border-top:0}
+.tt .when{display:grid;line-height:1.25}
+.tt .when b{font-size:13px;color:var(--ink)}
+.tt .when span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tt .what{min-width:0;display:grid;gap:4px}
+.tt .what>div{min-width:0}
+.tt .what b{overflow-wrap:anywhere}
+.tt .what small{display:block;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.tt .what .free{color:var(--muted)}
+.tt li.brk{background:var(--sunk);border-top-color:transparent;padding-block:6px}
+.tt li.brk+li{border-top-color:transparent}
+.tt li.brk .what{color:var(--muted);font-weight:700;font-size:14px}
+.tt li.past{opacity:.6}
+.tt li.now{background:var(--accent-soft);opacity:1;border-top-color:transparent;box-shadow:inset 3px 0 0 var(--accent)}
+.tt li.now+li{border-top-color:transparent}
+.tt .linkbtn{font-weight:600}
+.tt-pick{display:grid;gap:10px}
+.tt-pick select{width:100%}
 /* duty */
 .duty-block{display:grid;gap:6px}
 .duty-row{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;background:var(--sunk);font-size:15px;flex-wrap:wrap}
@@ -222,8 +243,9 @@ a{color:var(--accent)}
 .crest-sm img{display:block;width:100%;height:100%}
 /* nav */
 .tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:5}
-.tabs button{flex:1;max-width:140px;padding:8px 2px 10px;font-weight:700;font-size:12px;color:var(--muted);display:grid;justify-items:center;gap:2px;border-top:3px solid transparent}
+.tabs button{flex:1;min-width:0;max-width:140px;padding:8px 1px 10px;font-weight:700;font-size:12px;letter-spacing:-.01em;color:var(--muted);display:grid;justify-items:center;gap:2px;border-top:3px solid transparent}
 .tabs button svg{width:22px;height:22px}
+.tabs.many button{font-size:11px}
 .tabs button[aria-current="page"]{color:var(--ink);border-top-color:var(--accent)}
 .sw{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
 .sw:first-of-type{border-top:0}
@@ -290,6 +312,13 @@ const toMins = t => { if (!t) return null; const m = String(t).match(/(\d{1,2}):
 const nowMins = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
 const nice = t => { const m = toMins(t); if (m == null) return ''; let h = Math.floor(m / 60); const mm = pad(m % 60); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + mm + ' ' + ap; };
 const DOW = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+/* WPS day: 10 periods plus two recesses and lunch. Every timetable shows all of these rows. */
+const DAY_PLAN = [
+  ['P1', '08:45', '09:15'], ['P2', '09:15', '09:45'], ['P3', '09:45', '10:15'], ['Recess', '10:15', '10:30', true],
+  ['P4', '10:30', '11:00'], ['P5', '11:00', '11:30'], ['Lunch', '11:30', '12:30', true],
+  ['P6', '12:30', '13:00'], ['P7', '13:00', '13:30'], ['P8', '13:30', '14:00'], ['Recess', '14:00', '14:15', true],
+  ['P9', '14:15', '14:45'], ['P10', '14:45', '15:15']
+].map(([label, start, end, brk]) => ({ label, start, end, brk: !!brk, s: toMins(start), e: toMins(end) }));
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const longDate = d => DAYS[d.getDay()] + ', ' + MON[d.getMonth()] + ' ' + d.getDate();
@@ -345,6 +374,7 @@ const ICON = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>',
   duty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/><circle cx="12" cy="10" r="3"/><path d="M4 8l2 1M20 8l-2 1"/></svg>',
+  tt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 4v17M3 14h18"/></svg>',
   lookup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
   admin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
   tools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>',
@@ -391,18 +421,7 @@ function demoData(role) {
     { Email: 'office@example.org', Name: 'Mrs. Walsh', Role: 'Office', Homeroom: '', Room: 'Office', Extension: '2000', Assignment: 'Office Administrator' },
     { Email: 'principal@example.org', Name: 'Mr. Bennett', Role: 'Admin', Homeroom: '', Room: 'Office', Extension: '2001', Assignment: 'Principal' }
   ];
-  const bells = [
-    { Start: '08:30', End: '08:45', Label: 'Yard supervision', 'Attendance Checkpoint': '' },
-    { Start: '08:45', End: '08:50', Label: 'Entry bell', 'Attendance Checkpoint': SA_AM },
-    { Start: '08:50', End: '10:30', Label: 'Learning Block 1', 'Attendance Checkpoint': '' },
-    { Start: '10:30', End: '10:50', Label: 'Nutrition Break 1', 'Attendance Checkpoint': '' },
-    { Start: '10:50', End: '11:10', Label: 'Recess 1', 'Attendance Checkpoint': '' },
-    { Start: '11:10', End: '12:50', Label: 'Learning Block 2', 'Attendance Checkpoint': 'After recess / break' },
-    { Start: '12:50', End: '13:10', Label: 'Nutrition Break 2', 'Attendance Checkpoint': '' },
-    { Start: '13:10', End: '13:30', Label: 'Recess 2', 'Attendance Checkpoint': '' },
-    { Start: '13:30', End: '15:10', Label: 'Learning Block 3', 'Attendance Checkpoint': SA_PM },
-    { Start: '15:10', End: '15:25', Label: 'Dismissal', 'Attendance Checkpoint': '' }
-  ];
+  const bells = DAY_PLAN.map((b, i) => ({ Start: b.start, End: b.end, Label: b.brk ? b.label : 'Period ' + b.label.slice(1), 'Attendance Checkpoint': i === 0 ? SA_AM : b.label === 'P6' ? SA_PM : b.label === 'P4' || b.label === 'P9' ? 'After recess / break' : '' }));
   const blocks = [['Before School','08:30','08:45',['Front Doors','Primary Yard','Junior Yard']],['Nutrition Break 1','10:30','10:50',['Upper Hall','Lower Hall']],['Recess 1','10:50','11:10',['Primary Yard','Junior Yard','Kindie Pad']],['Nutrition Break 2','12:50','13:10',['Upper Hall','Lower Hall']],['Recess 2','13:10','13:30',['Primary Yard','Junior Yard','Kindie Pad']],['After School','15:10','15:25',['Bus Loop','Front Doors']]];
   const pool = ['Ms. Kaur','Ms. Bell','Mrs. Fraser','Mr. Osei','Ms. Tremblay','Mr. Lindqvist','Mme Roy','Mr. Diaz','Ms. Chen','Mrs. Walsh'];
   const duty = []; let p = 0;
@@ -414,16 +433,15 @@ function demoData(role) {
   const today = dkey(new Date());
   const dutyChanges = [{ Date: today, 'Time Block': 'Recess 2', Location: 'Junior Yard', 'Covered By': 'Mr. Diaz', Replacing: '', Note: 'Field trip coverage' }];
   const schedules = [];
-  rooms.forEach(([hr, , tch]) => DOW.forEach((day, di) => {
-    schedules.push({ Homeroom: hr, Day: day, Start: '08:50', End: '10:30', Subject: 'Literacy', Teacher: tch, Room: hr.replace('Room ', '') });
-    schedules.push({ Homeroom: hr, Day: day, Start: '11:10', End: '12:50', Subject: 'Math', Teacher: tch, Room: hr.replace('Room ', '') });
-    if (di % 2 === 0) {
-      schedules.push({ Homeroom: hr, Day: day, Start: '13:30', End: '14:20', Subject: hr === 'Room 101' ? 'Play-based learning' : 'Core French', Teacher: hr === 'Room 101' ? tch : 'Mme Roy', Room: hr === 'Room 101' ? '101' : '112' });
-      schedules.push({ Homeroom: hr, Day: day, Start: '14:20', End: '15:10', Subject: 'Phys. Ed.', Teacher: 'Mr. Diaz', Room: 'Gym' });
-    } else {
-      schedules.push({ Homeroom: hr, Day: day, Start: '13:30', End: '15:10', Subject: di === 1 ? 'Science & Tech' : 'The Arts', Teacher: tch, Room: hr.replace('Room ', '') });
-    }
-  }));
+  const P = [['08:45','09:15'],['09:15','09:45'],['09:45','10:15'],['10:30','11:00'],['11:00','11:30'],['12:30','13:00'],['13:00','13:30'],['13:30','14:00'],['14:15','14:45'],['14:45','15:15']];
+  const plan = ['Language','Language','Language','Math','Math','Science','Social Studies','Art','Music','Health'];
+  rooms.forEach(([hr, , tch], ri) => [1, 2, 3, 4, 5].forEach(dn => P.forEach(([st, en], pi) => {
+    let subj = pi < 3 ? 'Language' : pi < 5 ? 'Math' : plan[(pi + dn + ri) % plan.length], who = tch, room = hr.replace('Room ', '');
+    if (hr !== 'Room 101' && (pi + dn + ri) % 7 === 0) { subj = 'French'; who = 'Mme Roy'; room = '112'; }
+    else if ((pi * 3 + dn + ri) % 9 === 0) { subj = 'Phys. Ed.'; who = 'Mr. Diaz'; room = 'Gym'; }
+    if (hr === 'Room 101' && subj !== 'Phys. Ed.') subj = 'Kindergarten';
+    schedules.push({ Homeroom: hr, Day: 'Day ' + dn, Start: st, End: en, Subject: subj, Teacher: who, Room: room });
+  })));
   const isOffice = role === 'Admin';
   return {
     me: { email: 'demo@example.org', name: isOffice ? 'Mr. Bennett' : 'Demo Teacher', role, homerooms: isOffice ? [] : ['Room 106'], appAdmin: isOffice },
@@ -456,7 +474,7 @@ const prefs = Object.assign({ tab: 'home', hr: '', toolSrc: '', custom: '', duty
 const ui = {
   tab: prefs.tab, role: DEMO ? LS.get(K.demoRole, 'Teacher') : null,
   point: null, count: null, disc: null, alarm: false, adjOpen: null, checkView: 'class', weekOffset: 0, week: null, live: null, liveAt: 0,
-  dutyDay: null, lookup: 'students', q: '', cls: null, clsView: 'roster', clsDay: null,
+  dutyDay: null, ttMode: null, ttSel: null, ttDay: null, ttScroll: false, lookup: 'students', q: '', cls: null, clsView: 'roster', clsDay: null,
   tool: 'wheel', wheelOut: [], winner: null, groupMode: 'count', groupN: 4, absent: {}, groups: null,
   loading: false, authError: '', syncing: false
 };
@@ -658,7 +676,7 @@ function lastCheck(hr) {
    ====================================================================== */
 const app = document.getElementById('app');
 const tabsEl = document.getElementById('tabs');
-const tabList = () => [['home', 'Home'], ['check', 'Attendance'], ['duty', 'Yard Duty'], ['lookup', 'Lookup'], ['tools', 'Tools'], ['admin', 'Admin']]
+const tabList = () => [['home', 'Home'], ['check', 'Attendance'], ['duty', 'Yard Duty'], ['tt', 'Timetables'], ['lookup', 'Lookup'], ['tools', 'Tools'], ['admin', 'Admin']]
   .filter(t => (t[0] !== 'check' || showAtt()) && (t[0] !== 'admin' || isAdmin()));
 
 function header(title, sub, right) {
@@ -729,11 +747,13 @@ function viewHome() {
   h += '</section></div>';
   // office board or class schedule
   if (showAtt() && isOffice()) h += viewBoard(true);
-  if (hr && !isOffice()) {
-    const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, dayDate)).sort((a, b) => toMins(a.start) - toMins(b.start));
+  const meTT = myTimetable();
+  if (meTT || (hr && !isOffice())) {
+    const sched = meTT ? ttIndex().teach.get(staffKey(meTT)) : D.schedules.filter(s => s.homeroom === hr);
+    const any = sched.some(s => dayMatches(s.day, dayDate));
     h += '<div class="grid2">';
-    h += '<section class="card stack-s"><div class="row between"><div class="label">' + esc(hr) + ' ' + esc(when) + '</div><button class="linkbtn small" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Class list</button></div>';
-    h += sched.length ? timeline(sched.map(s => ({ start: s.start, end: s.end, title: s.subject, sub: [s.teacher, s.room && 'Room ' + s.room.replace(/^room\s*/i, '')].filter(Boolean).join(' · ') })), weekend) : '<p class="muted">No timetable entered for this class yet.</p>';
+    h += '<section class="card stack-s"><div class="row between"><div class="label">' + (meTT ? 'Your timetable ' : esc(hr) + ' ') + esc(when) + '</div><button class="linkbtn small" type="button" data-act="ttGo" data-arg="' + (meTT ? 'staff|' + esc(staffKey(meTT)) : 'class|' + esc(hr)) + '">All timetables</button></div>';
+    h += any ? ttGrid(sched, dayDate, meTT ? 'staff' : 'class') : '<p class="muted">No timetable entered ' + (meTT ? 'for you' : 'for this class') + ' yet.</p>';
     h += '</section>';
     h += '<section class="card stack-s"><div class="label">Bell schedule</div>' + timeline(D.bells.map(b => ({ start: b.start, end: b.end, title: b.label })), weekend) + '</section></div>';
   } else if (!isOffice() || D.bells.length) {
@@ -908,6 +928,79 @@ function viewDuty() {
   return h + '</div>';
 }
 
+/* ---------- timetables ---------- */
+const staffKey = p => p.email || p.name;
+const fmtRoom = r => r ? (/^\d/.test(r) ? 'Room ' + r : r) : '';
+const ttCache = { d: null };
+function ttIndex() {
+  if (ttCache.d === D) return ttCache;
+  const hrs = Array.from(new Set(D.schedules.map(r => r.homeroom))).sort(natural);
+  const teach = new Map();
+  D.staff.forEach(p => { const rows = D.schedules.filter(r => isPerson(r.teacher, p)); if (rows.length) teach.set(staffKey(p), rows); });
+  return Object.assign(ttCache, { d: D, hrs, teach, staff: D.staff.filter(p => teach.has(staffKey(p))) });
+}
+const staffFor = name => D.staff.find(p => isPerson(name, p));
+const classLabel = hr => [hr, gradesOf(hr) && 'Gr ' + gradesOf(hr), teacherOf(hr)].filter(Boolean).join(' · ');
+const myTimetable = () => (D.me && ttIndex().staff.find(p => (p.email && p.email === String(D.me.email || '').toLowerCase()) || isPerson(p.name, D.me))) || null;
+const short = t => { const m = toMins(t); if (m == null) return ''; const h = Math.floor(m / 60) % 12 || 12; return h + ':' + pad(m % 60); };
+/* rows: schedule rows for one class or one person; mode 'class' or 'staff' */
+function ttGrid(rows, date, mode) {
+  const t0 = today0(), live = dkey(date) === dkey(t0) && isSchoolDay(t0), n = nowMins();
+  const day = rows.filter(r => dayMatches(r.day, date));
+  return '<ul class="tt">' + DAY_PLAN.map(sl => {
+    const cls = live ? (n >= sl.s && n < sl.e ? 'now' : n >= sl.e ? 'past' : '') : '';
+    const when = '<span class="when"><b>' + esc(sl.brk ? '' : sl.label) + (cls === 'now' ? ' <span class="pill info" style="padding:1px 7px;font-size:11px">Now</span>' : '') + '</b><span>' + short(sl.start) + '–' + short(sl.end) + '</span></span>';
+    if (sl.brk) return '<li class="brk ' + cls + '">' + when + '<span class="what">' + esc(sl.label) + '</span></li>';
+    const here = day.filter(r => toMins(r.start) < sl.e && (toMins(r.end) || toMins(r.start) + 1) > sl.s).sort((a, b) => natural(a.homeroom, b.homeroom));
+    const body = here.length ? here.map(r => {
+      let sub;
+      if (mode === 'staff') sub = '<button class="linkbtn" type="button" data-act="ttGo" data-arg="class|' + esc(r.homeroom) + '">' + esc(r.homeroom + (gradesOf(r.homeroom) ? ' (Gr ' + gradesOf(r.homeroom) + ')' : '')) + '</button>' + (r.room && fmtRoom(r.room) !== r.homeroom ? ' · ' + esc(fmtRoom(r.room)) : '');
+      else {
+        const p = r.teacher && staffFor(r.teacher);
+        sub = (r.teacher ? (p ? '<button class="linkbtn" type="button" data-act="ttGo" data-arg="staff|' + esc(staffKey(p)) + '">' + esc(r.teacher) + '</button>' : esc(r.teacher)) : '') + (r.room && fmtRoom(r.room) !== r.homeroom ? (r.teacher ? ' · ' : '') + esc(fmtRoom(r.room)) : '');
+      }
+      return '<div><b>' + esc(r.subject || '—') + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>';
+    }).join('') : '<div class="free">' + (mode === 'staff' ? 'No class' : '—') + '</div>';
+    return '<li class="' + cls + '">' + when + '<span class="what">' + body + '</span></li>';
+  }).join('') + '</ul>';
+}
+function viewTimetables() {
+  const ix = ttIndex(), t0 = today0(), closed = noSchoolReason(t0), cd = cycleDay(t0);
+  if (!ui.ttMode) {
+    const me = myTimetable(), hr = myHomeroom();
+    if (me) { ui.ttMode = 'staff'; ui.ttSel = staffKey(me); }
+    else { ui.ttMode = 'class'; ui.ttSel = ix.hrs.includes(hr) ? hr : ix.hrs[0] || ''; }
+  }
+  const mode = ui.ttMode;
+  let person = null, hr = '';
+  if (mode === 'staff') { person = ix.staff.find(p => staffKey(p) === ui.ttSel) || myTimetable() || ix.staff[0] || null; ui.ttSel = person ? staffKey(person) : ''; }
+  else { hr = ix.hrs.includes(ui.ttSel) ? ui.ttSel : (ix.hrs.includes(myHomeroom()) ? myHomeroom() : ix.hrs[0] || ''); ui.ttSel = hr; }
+  const opts = dayOptions(), sel = pickDay(ui.ttDay);
+  let h = header('Timetables', closed ? 'No school today' + (closed !== 'Weekend' ? ' (' + esc(closed) + ')' : '') : (cd ? 'Today is <b>Day ' + cd + '</b>' : longDate(new Date())));
+  h += '<div class="stack">' + demoBanner();
+  if (!D.schedules.length) return h + '<div class="card"><p class="empty">No timetables yet. Add them to the Schedules tab in the Sheet.</p></div></div>';
+  const me = myTimetable();
+  h += '<div class="tt-pick"><div class="seg" role="group" aria-label="Show timetable for"><button type="button" data-act="ttMode" data-arg="class" aria-pressed="' + (mode === 'class') + '">Class</button><button type="button" data-act="ttMode" data-arg="staff" aria-pressed="' + (mode === 'staff') + '">Staff</button></div>';
+  h += '<div class="field"><label class="label sr-only" for="tt-sel">' + (mode === 'class' ? 'Class' : 'Staff member') + '</label><select id="tt-sel" data-change="ttSel">' +
+    (mode === 'class' ? ix.hrs.map(x => '<option value="' + esc(x) + '"' + (x === hr ? ' selected' : '') + '>' + esc(classLabel(x)) + '</option>').join('')
+      : ix.staff.map(p => '<option value="' + esc(staffKey(p)) + '"' + (person && staffKey(p) === staffKey(person) ? ' selected' : '') + '>' + esc(p.name + (me && staffKey(p) === staffKey(me) ? ' (you)' : '')) + '</option>').join('')) +
+    '</select></div>';
+  h += '<div class="seg" role="group" aria-label="Day">' + opts.map(o => '<button type="button" data-act="ttDay" data-arg="' + o.key + '" aria-pressed="' + (o.key === sel.key) + '">' + o.label + (dkey(o.date) === dkey(t0) ? ' •' : '') + '</button>').join('') + '</div></div>';
+  const isToday = dkey(sel.date) === dkey(t0);
+  h += '<p class="small muted">' + (isToday ? 'Today, ' : 'Next ' + (useCycle() ? sel.label + ': ' : '')) + DAYS[sel.date.getDay()] + ', ' + MON[sel.date.getMonth()] + ' ' + sel.date.getDate() + (isToday && useCycle() ? ' · ' + sel.label : '') + '</p>';
+  let rows, title, sub;
+  if (mode === 'staff') {
+    rows = person ? ix.teach.get(staffKey(person)) : [];
+    title = person ? person.name : 'No staff timetables'; sub = person ? [person.assignment || person.role, fmtRoom(person.room)].filter(Boolean).join(' · ') : '';
+  } else {
+    rows = D.schedules.filter(r => r.homeroom === hr);
+    title = hr; sub = [gradesOf(hr) && 'Grade ' + gradesOf(hr), teacherOf(hr)].filter(Boolean).join(' · ');
+  }
+  h += '<section class="card stack-s"><div class="row between wrapflex"><div style="min-width:0"><h3 style="margin:0">' + esc(title) + '</h3>' + (sub ? '<div class="small muted">' + esc(sub) + '</div>' : '') + '</div>' +
+    (mode === 'class' && hr ? '<button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Class list</button>' : '') + '</div>' + ttGrid(rows, sel.date, mode) + '</section>';
+  return h + '</div>';
+}
+
 /* ---------- lookup ---------- */
 function viewLookup() {
   if (ui.cls) return viewClass(ui.cls);
@@ -948,7 +1041,7 @@ function viewClass(hr) {
   } else {
     const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, sel.date)).sort((a, b) => toMins(a.start) - toMins(b.start));
     h += '<div class="seg" role="group" aria-label="Day">' + dayOptions().map(o => '<button type="button" data-act="clsDay" data-arg="' + o.key + '" aria-pressed="' + (o.key === sel.key) + '">' + o.label + '</button>').join('') + '</div>';
-    h += '<section class="card">' + (sched.length ? timeline(sched.map(s => ({ start: s.start, end: s.end, title: s.subject, sub: [s.teacher, s.room && (/^\d/.test(s.room) ? 'Room ' + s.room : s.room)].filter(Boolean).join(' · ') })), dkey(sel.date) !== dkey(today0())) : '<p class="empty">No timetable entered for ' + esc(sel.label) + '.</p>') + '</section>';
+    h += '<section class="card">' + (sched.length ? ttGrid(D.schedules.filter(s => s.homeroom === hr), sel.date, 'class') : '<p class="empty">No timetable entered for ' + esc(sel.label) + '.</p>') + '</section>';
   }
   return h + '</div>';
 }
@@ -1273,15 +1366,18 @@ function render() {
   }
   tabsEl.hidden = false;
   if ((ui.tab === 'check' && !showAtt()) || (ui.tab === 'admin' && !isAdmin())) ui.tab = 'home';
+  tabsEl.classList.toggle('many', tabList().length > 5);
   tabsEl.innerHTML = tabList().map(([k, label]) => '<button type="button" data-tab="' + k + '"' + (ui.tab === k ? ' aria-current="page"' : '') + '>' + ICON[k] + label + '</button>').join('');
-  app.innerHTML = ui.tab === 'admin' ? viewAdmin() : ui.tab === 'check' ? viewCheck() : ui.tab === 'duty' ? viewDuty() : ui.tab === 'lookup' ? viewLookup() : ui.tab === 'tools' ? viewTools() : viewHome();
+  app.innerHTML = ui.tab === 'admin' ? viewAdmin() : ui.tab === 'check' ? viewCheck() : ui.tab === 'duty' ? viewDuty() : ui.tab === 'tt' ? viewTimetables() : ui.tab === 'lookup' ? viewLookup() : ui.tab === 'tools' ? viewTools() : viewHome();
   if (ui.tab === 'tools' && ui.tool === 'wheel') drawWheel();
+  if (ui.ttScroll) { ui.ttScroll = false; const nowRow = app.querySelector('.tt li.now'); if (nowRow) setTimeout(() => { try { nowRow.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} }, 60); }
   hydratePhotos();
 }
 tabsEl.addEventListener('click', e => {
   const b = e.target.closest('button[data-tab]'); if (!b) return;
   ui.tab = b.dataset.tab; prefs.tab = ui.tab; savePrefs();
   ui.point = null; ui.count = null; ui.disc = null; ui.adjOpen = null; ui.cls = ui.tab === 'lookup' ? ui.cls : null;
+  if (ui.tab === 'tt') { ui.ttDay = null; ui.ttScroll = true; }
   render(); window.scrollTo(0, 0);
 });
 
@@ -1348,6 +1444,9 @@ const ACTIONS = {
     try { navigator.clipboard.writeText(txt).then(() => toast('Week copied'), fallback); } catch (e) { fallback(); }
   },
   dutyDay: a => { ui.dutyDay = a; render(); },
+  ttMode: a => { ui.ttMode = a; ui.ttSel = null; render(); },
+  ttDay: a => { ui.ttDay = a; ui.ttScroll = true; render(); },
+  ttGo: a => { const i = a.indexOf('|'); ui.tab = 'tt'; prefs.tab = 'tt'; savePrefs(); ui.cls = null; ui.ttMode = a.slice(0, i); ui.ttSel = a.slice(i + 1); ui.ttScroll = true; render(); window.scrollTo(0, 0); },
   lookup: a => { ui.lookup = a; ui.q = ''; render(); const q = document.getElementById('q'); if (q && a !== 'classes') q.focus(); },
   openClass: a => { ui.tab = 'lookup'; prefs.tab = 'lookup'; savePrefs(); ui.cls = a; ui.clsView = 'roster'; render(); window.scrollTo(0, 0); },
   closeClass: () => { ui.cls = null; render(); },
@@ -1393,6 +1492,7 @@ app.addEventListener('change', e => {
   if (k === 'setting') { const key = e.target.dataset.key, on = e.target.checked; adminOps([{ type: 'setting', key, value: on ? 'TRUE' : 'FALSE' }], ({ 'Show Attendance': 'Attendance checks ', 'Allow Board Guests': 'Guest sign-in ', 'Guest Photos': 'Guest photos ' }[key] || 'Setting ') + (on ? 'turned on' : 'turned off')); }
   if (k === 'dcDate') { ui.dc.date = e.target.value; ui.dc.slot = ''; render(); }
   if (k === 'dcSlot') { ui.dc.slot = e.target.value; render(); }
+  if (k === 'ttSel') { ui.ttSel = e.target.value; ui.ttScroll = true; render(); }
   if (k === 'dutyMine') { prefs.dutyMine = e.target.checked; savePrefs(); render(); }
   if (k === 'toolSrc') { prefs.toolSrc = e.target.value; savePrefs(); pendingBanish = null; ui.wheelOut = []; ui.winner = null; wheelDeg = 0; ui.groups = null; ui.absent = {}; render(); }
   if (k === 'banish') { prefs.banish = e.target.checked; savePrefs(); }
