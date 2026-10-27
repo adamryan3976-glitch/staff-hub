@@ -533,7 +533,7 @@ const isOffice = () => D && /admin|office|principal/i.test(D.me.role || '');
 const isAdmin = () => !!D && !!D.me.appAdmin;   // set only by the Sheet's "App Admins" setting
 const flag = (key, def) => { const v = D && D.settings[key]; return v === undefined || v === null || v === '' ? def : /^true$/i.test(String(v)); };
 const showAtt = () => flag('Show Attendance', CONFIG.SHOW_ATTENDANCE);
-const newsOn = () => DEMO || flag('News On', false);
+const newsOn = () => DEMO || flag('News On', false) || isAdmin();
 const newsSite = () => String((D && D.settings['Announcements Site']) || 'https://announcements.winchesterps.ca').replace(/\/+$/, '');
 function homerooms() {
   const s = new Set(); D.students.forEach(x => x.homeroom && s.add(x.homeroom)); D.staff.forEach(x => x.homeroom && s.add(x.homeroom));
@@ -971,7 +971,7 @@ async function loadNews(k, force) {
     const r = DEMO ? await Promise.resolve().then(() => demoNews(k)) : await api('news', { date: k });
     ui.news[k] = Object.assign(r, { at: Date.now() });
   } catch (e) {
-    ui.news[k] = c && c.announcements && !c.error ? Object.assign(c, { loading: false }) : { error: e.message === 'session' ? 'session' : 'offline', announcements: [] };
+    ui.news[k] = c && c.announcements && !c.error ? Object.assign(c, { loading: false }) : { error: e.message === 'session' ? 'session' : e.message === 'unknown_action' ? 'old_script' : 'offline', announcements: [] };
   }
   if (ui.tab === 'news' || ui.tab === 'home') render();
 }
@@ -1004,7 +1004,8 @@ function viewNews() {
   h += '<div class="row wrapflex noprint"><a class="btn" href="' + esc(site) + '/?view=new" target="_blank" rel="noopener">Post an announcement</a><a class="btn ghost" href="' + esc(site) + '/" target="_blank" rel="noopener">Present to class</a><a class="btn ghost" href="' + esc(site) + '/?view=mine" target="_blank" rel="noopener">My announcements</a></div>';
   h += '<div class="newsnav noprint"><button class="chipbtn" type="button" data-act="newsDay" data-arg="-1" aria-label="Previous school day">‹ Prev</button><div class="mid">' + (k === dkey(base) ? '<span class="small muted">' + (isToday ? 'Today' : 'Next school day') + '</span>' : '<button class="linkbtn small" type="button" data-act="newsDay" data-arg="today">Back to ' + (isSchoolDay(t0) ? 'today' : 'next school day') + '</button>') + '</div><button class="chipbtn" type="button" data-act="newsDay" data-arg="1" aria-label="Next school day">Next ›</button></div>';
   if (!n || (n.loading && !n.announcements)) return h + '<div class="card"><p class="empty">Loading announcements…</p></div></div>';
-  if (n.error === 'not_set') return h + '<div class="card"><p class="empty">The News tab isn\'t connected yet. An admin needs to paste the Winchester Announcements Sheet link into <b>Announcements Sheet</b> on the Settings tab.</p></div></div>';
+  if (n.error === 'not_set') return h + '<div class="card"><p class="empty">The News tab isn\'t connected yet. Paste the Winchester Announcements Sheet link into <b>Announcements Sheet</b> on the Staff Hub Sheet\'s Settings tab, then refresh. ' + (isAdmin() ? '(Only admins see this tab until it\'s connected.)' : '') + '</p></div></div>';
+  if (n.error === 'old_script') return h + '<div class="card"><p class="empty">The Staff Hub\'s Apps Script hasn\'t been updated for News yet. Paste in the new <b>Code.gs</b>, run <b>setupSheet</b>, then <b>Deploy &gt; Manage deployments &gt; Edit &gt; New version</b>. (Only admins see this tab until it\'s connected.)</p></div></div>';
   if (n.error) return h + '<div class="card stack-s"><p class="empty">' + (n.error === 'no_access' ? 'The announcements Sheet couldn\'t be opened. The account that deployed the Staff Hub needs view access to it.' : 'Couldn\'t load the announcements. Check your connection.') + '</p><div><button class="btn ghost" type="button" data-act="newsReload">Try again</button></div></div></div>';
   // facts
   const b = n.birthdays || { today: [], earlier: [] };
