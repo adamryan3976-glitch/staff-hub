@@ -1,3 +1,5 @@
+<p align="center"><img src="logo-full.png" alt="WPS Staff Hub" width="220"></p>
+
 # WPS Staff Hub
 
 A phone-first staff app for Winchester Public School (DDSB). Staff sign in with their board Google account to check student attendance, see yard duty and class schedules, look up students and staff, and use classroom tools.
@@ -42,7 +44,8 @@ Phone (GitHub Pages)  ──Google sign-in──▶  Apps Script web app  ──
 | File | Purpose |
 |---|---|
 | `index.html` | The whole app: HTML, CSS and JavaScript, no build step |
-| `manifest.json`, `icon.svg` | Lets staff install it with "Add to Home Screen" |
+| `manifest.json`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Home-screen app icons for iPhone and Android |
+| `favicon-32.png`, `favicon-48.png`, `favicon-96.png` | Browser-tab icons |
 | `sw.js` | Passthrough service worker, so iOS keeps people signed in once the app is installed. It doesn't cache anything. |
 | `Code.gs` | The Apps Script backend. Kept here for reference; the live copy runs in the Sheet. |
 
