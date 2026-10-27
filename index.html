@@ -191,6 +191,11 @@ a{color:var(--accent)}
 .k-ghost{background:rgba(255,255,255,.1);color:var(--gold);border:1px solid rgba(197,160,89,.3);font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.05em;padding:20px 8px;border-radius:16px}
 .k-ghost:active{background:rgba(255,255,255,.2)}
 .knight button:focus-visible,.knight select:focus-visible,.knight textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.k-seg{display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(0,0,0,.3);border:1px solid rgba(197,160,89,.3)}
+.k-seg button{flex:1;padding:9px 4px;border-radius:9px;color:#d1d5db;font-family:inherit;font-weight:700;font-size:14px}
+.k-seg button[aria-pressed="true"]{background:linear-gradient(135deg,#d4af37 0%,#c5a059 100%);color:#1a2a44}
+.k-seg button:disabled{opacity:.6}
+.confetti-canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
 .k-count{text-align:center;color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.2em;opacity:.7}
 .timerface{position:relative;width:min(300px,100%);aspect-ratio:1;margin:0 auto;max-width:100%}
 .timerface svg{width:100%;height:100%;transform:rotate(-90deg)}
@@ -226,7 +231,7 @@ a{color:var(--accent)}
 .toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;display:flex;gap:14px;align-items:center;z-index:6;max-width:calc(100% - 32px)}
 .toast button{text-decoration:underline;color:inherit}
 @media (max-width:380px){.reasons{grid-template-columns:1fr}.count .n{font-size:72px}.dial{grid-template-columns:60px 1fr 60px}.step{height:60px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.knight .k-pulse{animation:kpulse .5s ease-in-out infinite!important}}
 @media print{
   body{background:#fff}.tabs,.toast,.noprint{display:none!important}
   .wrap{max-width:none;padding:0}.sheetwrap{overflow:visible}.sheet{border:0;min-width:0;padding:0}
@@ -436,7 +441,7 @@ let D = null;          // normalized data
 let demoRaw = null;    // demo only: the raw data admin changes are applied to
 let A = LS.get(K.att, { days: {} });
 let outbox = LS.get(K.outbox, []);
-const prefs = Object.assign({ tab: 'home', hr: '', toolSrc: '', custom: '', dutyMine: false, banish: false }, LS.get(K.prefs, {}));
+const prefs = Object.assign({ tab: 'home', hr: '', toolSrc: '', custom: '', dutyMine: false, banish: false, spinLen: 'medium' }, LS.get(K.prefs, {}));
 const ui = {
   tab: prefs.tab, role: DEMO ? LS.get(K.demoRole, 'Teacher') : null,
   point: null, count: null, disc: null, alarm: false, adjOpen: null, checkView: 'class', weekOffset: 0, week: null, live: null, liveAt: 0,
@@ -1027,9 +1032,11 @@ function viewTools() {
       homerooms().map(hr => '<option value="' + esc(hr) + '"' + (cur === hr ? ' selected' : '') + '>' + esc(teacherOf(hr) ? teacherOf(hr) + ' (' + hr + ')' : hr) + '</option>').join('') +
       '<option value="__custom"' + (cur === '__custom' ? ' selected' : '') + '>My own list…</option></select>' +
       (cur === '__custom' ? '<textarea id="custom" data-input="custom" rows="4" placeholder="One name per line" style="margin-top:10px">' + esc(prefs.custom) + '</textarea>' : '') + '</div>' +
+      '<div><span class="k-label" id="spinlen-l">Spin length</span><div class="k-seg" role="group" aria-labelledby="spinlen-l">' +
+      [['short', 'Short'], ['medium', 'Medium'], ['long', 'Long']].map(([k, l]) => '<button type="button" data-act="spinLen" data-arg="' + k + '" aria-pressed="' + ((prefs.spinLen || 'medium') === k) + '"' + (spinning ? ' disabled' : '') + '>' + l + '</button>').join('') + '</div></div>' +
       '<label class="k-switch" for="banish"><span>Banish chosen from wheel</span><input type="checkbox" id="banish" data-change="banish"' + (prefs.banish ? ' checked' : '') + '><span class="k-track" aria-hidden="true"></span></label></div>';
     h += '<div class="k-wheel"><div class="k-pointer"></div><canvas id="wheel" width="1000" height="1000" role="img" aria-label="Wheel with ' + names.length + ' names" style="transform:rotate(' + wheelDeg + 'deg)"></canvas><div class="k-hub"><img src="' + SHIELD + '" alt=""></div></div>';
-    h += '<div class="k-result" aria-live="polite"><h2 id="kWinner" class="' + (ui.winner ? 'k-pulse' : '') + '">' + esc(ui.winner || '') + '</h2></div>';
+    h += '<div class="k-result" aria-live="polite"><h2 id="kWinner" class="' + (ui.winner && !spinning ? 'k-pulse' : '') + '"' + (spinning ? ' style="opacity:.5"' : '') + '>' + esc(spinning ? 'CONSULTING FATE...' : ui.winner || '') + '</h2></div>';
     h += '<div class="k-actions"><button class="k-gold" type="button" id="kSpin" data-act="spin"' + (names.length < 1 || spinning ? ' disabled' : '') + '>SPIN WHEEL</button><button class="k-ghost" type="button" data-act="resetWheel">RESET LIST</button></div>';
     h += '<p class="k-count num">' + names.length + ' KNIGHT' + (names.length === 1 ? '' : 'S') + ' REMAINING</p></section>';
   } else if (ui.tool === 'timer') {
@@ -1103,60 +1110,70 @@ function playWin() {
     });
   } catch (e) {}
 }
-let confettiLoading = null;
-function loadConfetti() {
-  if (window.confetti) return Promise.resolve(window.confetti);
-  if (!confettiLoading) confettiLoading = new Promise(res => {
-    const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
-    s.onload = () => res(window.confetti || null); s.onerror = () => res(null); document.head.appendChild(s);
-  });
-  return confettiLoading;
-}
+/* confetti, drawn by the app itself so it works offline and on locked-down school networks */
 function celebrate() {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  loadConfetti().then(confetti => {
-    if (!confetti) return;
-    const end = Date.now() + 3000, defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50 }, r = (a, b) => Math.random() * (b - a) + a;
-    const iv = setInterval(() => {
-      const left = end - Date.now(); if (left <= 0) return clearInterval(iv);
-      const particleCount = 50 * (left / 3000);
-      confetti(Object.assign({}, defaults, { particleCount, origin: { x: r(0.1, 0.3), y: Math.random() - 0.2 } }));
-      confetti(Object.assign({}, defaults, { particleCount, origin: { x: r(0.7, 0.9), y: Math.random() - 0.2 } }));
-    }, 250);
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#c5a059', '#ffffff', '#8b0000'], zIndex: 50 });
-  });
+  const old = document.querySelector('.confetti-canvas'); if (old) old.remove();
+  const cv = document.createElement('canvas'); cv.className = 'confetti-canvas'; cv.setAttribute('aria-hidden', 'true');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2); cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+  document.body.appendChild(cv); const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const colors = ['#c5a059', '#ffffff', '#8b0000', '#d4af37', '#2c5b8a', '#f5e6c4'], parts = [], t0 = performance.now();
+  const burst = (x, y, n, spread, power) => {
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * spread, v = (0.45 + Math.random() * 0.55) * power * dpr;
+      parts.push({ x: x * W, y: y * H, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4,
+        w: (6 + Math.random() * 6) * dpr, h: (8 + Math.random() * 8) * dpr, c: colors[i % colors.length], wob: Math.random() * 6, life: 1 });
+    }
+  };
+  burst(0.5, 0.62, 160, 1.6, 22);                       // big burst from the middle
+  let side = 0; const sides = setInterval(() => {      // then 3 s of bursts from both sides, like the original
+    if (++side > 12) return clearInterval(sides);
+    const k = 1 - side / 13; burst(0.1 + Math.random() * 0.2, 0.3 + Math.random() * 0.3, Math.round(40 * k), 2.6, 16); burst(0.7 + Math.random() * 0.2, 0.3 + Math.random() * 0.3, Math.round(40 * k), 2.6, 16);
+  }, 250);
+  const frame = now => {
+    const age = now - t0; ctx.clearRect(0, 0, W, H);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i]; p.vy += 0.32 * dpr; p.vx *= 0.985; p.vy *= 0.985; p.x += p.vx + Math.sin(p.wob += 0.1) * dpr; p.y += p.vy; p.r += p.vr;
+      if (p.y > H + 40 || age > 4200) p.life -= 0.04;
+      if (p.life <= 0) { parts.splice(i, 1); continue; }
+      ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life)); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.scale(1, Math.cos(p.wob));
+      ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+    }
+    if (parts.length || age < 3300) requestAnimationFrame(frame); else cv.remove();
+  };
+  requestAnimationFrame(frame);
 }
-const angleOf = el => { const m = getComputedStyle(el).transform; if (!m || m === 'none') return 0; const v = m.match(/matrix\(([^)]+)\)/); if (!v) return 0; const p = v[1].split(',').map(Number); return Math.atan2(p[1], p[0]) * 180 / Math.PI; };
+/* The wheel is animated frame by frame in script (not a CSS transition), so it spins even when the
+   computer's "reduce motion / animation effects off" setting is on. Spinning is what the teacher asked for. */
+const SPIN_LENGTHS = { short: { ms: 2500, turns: [4, 6] }, medium: { ms: 5000, turns: [8, 11] }, long: { ms: 9000, turns: [15, 19] } };
+const spinEase = t => 1 - Math.pow(1 - t, 4);   // fast start, long slow finish
+let spinId = 0;
 function spin() {
   if (spinning) return;
   if (pendingBanish != null) { applyBanish(); render(); }   // spun again within 2 s: take the last name off first
   const names = wheelNames(); if (!names.length) return;
-  ensureAudio(); loadConfetti();
-  const c = document.getElementById('wheel'), btn = document.getElementById('kSpin'), win = document.getElementById('kWinner');
-  spinning = true; ui.winner = null; btn.disabled = true;
-  win.textContent = 'CONSULTING FATE...'; win.classList.remove('k-pulse'); win.style.opacity = '0.5';
+  ensureAudio();
+  const id = ++spinId, L = SPIN_LENGTHS[prefs.spinLen] || SPIN_LENGTHS.medium;
+  spinning = true; ui.winner = null; render();
+  const win = document.getElementById('kWinner'); if (win) { win.textContent = 'CONSULTING FATE...'; win.style.opacity = '0.5'; }
   const n = names.length, seg = 360 / n, pick = Math.floor(Math.random() * n);
   // land the pointer (top of the wheel, 270°) somewhere inside the chosen slice
   const phi = pick * seg + seg * (0.15 + Math.random() * 0.7);
-  const target = wheelDeg + (8 + Math.floor(Math.random() * 5)) * 360 + (((270 - phi - wheelDeg) % 360) + 360) % 360;
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, dur = reduce ? 0 : 4000;
-  c.style.transition = reduce ? 'none' : 'transform 4s cubic-bezier(0.15, 0, 0.15, 1)';
-  void c.offsetWidth; c.style.transform = 'rotate(' + target + 'deg)'; wheelDeg = target;
-  const t0 = performance.now(); let last = null;
-  const tick = now => {
-    if (!spinning || !c.isConnected) return;
-    const at = ((270 - angleOf(c)) % 360 + 360) % 360, slice = Math.floor(at / seg);
-    if (last !== null && slice !== last) playClick(Math.max(0, 1 - (now - t0) / dur));
-    last = slice; if (now - t0 < dur) requestAnimationFrame(tick);
+  const turns = L.turns[0] + Math.floor(Math.random() * (L.turns[1] - L.turns[0] + 1));
+  const from = wheelDeg, to = from + turns * 360 + (((270 - phi - from) % 360) + 360) % 360, t0 = performance.now();
+  let last = null;
+  const frame = now => {
+    if (id !== spinId) return;
+    const p = Math.min(1, (now - t0) / L.ms); wheelDeg = from + (to - from) * spinEase(p);
+    const c = document.getElementById('wheel'); if (c) { c.style.transition = 'none'; c.style.transform = 'rotate(' + wheelDeg + 'deg)'; }
+    const slice = Math.floor((((270 - wheelDeg) % 360) + 360) % 360 / seg);
+    if (last !== null && slice !== last) playClick(1 - p);
+    last = slice;
+    if (p < 1) requestAnimationFrame(frame); else finish();
   };
-  if (!reduce) requestAnimationFrame(tick);
-  setTimeout(() => {
-    spinning = false; wheelDeg = target % 360;
+  const finish = () => {
+    spinning = false; wheelDeg = to % 360;
     const winner = names[pick]; ui.winner = winner;
-    const cc = document.getElementById('wheel'); if (cc) { cc.style.transition = 'none'; cc.style.transform = 'rotate(' + wheelDeg + 'deg)'; }
-    const w = document.getElementById('kWinner'), b = document.getElementById('kSpin');
-    if (w) { w.textContent = winner; w.style.opacity = '1'; w.classList.add('k-pulse'); }
-    if (b) b.disabled = false;
+    if (ui.tab === 'tools' && ui.tool === 'wheel') render();
     playWin(); celebrate();
     if (prefs.banish) {
       pendingBanish = winner;
@@ -1165,7 +1182,8 @@ function spin() {
         applyBanish(); if (ui.tab === 'tools' && ui.tool === 'wheel') render();
       }, 2000);
     }
-  }, dur + 50);
+  };
+  requestAnimationFrame(frame);
 }
 
 /* ---------- timer ---------- */
@@ -1328,6 +1346,7 @@ const ACTIONS = {
   toolsClass: a => { prefs.toolSrc = a; savePrefs(); ui.tab = 'tools'; ui.cls = null; ui.wheelOut = []; ui.winner = null; ui.groups = null; ui.absent = {}; render(); window.scrollTo(0, 0); },
   tool: a => { ui.tool = a; render(); },
   spin: () => spin(),
+  spinLen: a => { if (spinning) return; prefs.spinLen = a; savePrefs(); render(); },
   resetWheel: () => { if (spinning) return; pendingBanish = null; ui.wheelOut = []; ui.winner = null; wheelDeg = 0; render(); },
   preset: a => { if (timer.running) return; timer.total = timer.remaining = (+a) * 60000; timer.done = false; render(); },
   nudge: a => {
