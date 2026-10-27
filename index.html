@@ -35,6 +35,7 @@
   --ok:#5fd19a; --ok-soft:#173a2a; --warn:#f0b357; --warn-soft:#3d2c12; --bad:#ff7d84; --bad-soft:#44191d;
   --w1:#2b86a6; --w2:#d79b25; --w3:#3b5b78; --w4:#3f9069; --w5:#c0573f; --w6:#6d80a6; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{background:var(--bg)}
 body{color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;margin:0}
 .wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 104px}
@@ -232,12 +233,49 @@ const monday = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDat
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const natural = (a, b) => String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
 const initials = n => String(n || '?').replace(/^(Mr|Mrs|Ms|Mx|Mme|M|Dr)\.?\s+/i, '').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-const schoolDayIndex = () => { const d = new Date().getDay(); return d >= 1 && d <= 5 ? d - 1 : 0; };
 const isWeekend = () => { const d = new Date().getDay(); return d === 0 || d === 6; };
-const dayMatches = (cell, dayIdx) => {
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const parseDate = s => { const m = String(s || '').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+/* ---------- school days and the Day 1–5 cycle ---------- */
+function noSchoolReason(d) {
+  if (d.getDay() === 0 || d.getDay() === 6) return 'Weekend';
+  const k = dkey(d); const x = D && D.noSchool.find(r => k >= r.start && k <= r.end);
+  return x ? (x.reason || 'No school') : '';
+}
+const isSchoolDay = d => !noSchoolReason(d);
+const useCycle = () => !!(D && D.cycle.n && D.cycle.anchor);
+const cycleCache = {};
+function cycleDay(d) {
+  if (!useCycle() || !isSchoolDay(d)) return null;
+  const k = dkey(d); if (cycleCache[k] !== undefined) return cycleCache[k];
+  const c = D.cycle, a = new Date(c.anchor), t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dir = t >= a ? 1 : -1; let n = 0, guard = 0;
+  while (dkey(a) !== k && guard++ < 800) { a.setDate(a.getDate() + dir); if (isSchoolDay(a)) n += dir; }
+  return (cycleCache[k] = ((c.day - 1 + n) % c.n + c.n) % c.n + 1);
+}
+function nextSchoolDay(from) { const d = new Date(from); for (let i = 0; i < 40; i++) { if (isSchoolDay(d)) return d; d.setDate(d.getDate() + 1); } return new Date(from); }
+const dayName = d => DAYS[d.getDay()] + (cycleDay(d) ? ' (Day ' + cycleDay(d) + ')' : '');
+/* the days a schedule can be viewed by: Day 1..N in cycle mode, otherwise Mon–Fri of this (or next) week */
+function dayOptions() {
+  const base = nextSchoolDay(today0());
+  if (useCycle()) {
+    const opts = [], d = new Date(base);
+    for (let i = 0; i < 90 && opts.length < D.cycle.n; i++) {
+      const c = cycleDay(d); if (c && !opts.some(o => o.n === c)) opts.push({ key: 'c' + c, n: c, label: 'Day ' + c, date: new Date(d) });
+      d.setDate(d.getDate() + 1);
+    }
+    return opts.sort((a, b) => a.n - b.n);
+  }
+  const mon = monday(base);
+  return DOW.map((x, i) => { const dt = new Date(mon); dt.setDate(mon.getDate() + i); return { key: 'w' + i, label: x.slice(0, 3), date: dt }; });
+}
+function pickDay(key) { const o = dayOptions(); const b = dkey(nextSchoolDay(today0())); return o.find(x => x.key === key) || o.find(x => dkey(x.date) === b) || o[0]; }
+const dayMatches = (cell, date) => {
   const s = String(cell || '').toLowerCase().trim();
-  if (!s || /every|daily|all|mon\s*[-–]\s*fri/.test(s)) return true;
-  return s.includes(DOW[dayIdx].slice(0, 3).toLowerCase());
+  if (!s || /every|daily|^all|mon\s*[-–]\s*fri/.test(s)) return true;
+  const m = s.match(/day\s*\d+/g);
+  if (m) { const c = cycleDay(date); return m.some(x => +x.replace(/\D/g, '') === c); }
+  return s.includes(DAYS[date.getDay()].slice(0, 3).toLowerCase());
 };
 const ICON = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
@@ -350,7 +388,7 @@ const prefs = Object.assign({ tab: 'home', hr: '', toolSrc: '', custom: '', duty
 const ui = {
   tab: prefs.tab, role: DEMO ? LS.get(K.demoRole, 'Teacher') : null,
   point: null, count: null, disc: null, alarm: false, adjOpen: null, checkView: 'class', weekOffset: 0, week: null, live: null, liveAt: 0,
-  dutyDay: schoolDayIndex(), lookup: 'students', q: '', cls: null, clsView: 'roster', clsDay: schoolDayIndex(),
+  dutyDay: null, lookup: 'students', q: '', cls: null, clsView: 'roster', clsDay: null,
   tool: 'wheel', wheelOut: [], winner: null, groupMode: 'count', groupN: 4, absent: {}, groups: null,
   loading: false, authError: '', syncing: false
 };
@@ -365,10 +403,13 @@ function normalize(raw) {
     staff: (raw.staff || []).map(r => ({ email: g(r, 'Email').toLowerCase(), name: g(r, 'Name'), role: g(r, 'Role') || 'Teacher', homeroom: g(r, 'Homeroom'), room: g(r, 'Room'), ext: g(r, 'Extension'), assignment: g(r, 'Assignment') })).filter(s => s.name || s.email),
     students: (raw.students || []).map(r => ({ first: g(r, 'First Name'), last: g(r, 'Last Name'), grade: g(r, 'Grade'), homeroom: g(r, 'Homeroom') })).filter(s => s.first || s.last),
     bells: (raw.bells || []).map(r => ({ start: g(r, 'Start'), end: g(r, 'End'), label: g(r, 'Label'), checkpoint: g(r, 'Attendance Checkpoint') })).filter(b => toMins(b.start) != null).sort((a, b) => toMins(a.start) - toMins(b.start)),
-    duty: (raw.duty || []).map(r => ({ day: g(r, 'Day'), block: g(r, 'Time Block'), start: g(r, 'Start'), end: g(r, 'End'), location: g(r, 'Location'), staff: g(r, 'Staff') })).filter(x => x.location || x.staff),
+    duty: (raw.duty || []).map(r => ({ day: g(r, 'Day'), block: g(r, 'Time Block'), start: g(r, 'Start'), end: g(r, 'End'), location: g(r, 'Location'), staff: g(r, 'Staff'), indoor: g(r, 'Indoor Plan'), dnote: g(r, 'Note') })).filter(x => x.location || x.staff),
+    noSchool: (raw.noSchool || []).map(r => { const a = g(r, 'Start Date').slice(0, 10); return { start: a, end: (g(r, 'End Date') || a).slice(0, 10), reason: g(r, 'Reason') }; }).filter(x => parseDate(x.start)),
+    cycle: { n: parseInt((raw.settings || {})['Cycle Days'], 10) || 0, anchor: parseDate((raw.settings || {})['Cycle Anchor Date']), day: parseInt((raw.settings || {})['Cycle Anchor Day'], 10) || 1 },
     dutyChanges: (raw.dutyChanges || []).map(r => ({ date: g(r, 'Date').slice(0, 10), block: g(r, 'Time Block'), location: g(r, 'Location'), coveredBy: g(r, 'Covered By'), replacing: g(r, 'Replacing'), note: g(r, 'Note') })),
     schedules: (raw.schedules || []).map(r => ({ homeroom: g(r, 'Homeroom'), day: g(r, 'Day'), start: g(r, 'Start'), end: g(r, 'End'), subject: g(r, 'Subject'), teacher: g(r, 'Teacher'), room: g(r, 'Room') })).filter(x => x.homeroom)
   };
+  Object.keys(cycleCache).forEach(k => delete cycleCache[k]);
   d.students.sort((a, b) => natural(a.last + a.first, b.last + b.first));
   d.staff.sort((a, b) => natural(a.name.replace(/^\S+\.?\s/, ''), b.name.replace(/^\S+\.?\s/, '')));
   return d;
@@ -389,11 +430,22 @@ function myHomeroom() {
   if (prefs.hr && hrs.includes(prefs.hr)) return prefs.hr;
   return (D.me.homerooms || []).find(h => hrs.includes(h)) || hrs[0] || '';
 }
-function isMe(cell) {
-  if (!cell || !D) return false;
-  const me = [D.me.name, D.me.email, (D.me.email || '').split('@')[0]].filter(Boolean).map(s => s.toLowerCase());
-  return String(cell).split(/,|;|&|\/|\band\b/i).some(p => me.includes(p.trim().toLowerCase()));
+/* "Adams", "S. Wright", "Ms. Kaur" or an email in a schedule cell all match the right person */
+const TITLE = /^(mr|mrs|ms|mx|mme|m|dr)\.?\s+/i;
+function isPerson(cell, person) {
+  if (!cell || !person) return false;
+  const full = String(person.name || '').toLowerCase().trim(), name = full.replace(TITLE, '');
+  const words = name.split(/\s+/).filter(Boolean), last = words[words.length - 1] || '', firstI = words.length > 1 ? words[0][0] : '';
+  const email = String(person.email || '').toLowerCase(), local = email.split('@')[0];
+  return String(cell).split(/,|;|&|\band\b/i).some(raw => {
+    const p = raw.trim().toLowerCase(); if (!p) return false;
+    if (p === email || p === local || p === full || p === name) return true;
+    const q = p.replace(TITLE, ''), m = q.match(/^([a-z])\.?\s+([a-z'’-]+)$/);
+    if (m) return m[2] === last && (!firstI || m[1] === firstI);
+    return words.length > 1 && q === last;
+  });
 }
+const isMe = cell => !!D && isPerson(cell, D.me);
 
 /* ======================================================================
    SERVER
@@ -560,26 +612,29 @@ function bellNow() {
   const next = D.bells.find(b => toMins(b.start) > n);
   return { cur, next };
 }
-function dutiesFor(dayIdx, mineOnly) {
-  const date = new Date(monday(new Date())); date.setDate(date.getDate() + dayIdx); const dk = dkey(date);
-  const rows = D.duty.filter(r => dayMatches(r.day, dayIdx)).map(r => {
+function dutiesFor(date, mineOnly) {
+  const dk = dkey(date);
+  if (!isSchoolDay(date)) return [];
+  const rows = D.duty.filter(r => dayMatches(r.day, date)).map(r => {
     const ch = D.dutyChanges.find(c => c.date === dk && c.location.toLowerCase() === r.location.toLowerCase() && (!c.block || c.block.toLowerCase() === r.block.toLowerCase()));
     return Object.assign({}, r, ch ? { staff: ch.coveredBy || r.staff, covering: ch.replacing || r.staff, note: ch.note } : {});
   });
   return mineOnly ? rows.filter(r => isMe(r.staff)) : rows;
 }
 function viewHome() {
-  const now = new Date(); const weekend = isWeekend();
+  const now = new Date(); const closed = noSchoolReason(today0()); const weekend = !!closed;
+  const dayDate = nextSchoolDay(today0()); const when = closed ? DAYS[dayDate.getDay()] : 'today';
   const first = (D.me.name || '').replace(/^(Mr|Mrs|Ms|Mx|Mme|M|Dr)\.?\s+/i, '').split(' ')[0];
   const hr = myHomeroom();
   const greet = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
-  let h = header(greet + (first && !/demo/i.test(first) ? ', ' + esc(first) : ''), longDate(now) + ' · ' + esc(school()));
+  const cd = cycleDay(today0());
+  let h = header(greet + (first && !/demo/i.test(first) ? ', ' + esc(first) : ''), longDate(now) + (cd ? ' · <b>Day ' + cd + '</b>' : '') + ' · ' + esc(school()));
   h += '<div class="stack">' + demoBanner();
   const { cur, next } = bellNow();
   h += '<div class="grid2">';
   // right now
   h += '<section class="card now"><div class="label">Right now</div>';
-  if (weekend) h += '<div class="big">No school today</div><div class="muted small">Schedules below show Monday.</div>';
+  if (weekend) h += '<div class="big">No school today</div><div class="muted small">' + esc(closed === 'Weekend' ? '' : closed + '. ') + 'Schedules below are for ' + esc(dayName(dayDate)) + ', ' + MON[dayDate.getMonth()] + ' ' + dayDate.getDate() + '.</div>';
   else if (cur) h += '<div class="big">' + esc(cur.label) + '</div><div class="muted small num">Until ' + nice(cur.end) + (next ? ' · then ' + esc(next.label) : '') + '</div>';
   else if (next) h += '<div class="big">' + esc(next.label) + ' at ' + nice(next.start) + '</div><div class="muted small">Next bell</div>';
   else h += '<div class="big">School day is over</div>';
@@ -591,20 +646,20 @@ function viewHome() {
   }
   h += '</section>';
   // my duty
-  const di = schoolDayIndex(); const mine = dutiesFor(di, true).sort((a, b) => toMins(a.start) - toMins(b.start));
-  h += '<section class="card stack-s"><div class="row between"><div class="label">Your yard duty ' + (weekend ? 'Monday' : 'today') + '</div><button class="linkbtn small" type="button" data-act="tab" data-arg="duty">Full schedule</button></div>';
-  if (!mine.length) h += '<p class="muted">No duty ' + (weekend ? 'on Monday' : 'today') + '.</p>';
+  const mine = dutiesFor(dayDate, true).sort((a, b) => toMins(a.start) - toMins(b.start));
+  h += '<section class="card stack-s"><div class="row between"><div class="label">Your duty ' + esc(when) + '</div><button class="linkbtn small" type="button" data-act="tab" data-arg="duty">Full schedule</button></div>';
+  if (!mine.length) h += '<p class="muted">No duty ' + (weekend ? 'on ' + esc(when) : 'today') + '.</p>';
   mine.forEach(r => {
     const on = !weekend && toMins(r.start) <= nowMins() && nowMins() < toMins(r.end);
-    h += '<div class="duty-row mine"><span>' + esc(r.location) + '<small>' + esc(r.block) + (r.covering && r.covering !== r.staff ? ' · covering for ' + esc(r.covering) : '') + '</small></span><span class="num">' + (on ? '<span class="pill bad">On duty now</span> ' : '') + nice(r.start) + '–' + nice(r.end) + '</span></div>';
+    h += '<div class="duty-row mine"><span>' + esc(r.location) + '<small>' + esc(r.block) + (r.covering && r.covering !== r.staff ? ' · covering for ' + esc(r.covering) : '') + (r.dnote ? ' · ' + esc(r.dnote) : '') + (r.indoor ? ' · Indoor: ' + esc(r.indoor) : '') + '</small></span><span class="num">' + (on ? '<span class="pill bad">On duty now</span> ' : '') + nice(r.start) + '–' + nice(r.end) + '</span></div>';
   });
   h += '</section></div>';
   // office board or class schedule
   if (isOffice()) h += viewBoard(true);
   if (hr && !isOffice()) {
-    const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, di)).sort((a, b) => toMins(a.start) - toMins(b.start));
+    const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, dayDate)).sort((a, b) => toMins(a.start) - toMins(b.start));
     h += '<div class="grid2">';
-    h += '<section class="card stack-s"><div class="row between"><div class="label">' + esc(hr) + ' ' + (weekend ? 'Monday' : 'today') + '</div><button class="linkbtn small" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Class list</button></div>';
+    h += '<section class="card stack-s"><div class="row between"><div class="label">' + esc(hr) + ' ' + esc(when) + '</div><button class="linkbtn small" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Class list</button></div>';
     h += sched.length ? timeline(sched.map(s => ({ start: s.start, end: s.end, title: s.subject, sub: [s.teacher, s.room && 'Room ' + s.room.replace(/^room\s*/i, '')].filter(Boolean).join(' · ') })), weekend) : '<p class="muted">No timetable entered for this class yet.</p>';
     h += '</section>';
     h += '<section class="card stack-s"><div class="label">Bell schedule</div>' + timeline(D.bells.map(b => ({ start: b.start, end: b.end, title: b.label })), weekend) + '</section></div>';
@@ -755,22 +810,25 @@ function viewBoard(compact) {
 
 /* ---------- duty ---------- */
 function viewDuty() {
-  const weekend = isWeekend(); const di = ui.dutyDay;
-  const rows = dutiesFor(di, prefs.dutyMine);
+  const opts = dayOptions(), sel = pickDay(ui.dutyDay), t0 = today0(), closed = noSchoolReason(t0);
+  const rows = dutiesFor(sel.date, prefs.dutyMine);
   const blocks = []; rows.forEach(r => { let b = blocks.find(x => x.block === r.block && x.start === r.start); if (!b) blocks.push(b = { block: r.block, start: r.start, end: r.end, rows: [] }); b.rows.push(r); });
   blocks.sort((a, b) => toMins(a.start) - toMins(b.start));
-  let h = header('Yard Duty', weekend ? 'Showing this coming week' : 'This week');
+  const cd = cycleDay(t0);
+  let h = header('Yard Duty', closed ? 'No school today' + (closed !== 'Weekend' ? ' (' + esc(closed) + ')' : '') : (cd ? 'Today is <b>Day ' + cd + '</b>' : 'This week'));
   h += '<div class="stack">' + demoBanner();
-  h += '<div class="seg" role="group" aria-label="Day">' + DOW.map((d, i) => '<button type="button" data-act="dutyDay" data-arg="' + i + '" aria-pressed="' + (di === i) + '">' + d.slice(0, 3) + (i === schoolDayIndex() && !weekend ? ' •' : '') + '</button>').join('') + '</div>';
+  h += '<div class="seg" role="group" aria-label="Day">' + opts.map(o => '<button type="button" data-act="dutyDay" data-arg="' + o.key + '" aria-pressed="' + (o.key === sel.key) + '">' + o.label + (dkey(o.date) === dkey(t0) ? ' •' : '') + '</button>').join('') + '</div>';
+  h += '<p class="small muted">' + (dkey(sel.date) === dkey(t0) ? 'Today' : 'Next on') + ' ' + DAYS[sel.date.getDay()] + ', ' + MON[sel.date.getMonth()] + ' ' + sel.date.getDate() + (useCycle() ? ' · ' + sel.label : '') + '</p>';
   h += '<label class="row small" for="dutyMine"><input type="checkbox" id="dutyMine" data-change="dutyMine" style="width:20px;height:20px"' + (prefs.dutyMine ? ' checked' : '') + '> Only my duties</label>';
-  if (!blocks.length) h += '<div class="card"><p class="empty">' + (prefs.dutyMine ? 'You have no duty on ' + DOW[di] + '.' : 'No duty schedule for ' + DOW[di] + ' yet.') + '</p></div>';
-  const isToday = !weekend && di === schoolDayIndex(); const n = nowMins();
+  if (!blocks.length) h += '<div class="card"><p class="empty">' + (prefs.dutyMine ? 'You have no duty on ' + sel.label + '.' : 'No duty schedule for ' + sel.label + ' yet.') + '</p></div>';
+  const isToday = !closed && dkey(sel.date) === dkey(t0); const n = nowMins();
   blocks.forEach(b => {
     const on = isToday && toMins(b.start) <= n && n < toMins(b.end);
     h += '<section class="card duty-block"><div class="row between"><h3>' + esc(b.block || 'Duty') + '</h3><span class="row small num">' + (on ? '<span class="pill bad">Now</span>' : '') + nice(b.start) + '–' + nice(b.end) + '</span></div>';
     b.rows.forEach(r => {
       const mine = isMe(r.staff);
-      h += '<div class="duty-row' + (mine ? ' mine' : '') + '"><span>' + esc(r.location) + (r.covering && r.covering !== r.staff ? '<small>Change today · covering for ' + esc(r.covering) + (r.note ? ' · ' + esc(r.note) : '') + '</small>' : '') + '</span><span>' + esc(r.staff || 'Unassigned') + (mine ? ' (you)' : '') + '</span></div>';
+      const sub = [r.covering && r.covering !== r.staff ? 'Change · covering for ' + r.covering + (r.note ? ' · ' + r.note : '') : '', r.dnote, r.indoor ? 'Indoor: ' + r.indoor : ''].filter(Boolean).join(' · ');
+      h += '<div class="duty-row' + (mine ? ' mine' : '') + '"><span>' + esc(r.location) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span><span>' + esc(r.staff || 'Unassigned') + (mine ? ' (you)' : '') + '</span></div>';
     });
     h += '</section>';
   });
@@ -798,26 +856,26 @@ function lookupResults() {
   if (ui.lookup === 'staff') {
     const res = D.staff.filter(s => !q || (s.name + ' ' + s.role + ' ' + s.room + ' ' + s.homeroom + ' ' + s.assignment).toLowerCase().includes(q));
     if (!res.length) return '<p class="empty">No staff match "' + esc(ui.q) + '".</p>';
-    const di = schoolDayIndex(), n = nowMins();
-    const onNow = isWeekend() ? [] : D.duty.filter(r => dayMatches(r.day, di) && toMins(r.start) <= n && n < toMins(r.end));
+    const n = nowMins();
+    const onNow = dutiesFor(today0(), false).filter(r => toMins(r.start) <= n && n < toMins(r.end));
     return '<ul class="list">' + res.map(s => {
-      const duty = onNow.find(r => String(r.staff).toLowerCase().includes(s.name.toLowerCase()));
+      const duty = onNow.find(r => isPerson(r.staff, s));
       return '<li><span class="avatar">' + esc(initials(s.name)) + '</span><span class="main"><b>' + esc(s.name) + '</b><small>' + esc([s.assignment || s.role, s.room && (/^\d/.test(s.room) ? 'Room ' + s.room : s.room), s.ext && 'ext. ' + s.ext].filter(Boolean).join(' · ')) + '</small>' + (duty ? '<span class="pill warn" style="margin-top:4px">On duty: ' + esc(duty.location) + '</span>' : '') + '</span>' + (s.homeroom ? '<button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button>' : '') + '</li>';
     }).join('') + '</ul>';
   }
   return '<ul class="list">' + homerooms().map(hr => '<li><span class="main"><b>' + esc(hr) + '</b><small>' + esc((gradesOf(hr) ? 'Grade ' + gradesOf(hr) + ' · ' : '') + (teacherOf(hr) || 'No teacher listed')) + '</small></span><span class="muted small num">' + roster(hr).length + ' students</span><button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Open</button></li>').join('') + '</ul>';
 }
 function viewClass(hr) {
-  const list = roster(hr); const di = ui.clsDay;
+  const list = roster(hr); const sel = pickDay(ui.clsDay);
   let h = '<header class="top"><div style="min-width:0"><button class="linkbtn small" type="button" data-act="closeClass">‹ Lookup</button><h1 style="margin-top:4px">' + esc(hr) + '</h1><div class="sub">' + esc((gradesOf(hr) ? 'Grade ' + gradesOf(hr) + ' · ' : '') + (teacherOf(hr) || 'No teacher listed')) + '</div></div></header>';
   h += '<div class="stack"><div class="row wrapflex"><button class="btn" type="button" data-act="checkClass" data-arg="' + esc(hr) + '">Take attendance</button><button class="btn ghost" type="button" data-act="toolsClass" data-arg="' + esc(hr) + '">Use in Tools</button></div>';
   h += '<div class="seg" role="group" aria-label="Class view"><button type="button" data-act="clsView" data-arg="roster" aria-pressed="' + (ui.clsView === 'roster') + '">Class list (' + list.length + ')</button><button type="button" data-act="clsView" data-arg="sched" aria-pressed="' + (ui.clsView === 'sched') + '">Timetable</button></div>';
   if (ui.clsView === 'roster') {
     h += '<section class="card">' + (list.length ? '<ul class="list">' + list.map(s => '<li><span class="avatar">' + esc(initials(s.first + ' ' + s.last)) + '</span><span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade) + '</small></span></li>').join('') + '</ul>' : '<p class="empty">No students listed for this class.</p>') + '</section>';
   } else {
-    const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, di)).sort((a, b) => toMins(a.start) - toMins(b.start));
-    h += '<div class="seg" role="group" aria-label="Day">' + DOW.map((d, i) => '<button type="button" data-act="clsDay" data-arg="' + i + '" aria-pressed="' + (di === i) + '">' + d.slice(0, 3) + '</button>').join('') + '</div>';
-    h += '<section class="card">' + (sched.length ? timeline(sched.map(s => ({ start: s.start, end: s.end, title: s.subject, sub: [s.teacher, s.room && (/^\d/.test(s.room) ? 'Room ' + s.room : s.room)].filter(Boolean).join(' · ') })), isWeekend() || di !== schoolDayIndex()) : '<p class="empty">No timetable entered for ' + DOW[di] + '.</p>') + '</section>';
+    const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, sel.date)).sort((a, b) => toMins(a.start) - toMins(b.start));
+    h += '<div class="seg" role="group" aria-label="Day">' + dayOptions().map(o => '<button type="button" data-act="clsDay" data-arg="' + o.key + '" aria-pressed="' + (o.key === sel.key) + '">' + o.label + '</button>').join('') + '</div>';
+    h += '<section class="card">' + (sched.length ? timeline(sched.map(s => ({ start: s.start, end: s.end, title: s.subject, sub: [s.teacher, s.room && (/^\d/.test(s.room) ? 'Room ' + s.room : s.room)].filter(Boolean).join(' · ') })), dkey(sel.date) !== dkey(today0())) : '<p class="empty">No timetable entered for ' + esc(sel.label) + '.</p>') + '</section>';
   }
   return h + '</div>';
 }
@@ -1010,12 +1068,12 @@ const ACTIONS = {
     const fallback = () => { box.hidden = false; box.value = txt; box.focus(); box.select(); toast('Text selected – copy it with your keyboard'); };
     try { navigator.clipboard.writeText(txt).then(() => toast('Week copied'), fallback); } catch (e) { fallback(); }
   },
-  dutyDay: a => { ui.dutyDay = +a; render(); },
+  dutyDay: a => { ui.dutyDay = a; render(); },
   lookup: a => { ui.lookup = a; ui.q = ''; render(); const q = document.getElementById('q'); if (q && a !== 'classes') q.focus(); },
   openClass: a => { ui.tab = 'lookup'; prefs.tab = 'lookup'; savePrefs(); ui.cls = a; ui.clsView = 'roster'; render(); window.scrollTo(0, 0); },
   closeClass: () => { ui.cls = null; render(); },
   clsView: a => { ui.clsView = a; render(); },
-  clsDay: a => { ui.clsDay = +a; render(); },
+  clsDay: a => { ui.clsDay = a; render(); },
   checkClass: a => { prefs.hr = a; savePrefs(); ui.tab = 'check'; ui.checkView = 'class'; ui.cls = null; resetCheck(); render(); window.scrollTo(0, 0); },
   toolsClass: a => { prefs.toolSrc = a; savePrefs(); ui.tab = 'tools'; ui.cls = null; ui.wheelOut = []; ui.winner = null; ui.groups = null; ui.absent = {}; render(); window.scrollTo(0, 0); },
   tool: a => { ui.tool = a; render(); },
