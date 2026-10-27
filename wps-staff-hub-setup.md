@@ -71,7 +71,7 @@ Duty and class timetables can use **Day 1** to **Day 5** in the Day column, as w
 
 - The app works out today's cycle day from three settings: **Cycle Days** (5), **Cycle Anchor Date** and **Cycle Anchor Day**. Oct 27, 2026 was Day 4.
 - It counts school days forward and back from that date, skipping weekends and every date on the **No School Days** tab, so the cycle pauses over PA days and breaks.
-- **No School Days** comes pre-filled with the DDSB 2026–27 elementary dates, including Winchester's modified-calendar October, March and May breaks. Add any extra closures there, such as a snow day.
+- **No School Days** lists only dates when *neither* calendar has classes. Winchester is dual-calendar, so the modified-calendar breaks (Oct 13–23, Mar 5–12, May 14–21) are regular school days for the cycle. Add any extra closures there, such as a snow day. The 2026–27 list was checked date by date against both board calendars.
 - If the cycle ever gets out of step, change **Cycle Anchor Date** and **Cycle Anchor Day** to today and today's day number.
 
 To load a new duty schedule:

@@ -36,14 +36,15 @@ const DEFAULT_SETTINGS = [
   ['Cycle Anchor Date', '2026-10-27', 'Any school day whose cycle day you know (yyyy-mm-dd)'],
   ['Cycle Anchor Day', '4', 'The cycle day on the anchor date. The app counts forward and back, skipping weekends and No School Days.']
 ];
-// DDSB 2026-27 elementary dates with no school, including Winchester PS modified-calendar breaks.
+// DDSB 2026-27: dates with NO classes on EITHER calendar. Winchester is dual-calendar, so modified-calendar
+// breaks (Oct 13-23, Mar 5-12, May 14-21) are school days for regular-calendar classes and the cycle keeps counting.
+// Checked date by date against both board calendars: every cycle day from Oct 27, 2026 to Jun 29, 2027 matches.
 const DEFAULT_NO_SCHOOL = [
   ['2026-09-02', '2026-09-03', 'PA Days'], ['2026-09-04', '', 'Board Designated Holiday'], ['2026-09-07', '', 'Labour Day'],
-  ['2026-10-12', '', 'Thanksgiving'], ['2026-10-13', '2026-10-23', 'October Break (modified calendar)'], ['2026-10-26', '', 'PA Day'],
-  ['2026-11-13', '', 'PA Day'], ['2026-12-21', '2027-01-01', 'Winter Break'], ['2027-01-22', '', 'PA Day'],
-  ['2027-02-15', '', 'Family Day'], ['2027-03-05', '2027-03-19', 'March Break (modified calendar)'], ['2027-03-26', '', 'Good Friday'],
-  ['2027-03-29', '', 'Easter Monday'], ['2027-05-14', '2027-05-21', 'May Break (modified calendar)'], ['2027-05-24', '', 'Victoria Day'],
-  ['2027-06-04', '', 'PA Day'], ['2027-06-30', '', 'PA Day']
+  ['2026-10-12', '', 'Thanksgiving'], ['2026-10-26', '', 'PA Day'], ['2026-11-13', '', 'PA Day'],
+  ['2026-12-21', '2027-01-01', 'Winter Break'], ['2027-01-22', '', 'PA Day'], ['2027-02-15', '', 'Family Day'],
+  ['2027-03-15', '2027-03-19', 'March Break'], ['2027-03-26', '', 'Good Friday'], ['2027-03-29', '', 'Easter Monday'],
+  ['2027-05-24', '', 'Victoria Day'], ['2027-06-04', '', 'PA Day'], ['2027-06-30', '', 'PA Day']
 ];
 const CHECKPOINTS = ['', 'Safe Arrival (AM)', 'Start of period', 'After recess / break', 'After room change', 'After outdoor / trip', 'After assembly / event', 'Unplanned change', 'Safe Arrival (PM)'];
 const ROLES = ['Teacher', 'ECE', 'EA', 'Office', 'Admin', 'Other'];
