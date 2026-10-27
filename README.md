@@ -34,6 +34,7 @@ Phone (GitHub Pages)  ──Google sign-in──▶  Apps Script web app  ──
 - **Access:** every request is re-checked against the Staff tab, so removing someone signs them out.
 - **Occasional teachers:** with **Allow Board Guests** set to TRUE, any `@ddsb.ca` account can sign in as a Guest.
 - **Data storage:** all student and staff data stays in the Sheet in board Drive. This repo holds no student information.
+- **Student photos:** these are kept in the **Photos** tab of that Sheet and sent only to signed-in staff. The app holds them in memory while it's open and never saves them on the device or in this repo.
 
 ## Files
 

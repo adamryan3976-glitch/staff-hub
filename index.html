@@ -78,6 +78,12 @@ a{color:var(--accent)}
 .list .main b{display:block;overflow-wrap:anywhere}
 .list .main small{display:block;color:var(--muted);font-size:14px}
 .avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;background:var(--accent-soft);color:var(--ink);flex:none}
+.avatar.photo{width:48px;height:48px;padding:0;overflow:hidden;cursor:zoom-in}
+.avatar.photo img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
+.photo-modal{position:fixed;inset:0;z-index:30;background:rgba(8,18,28,.72);display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.photo-card{background:var(--surface);color:var(--ink);border-radius:var(--r);padding:18px;width:min(300px,100%);display:grid;gap:10px;justify-items:center;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.35)}
+.photo-card img{width:100%;max-width:220px;aspect-ratio:2/3;object-fit:cover;border-radius:12px;background:var(--sunk)}
+.photo-card h2{font-size:22px}
 .linkbtn{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:2px}
 .search{position:relative}
 .search input{padding-left:38px}
@@ -430,7 +436,7 @@ function normalize(raw) {
   const d = {
     me: raw.me, settings: raw.settings || {},
     staff: (raw.staff || []).map(r => ({ email: g(r, 'Email').toLowerCase(), name: g(r, 'Name'), role: g(r, 'Role') || 'Teacher', homeroom: g(r, 'Homeroom'), room: g(r, 'Room'), ext: g(r, 'Extension'), assignment: g(r, 'Assignment') })).filter(s => s.name || s.email),
-    students: (raw.students || []).map(r => ({ first: g(r, 'First Name'), last: g(r, 'Last Name'), grade: g(r, 'Grade'), homeroom: g(r, 'Homeroom') })).filter(s => s.first || s.last),
+    students: (raw.students || []).map(r => ({ first: g(r, 'First Name'), last: g(r, 'Last Name'), grade: g(r, 'Grade'), homeroom: g(r, 'Homeroom'), photo: g(r, 'Photo Key') })).filter(s => s.first || s.last),
     bells: (raw.bells || []).map(r => ({ start: g(r, 'Start'), end: g(r, 'End'), label: g(r, 'Label'), checkpoint: g(r, 'Attendance Checkpoint') })).filter(b => toMins(b.start) != null).sort((a, b) => toMins(a.start) - toMins(b.start)),
     duty: (raw.duty || []).map(r => ({ day: g(r, 'Day'), block: g(r, 'Time Block'), start: g(r, 'Start'), end: g(r, 'End'), location: g(r, 'Location'), staff: g(r, 'Staff'), indoor: g(r, 'Indoor Plan'), dnote: g(r, 'Note') })).filter(x => x.location || x.staff),
     noSchool: (raw.noSchool || []).map(r => { const a = g(r, 'Start Date').slice(0, 10); return { start: a, end: (g(r, 'End Date') || a).slice(0, 10), reason: g(r, 'Reason') }; }).filter(x => parseDate(x.start)),
@@ -440,6 +446,7 @@ function normalize(raw) {
   };
   Object.keys(cycleCache).forEach(k => delete cycleCache[k]);
   d.students.sort((a, b) => natural(a.last + a.first, b.last + b.first));
+  d.students.forEach((x, i) => { x.idx = i; });
   d.staff.sort((a, b) => natural(a.name.replace(/^\S+\.?\s/, ''), b.name.replace(/^\S+\.?\s/, '')));
   return d;
 }
@@ -539,7 +546,7 @@ async function signIn() {
   } catch (e) { ui.loading = false; ui.authError = 'Google sign-in could not load. Check your connection.'; render(); }
 }
 function signOut(msg) {
-  session = null; D = null; LS.del(K.session); LS.del(K.data);
+  session = null; D = null; photoCache = {}; closePhoto(); LS.del(K.session); LS.del(K.data);
   ui.authError = msg || ''; ui.tab = 'home'; render();
 }
 
@@ -880,7 +887,7 @@ function lookupResults() {
     if (!q) return '<p class="empty">Type a name to find a student\'s class and teacher.</p>';
     const res = D.students.filter(s => (s.first + ' ' + s.last + ' ' + s.last + ' ' + s.homeroom + ' grade ' + s.grade).toLowerCase().includes(q)).slice(0, 60);
     if (!res.length) return '<p class="empty">No student matches "' + esc(ui.q) + '".</p>';
-    return '<ul class="list">' + res.map(s => '<li><span class="avatar">' + esc(initials(s.first + ' ' + s.last)) + '</span><span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade || '?') + ' · ' + esc(teacherOf(s.homeroom) || 'No teacher listed') + '</small></span><button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button></li>').join('') + '</ul>';
+    return '<ul class="list">' + res.map(s => '<li>' + studentAvatar(s) + '<span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade || '?') + ' · ' + esc(teacherOf(s.homeroom) || 'No teacher listed') + '</small></span><button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button></li>').join('') + '</ul>';
   }
   if (ui.lookup === 'staff') {
     const res = D.staff.filter(s => !q || (s.name + ' ' + s.role + ' ' + s.room + ' ' + s.homeroom + ' ' + s.assignment).toLowerCase().includes(q));
@@ -900,7 +907,7 @@ function viewClass(hr) {
   h += '<div class="stack"><div class="row wrapflex"><button class="btn" type="button" data-act="checkClass" data-arg="' + esc(hr) + '">Take attendance</button><button class="btn ghost" type="button" data-act="toolsClass" data-arg="' + esc(hr) + '">Use in Tools</button></div>';
   h += '<div class="seg" role="group" aria-label="Class view"><button type="button" data-act="clsView" data-arg="roster" aria-pressed="' + (ui.clsView === 'roster') + '">Class list (' + list.length + ')</button><button type="button" data-act="clsView" data-arg="sched" aria-pressed="' + (ui.clsView === 'sched') + '">Timetable</button></div>';
   if (ui.clsView === 'roster') {
-    h += '<section class="card">' + (list.length ? '<ul class="list">' + list.map(s => '<li><span class="avatar">' + esc(initials(s.first + ' ' + s.last)) + '</span><span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade) + '</small></span></li>').join('') + '</ul>' : '<p class="empty">No students listed for this class.</p>') + '</section>';
+    h += '<section class="card">' + (list.length ? '<ul class="list">' + list.map(s => '<li>' + studentAvatar(s) + '<span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade) + '</small></span></li>').join('') + '</ul>' : '<p class="empty">No students listed for this class.</p>') + '</section>';
   } else {
     const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, sel.date)).sort((a, b) => toMins(a.start) - toMins(b.start));
     h += '<div class="seg" role="group" aria-label="Day">' + dayOptions().map(o => '<button type="button" data-act="clsDay" data-arg="' + o.key + '" aria-pressed="' + (o.key === sel.key) + '">' + o.label + '</button>').join('') + '</div>';
@@ -1113,6 +1120,36 @@ function toast(msg, undo) {
 /* ======================================================================
    RENDER + EVENTS
    ====================================================================== */
+/* ---------- student photos: fetched from the private Sheet for signed-in staff, kept in memory only ---------- */
+let photoCache = {}; const photoPending = new Set();
+function studentAvatar(s) {
+  const ini = esc(initials(s.first + ' ' + s.last));
+  if (!s.photo) return '<span class="avatar">' + ini + '</span>';
+  const src = photoCache[s.photo];
+  return '<button class="avatar photo" type="button" data-act="bigPhoto" data-arg="' + s.idx + '" data-photo="' + esc(s.photo) + '" aria-label="Show photo of ' + esc(s.first + ' ' + s.last) + '">' + (src ? '<img src="' + src + '" alt="">' : ini) + '</button>';
+}
+function hydratePhotos() {
+  if (DEMO) return;
+  const want = [];
+  document.querySelectorAll('[data-photo]').forEach(el => { const k = el.dataset.photo; if (photoCache[k] === undefined && !photoPending.has(k) && !want.includes(k)) want.push(k); });
+  for (let i = 0; i < want.length; i += 40) {
+    const keys = want.slice(i, i + 40); keys.forEach(k => photoPending.add(k));
+    api('photos', { keys: keys.join('|') }).then(r => {
+      keys.forEach(k => { photoCache[k] = (r.photos || {})[k] || ''; photoPending.delete(k); });
+      keys.forEach(k => { if (!photoCache[k]) return; document.querySelectorAll('[data-photo="' + k + '"]').forEach(el => { el.innerHTML = '<img src="' + photoCache[k] + '" alt="">'; }); const big = document.querySelector('.photo-card [data-big="' + k + '"]'); if (big) big.src = photoCache[k]; });
+    }).catch(() => keys.forEach(k => photoPending.delete(k)));
+  }
+}
+function showPhoto(idx) {
+  const s = D.students[+idx]; if (!s) return; closePhoto();
+  const m = document.createElement('div'); m.className = 'photo-modal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', s.first + ' ' + s.last);
+  m.innerHTML = '<div class="photo-card"><img data-big="' + esc(s.photo) + '" src="' + (photoCache[s.photo] || '') + '" alt="Photo of ' + esc(s.first + ' ' + s.last) + '"><h2>' + esc(s.first + ' ' + s.last) + '</h2><p class="muted">Grade ' + esc(s.grade || '?') + ' · ' + esc(s.homeroom) + (teacherOf(s.homeroom) ? ' · ' + esc(teacherOf(s.homeroom)) : '') + '</p><button class="btn block" type="button" id="photoClose">Close</button></div>';
+  m.addEventListener('click', e => { if (e.target === m || e.target.id === 'photoClose') closePhoto(); });
+  document.body.appendChild(m); document.getElementById('photoClose').focus();
+}
+function closePhoto() { const m = document.querySelector('.photo-modal'); if (m) m.remove(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePhoto(); });
+
 function render() {
   if (!DEMO && (!session || !D)) {
     tabsEl.hidden = true;
@@ -1123,6 +1160,7 @@ function render() {
   tabsEl.innerHTML = TABS.map(([k, label]) => '<button type="button" data-tab="' + k + '"' + (ui.tab === k ? ' aria-current="page"' : '') + '>' + ICON[k] + label + '</button>').join('');
   app.innerHTML = ui.tab === 'check' ? viewCheck() : ui.tab === 'duty' ? viewDuty() : ui.tab === 'lookup' ? viewLookup() : ui.tab === 'tools' ? viewTools() : viewHome();
   if (ui.tab === 'tools' && ui.tool === 'wheel') drawWheel();
+  hydratePhotos();
 }
 tabsEl.addEventListener('click', e => {
   const b = e.target.closest('button[data-tab]'); if (!b) return;
@@ -1133,6 +1171,7 @@ tabsEl.addEventListener('click', e => {
 
 function resetCheck() { ui.point = null; ui.count = null; ui.disc = null; ui.alarm = false; ui.adjOpen = null; }
 const ACTIONS = {
+  bigPhoto: a => showPhoto(a),
   signin: () => signIn(),
   signout: () => signOut(),
   refresh: () => loadData(true).then(() => toast('Data refreshed')),
@@ -1223,7 +1262,7 @@ app.addEventListener('change', e => {
 });
 app.addEventListener('input', e => {
   const k = e.target.dataset.input; if (!k) return;
-  if (k === 'q') { ui.q = e.target.value; const r = document.getElementById('results'); if (r) r.innerHTML = lookupResults(); }
+  if (k === 'q') { ui.q = e.target.value; const r = document.getElementById('results'); if (r) { r.innerHTML = lookupResults(); clearTimeout(ui._ph); ui._ph = setTimeout(hydratePhotos, 250); } }
   if (k === 'custom') { prefs.custom = e.target.value; savePrefs(); ui.wheelOut = []; ui.groups = null; if (ui.tool === 'wheel') { drawWheel(); const k = document.querySelector('.k-count'); if (k) k.textContent = wheelNames().length + ' KNIGHTS REMAINING'; } }
 });
 app.addEventListener('focusout', e => { if (e.target.dataset.input === 'custom') render(); });
