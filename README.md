@@ -9,10 +9,11 @@ It's built like the [DIAC Staff Hub](https://github.com/adamryan3976-glitch/DIAC
 | Section | What it does |
 |---|---|
 | **Home** | Current bell period, today's yard duty with an "On duty now" flag, the class timetable and bell schedule, and a prompt when an attendance check is due |
-| **Attendance** | One-tap Student Attendance Verification at each transition, as required by the DDSB Safe Arrivals Procedure (effective Oct 16, 2026). See below. |
+| **Attendance** *(admins can switch it off)* | One-tap Student Attendance Verification at each transition, as required by the DDSB Safe Arrivals Procedure (effective Oct 16, 2026). See below. |
 | **Yard Duty** | Weekly duty schedule by day, a "Only my duties" filter, and one-day swaps from the Duty Changes tab |
 | **Lookup** | Search students (grade, class, teacher) and staff (role, room, extension, current duty). Open any class for its list and timetable. |
 | **Tools** | Name wheel, countdown timer with a chime, and a random group maker. Each pulls names from any class or a custom list. |
+| **Admin** | Only the emails listed in the Sheet's **App Admins** setting (not the Staff tab's Admin role). Switches for attendance checks, guest sign-in and guest photo access; one-tap day-cycle correction; days off (snow days); one-day duty changes; office extension; and a link to the Sheet. Every change is written to the Sheet. |
 
 ### Attendance in detail
 
@@ -58,11 +59,14 @@ At the top of the script in `index.html`:
 ```js
 const CONFIG = {
   SCRIPT_URL: '…/exec',                          // Apps Script web app URL
-  GOOGLE_CLIENT_ID: '….apps.googleusercontent.com' // Google Cloud project "Winchester App Auth"
+  GOOGLE_CLIENT_ID: '….apps.googleusercontent.com', // Google Cloud project "Winchester App Auth"
+  SHOW_ATTENDANCE: false                          // fallback if the Sheet has no Show Attendance setting
 };
 ```
 
 Leave `SCRIPT_URL` blank to run a demo with invented data.
+
+Attendance is switched on and off by admins in the app's **Admin** tab, which saves **Show Attendance** in the Sheet. `SHOW_ATTENDANCE` in `index.html` is only used if that setting is missing.
 
 The site's address must be listed under **Authorized JavaScript origins** on the OAuth client in Google Cloud Console.
 

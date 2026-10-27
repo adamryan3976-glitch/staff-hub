@@ -29,6 +29,9 @@ const DEFAULT_SETTINGS = [
   ['Allowed Domain', 'ddsb.ca', 'Only Google accounts on this domain can sign in'],
   ['Allow Board Guests', 'TRUE', 'TRUE lets any account on the Allowed Domain sign in as Guest (occasional teachers)'],
   ['Session Days', '30', 'How long staff stay signed in on a device'],
+  ['App Admins', 'adamryan3976@ddsb.ca', 'Emails (comma-separated) that get the Admin tab. Only editable here in the Sheet, never from the app.'],
+  ['Show Attendance', 'FALSE', 'TRUE shows the Attendance section (checks, office board). Admins can switch this in the app.'],
+  ['Guest Photos', 'TRUE', 'TRUE lets Guest sign-ins (occasional teachers) see student photos'],
   ['Cycle Days', '5', 'Days in the rotation (Day 1 to Day 5). Set to 0 to use Monday to Friday instead.'],
   ['Cycle Anchor Date', '2026-10-27', 'Any school day whose cycle day you know (yyyy-mm-dd)'],
   ['Cycle Anchor Day', '4', 'The cycle day on the anchor date. The app counts forward and back, skipping weekends and No School Days.']
@@ -108,6 +111,7 @@ function doPost(e) {
     const body = JSON.parse(e.postData.contents);
     const me = auth_(body.session);
     if (body.action === 'attendance') return json_(saveAttendance_(me, body.entries || []));
+    if (body.action === 'admin') return json_(admin_(me, body.ops || []));
     return json_({ error: 'unknown_action' });
   } catch (err) { return json_({ error: err.message || String(err) }); }
 }
@@ -132,8 +136,9 @@ function login_(token) {
 function whoIs_(email, settings) {
   const staff = rows_('Staff');
   const mine = staff.filter(r => String(r['Email']).toLowerCase().trim() === email);
+  const appAdmin = appAdmins_(settings).indexOf(email) > -1;
   if (mine.length) {
-    return { email: email, name: mine[0]['Name'] || email, role: mine[0]['Role'] || 'Teacher', homerooms: mine.map(r => r['Homeroom']).filter(String) };
+    return { email: email, name: mine[0]['Name'] || email, role: mine[0]['Role'] || 'Teacher', homerooms: mine.map(r => r['Homeroom']).filter(String), appAdmin: appAdmin };
   }
   const domain = String(settings['Allowed Domain'] || '').toLowerCase().replace(/^@/, '');
   const guests = String(settings['Allow Board Guests']).toUpperCase() === 'TRUE';
@@ -160,6 +165,9 @@ function auth_(session) {
   return me;
 }
 const isOffice_ = me => /admin|office|principal/i.test(me.role || '');
+/* Admin access comes only from the "App Admins" setting, not from the Staff tab's Role column. */
+const isAdmin_ = me => !!me.appAdmin;
+function appAdmins_(settings) { return String(settings['App Admins'] || '').toLowerCase().split(/[,;\s]+/).filter(String); }
 
 /* ======================= data ======================= */
 function all_(me) {
@@ -167,7 +175,9 @@ function all_(me) {
   return {
     me: me,
     settings: { 'School Name': s['School Name'], 'Short Name': s['Short Name'], 'Office Extension': s['Office Extension'],
-                'Cycle Days': s['Cycle Days'], 'Cycle Anchor Date': s['Cycle Anchor Date'], 'Cycle Anchor Day': s['Cycle Anchor Day'] },
+                'Cycle Days': s['Cycle Days'], 'Cycle Anchor Date': s['Cycle Anchor Date'], 'Cycle Anchor Day': s['Cycle Anchor Day'],
+                'Show Attendance': s['Show Attendance'], 'Allow Board Guests': s['Allow Board Guests'], 'Guest Photos': s['Guest Photos'] },
+    sheetUrl: isAdmin_(me) ? SpreadsheetApp.getActiveSpreadsheet().getUrl() : '',
     noSchool: rows_('No School Days'),
     staff: rows_('Staff'), students: rows_('Students'), bells: rows_('Bells'),
     duty: rows_('Duty'), dutyChanges: rows_('Duty Changes').filter(r => String(r['Date']) >= today_()),
@@ -188,6 +198,7 @@ function week_(me, homeroom, monday) {
 /** Student photos live only in the Photos tab of this (private) Sheet and are sent only to signed-in staff. */
 function photos_(me, keys) {
   if (!keys.length) return { photos: {} };
+  if (me.role === 'Guest' && String(settings_()['Guest Photos']).toUpperCase() === 'FALSE') return { photos: {}, hidden: true };
   const cache = CacheService.getScriptCache(), hit = cache.getAll(keys.map(k => 'ph:' + k)), out = {};
   let missing = keys.filter(k => !(('ph:' + k) in hit));
   keys.forEach(k => { if (hit['ph:' + k] != null) out[k] = hit['ph:' + k] || null; });
@@ -237,19 +248,61 @@ function settings_() {
   return out;
 }
 /** Reads a tab into objects keyed by header. Times become "HH:mm", dates "yyyy-MM-dd". */
+/* ======================= admin (Admin role only) ======================= */
+const ADMIN_SETTINGS = ['Show Attendance', 'Allow Board Guests', 'Guest Photos', 'Office Extension', 'Cycle Anchor Date', 'Cycle Anchor Day'];
+function admin_(me, ops) {
+  if (!isAdmin_(me)) throw new Error('admin_only');
+  const ss = SpreadsheetApp.getActiveSpreadsheet(), lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    ops.forEach(op => {
+      if (op.type === 'setting') {
+        if (ADMIN_SETTINGS.indexOf(op.key) < 0) throw new Error('bad_setting');
+        setSetting_(ss, op.key, String(op.value));
+      } else if (op.type === 'addNoSchool') {
+        appendText_(ss, 'No School Days', [op.start, op.end || '', op.reason || 'No school']);
+      } else if (op.type === 'removeNoSchool') {
+        deleteWhere_(ss, 'No School Days', r => r['Start Date'] === op.start && String(r['Reason']) === String(op.reason || ''));
+      } else if (op.type === 'addDutyChange') {
+        appendText_(ss, 'Duty Changes', [op.date, op.block || '', op.location, op.coveredBy, op.replacing || '', op.note || '']);
+      } else if (op.type === 'removeDutyChange') {
+        deleteWhere_(ss, 'Duty Changes', r => r['Date'] === op.date && String(r['Location']) === String(op.location) && String(r['Time Block']) === String(op.block || ''));
+      } else throw new Error('bad_op');
+    });
+    SpreadsheetApp.flush();
+  } finally { lock.releaseLock(); }
+  return { ok: true, data: all_(me) };
+}
+function setSetting_(ss, key, value) {
+  const sh = ss.getSheetByName('Settings'), last = sh.getLastRow();
+  const keys = last > 1 ? sh.getRange(2, 1, last - 1, 1).getValues().map(r => String(r[0]).trim()) : [];
+  const i = keys.indexOf(key);
+  if (i > -1) sh.getRange(i + 2, 2).setNumberFormat('@').setValue(value);
+  else sh.getRange(last + 1, 1, 1, 3).setNumberFormat('@').setValues([[key, value, '']]);
+}
+function appendText_(ss, name, row) {
+  const sh = ss.getSheetByName(name), r = sh.getLastRow() + 1;
+  sh.getRange(r, 1, 1, row.length).setNumberFormat('@').setValues([row.map(String)]);
+}
+function deleteWhere_(ss, name, match) {
+  const sh = ss.getSheetByName(name); if (!sh || sh.getLastRow() < 2) return;
+  const values = sh.getDataRange().getValues(), head = values.shift().map(h => String(h).trim()), tz = tz_();
+  for (let i = values.length - 1; i >= 0; i--) if (match(rowObj_(head, values[i], tz))) sh.deleteRow(i + 2);
+}
+
+function rowObj_(head, r, tz) {
+  const o = {};
+  head.forEach((h, i) => {
+    let v = r[i];
+    if (v instanceof Date) v = v.getFullYear() < 1901 ? Utilities.formatDate(v, tz, 'HH:mm') : (h === 'Logged At' ? Utilities.formatDate(v, tz, 'yyyy-MM-dd HH:mm') : Utilities.formatDate(v, tz, 'yyyy-MM-dd'));
+    o[h] = typeof v === 'string' ? v.trim() : v;
+  });
+  return o;
+}
 function rows_(name) {
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
   if (!sh || sh.getLastRow() < 2) return [];
   const values = sh.getDataRange().getValues();
   const head = values.shift().map(h => String(h).trim());
   const tz = tz_();
-  return values.filter(r => r.some(v => v !== '' && v !== null)).map(r => {
-    const o = {};
-    head.forEach((h, i) => {
-      let v = r[i];
-      if (v instanceof Date) v = v.getFullYear() < 1901 ? Utilities.formatDate(v, tz, 'HH:mm') : (h === 'Logged At' ? Utilities.formatDate(v, tz, 'yyyy-MM-dd HH:mm') : Utilities.formatDate(v, tz, 'yyyy-MM-dd'));
-      o[h] = typeof v === 'string' ? v.trim() : v;
-    });
-    return o;
-  });
+  return values.filter(r => r.some(v => v !== '' && v !== null)).map(r => rowObj_(head, r, tz));
 }
