@@ -104,6 +104,9 @@ a{color:var(--accent)}
 .pcard .nowbox{background:var(--accent-soft);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
 .pcard .nowbox b{font-size:16px}
 .pcard .acts{display:flex;flex-wrap:wrap;gap:8px}
+.loginbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:8px}
+.loginbox .cred{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.loginbox code{font-size:15px;font-weight:700;overflow-wrap:anywhere;background:var(--sunk);padding:3px 6px;border-radius:6px}
 .pcard .acts>*{flex:1 1 auto}
 .list .main button.pname{all:unset;cursor:pointer;display:block}
 .list .main button.pname:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
@@ -1595,7 +1598,7 @@ function openCard(html, label) {
     if (e.target === m || e.target.id === 'photoClose') return closePhoto();
     const b = e.target.closest('[data-act]'); if (!b) return;
     const fn = ACTIONS[b.dataset.act]; if (!fn) return;
-    if (!['student', 'staff', 'bigPhoto'].includes(b.dataset.act)) closePhoto();
+    if (!['student', 'staff', 'bigPhoto', 'showLogin'].includes(b.dataset.act)) closePhoto();
     fn(b.dataset.arg, b);
   });
   document.body.appendChild(m); document.getElementById('photoClose').focus();
@@ -1618,8 +1621,29 @@ function showStudent(idx) {
   const ext = teachers.map(t => t.ext).filter(Boolean)[0];
   if (ext) h += '<dt>Class ext.</dt><dd>' + esc(ext) + '</dd>';
   h += '</dl>';
+  if (canSeeLogin(hr)) h += '<div class="loginbox" id="loginbox"><span class="label">Chromebook login</span><div><button class="btn ghost" type="button" data-act="showLogin" data-arg="' + s.idx + '">Show login and default password</button></div></div>';
   h += '<div class="acts">' + (hr ? '<button class="btn ghost" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Class list</button>' : '') + (sched.length ? '<button class="btn ghost" type="button" data-act="ttGo" data-arg="class|' + esc(hr) + '">Timetable</button>' : '') + '</div>';
   openCard(h, name);
+}
+/* the server makes the final check; this only decides whether to offer the button */
+function canSeeLogin(hr) {
+  if (!D || !hr || /guest/i.test(D.me.role || '')) return false;
+  if (DEMO || isAdmin() || isOffice() || (D.me.homerooms || []).includes(hr)) return true;
+  return D.schedules.some(r => r.homeroom === hr && isMe(r.teacher));
+}
+async function showLogin(idx, btn) {
+  const s = D.students[+idx], box = document.getElementById('loginbox'); if (!s || !box) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+  const show = inner => { const b = document.getElementById('loginbox'); if (b) b.innerHTML = '<span class="label">Chromebook login</span>' + inner; };
+  try {
+    const r = DEMO ? { username: 's123456789@ddsbstudent.ca', password: /^(JK|SK|K|1|2|3)$/i.test(s.grade) ? '123456789ddsb' : '12345678920130731@ddsb', demo: true } : await api('studentLogin', { first: s.first, last: s.last, homeroom: s.homeroom });
+    if (r.missing) return show('<p class="small muted">No student number for ' + esc(s.first) + ' on the Logins tab yet.</p>');
+    const line = (label, v) => '<div class="cred"><div style="min-width:0"><span class="small muted">' + label + '</span><br><code>' + esc(v) + '</code></div><button class="chipbtn" type="button" data-copy="' + esc(v) + '">Copy</button></div>';
+    show(line('Username', r.username) + (r.password ? line('Default password', r.password) : '<p class="small muted">No birth date on the Logins tab, so the Grade 4–8 password can\'t be made.</p>') + '<p class="small muted">' + (r.demo ? 'Demo values. ' : '') + 'This is the default password. If the student changed it, it won\'t work. Views are logged.</p>');
+    document.getElementById('loginbox').addEventListener('click', e => { const c = e.target.closest('[data-copy]'); if (!c) return; try { navigator.clipboard.writeText(c.dataset.copy).then(() => { c.textContent = 'Copied'; }, () => {}); } catch (x) {} });
+  } catch (e) {
+    show('<p class="small muted">' + (e.message === 'login_not_allowed' ? 'Only this student\'s teachers, the office and admins can see their login.' : 'Couldn\'t load the login. ' + (isAdmin() ? '(' + esc(e.message) + ')' : 'Try again in a moment.')) + '</p>');
+  }
 }
 function showStaff(i) {
   const p = D.staff[+i]; if (!p) return;
@@ -1684,6 +1708,7 @@ function resetCheck() { ui.point = null; ui.count = null; ui.disc = null; ui.ala
 const ACTIONS = {
   bigPhoto: a => showPhoto(a),
   student: a => showStudent(a),
+  showLogin: (a, b) => showLogin(a, b),
   staff: a => showStaff(a),
   setCycle: a => { const d = dkey(nextSchoolDay(today0())); adminOps([{ type: 'setting', key: 'Cycle Anchor Date', value: d }, { type: 'setting', key: 'Cycle Anchor Day', value: a }], fmtDate(d) + ' is now Day ' + a); },
   addDuty: () => {
