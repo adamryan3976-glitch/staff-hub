@@ -1139,10 +1139,10 @@ function ttGrid(rows, date, mode) {
     return '<li class="' + cls + '">' + when + '<span class="what">' + body + '</span></li>';
   }).join('') + '</ul>';
 }
-/* staff who teach (appear on the Schedules tab) and have no class in a slot */
+/* staff who teach (appear on the Schedules tab) and have no class in a slot; rows with Subject "Prep" count as free */
 function freeStaff(date, sl) {
   const ix = ttIndex();
-  return ix.staff.filter(p => !ix.teach.get(staffKey(p)).some(r => dayMatches(r.day, date) && toMins(r.start) < sl.e && (toMins(r.end) || toMins(r.start) + 1) > sl.s));
+  return ix.staff.filter(p => !ix.teach.get(staffKey(p)).some(r => !/^prep\b/i.test(r.subject) && dayMatches(r.day, date) && toMins(r.start) < sl.e && (toMins(r.end) || toMins(r.start) + 1) > sl.s));
 }
 const initName = n => { const w = String(n || '').replace(TITLE, '').trim().split(/\s+/); return w.length > 1 ? w[0][0] + '. ' + w.slice(1).join(' ') : w[0] || ''; };
 function prepView(opts, t0) {
