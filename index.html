@@ -106,6 +106,10 @@ a{color:var(--accent)}
 .pcard .acts{display:flex;flex-wrap:wrap;gap:8px}
 .loginbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:8px}
 .loginbox .cred{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.resetguide{border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.resetguide summary{cursor:pointer;font-weight:700;padding:4px 0}
+.resetguide ol{margin:6px 0 4px;padding-left:20px;display:grid;gap:8px;font-size:14px;line-height:1.4}
+.resetguide .tip{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:6px 8px;font-size:13px}
 .loginbox code{font-size:15px;font-weight:700;overflow-wrap:anywhere;background:var(--sunk);padding:3px 6px;border-radius:6px}
 .pcard .acts>*{flex:1 1 auto}
 .list .main button.pname{all:unset;cursor:pointer;display:block}
@@ -1596,6 +1600,8 @@ function openCard(html, label) {
   m.innerHTML = '<div class="pcard">' + html + '<button class="btn block" type="button" id="photoClose">Close</button></div>';
   m.addEventListener('click', e => {
     if (e.target === m || e.target.id === 'photoClose') return closePhoto();
+    const cp = e.target.closest('[data-copy]');
+    if (cp) { try { navigator.clipboard.writeText(cp.dataset.copy).then(() => { cp.textContent = 'Copied'; setTimeout(() => { cp.textContent = 'Copy'; }, 1500); }, () => {}); } catch (x) {} return; }
     const b = e.target.closest('[data-act]'); if (!b) return;
     const fn = ACTIONS[b.dataset.act]; if (!fn) return;
     if (!['student', 'staff', 'bigPhoto', 'showLogin'].includes(b.dataset.act)) closePhoto();
@@ -1621,9 +1627,21 @@ function showStudent(idx) {
   const ext = teachers.map(t => t.ext).filter(Boolean)[0];
   if (ext) h += '<dt>Class ext.</dt><dd>' + esc(ext) + '</dd>';
   h += '</dl>';
-  if (canSeeLogin(hr)) h += '<div class="loginbox" id="loginbox"><span class="label">Chromebook login</span><div><button class="btn ghost" type="button" data-act="showLogin" data-arg="' + s.idx + '">Show login and default password</button></div></div>';
+  if (canSeeLogin(hr)) h += '<div class="loginbox" id="loginbox"><span class="label">Chromebook login</span><div><button class="btn ghost" type="button" data-act="showLogin" data-arg="' + s.idx + '">Show login and default password</button></div></div>' + resetGuide(s);
   h += '<div class="acts">' + (hr ? '<button class="btn ghost" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Class list</button>' : '') + (sched.length ? '<button class="btn ghost" type="button" data-act="ttGo" data-arg="class|' + esc(hr) + '">Timetable</button>' : '') + '</div>';
   openCard(h, name);
+}
+const RESET_URL = 'https://durhamschboard.service-now.com/help?id=ddsb';
+/* DDSB "Resetting Student Passwords for Staff", step by step, so staff can follow it beside the reset page */
+function resetGuide(s) {
+  const young = /^(JK|SK|K|1|2|3)$/i.test(String(s.grade || '').trim());
+  return '<details class="resetguide"><summary>Reset this student\'s password</summary>' +
+    '<p class="tip">You must be on the DDSB network, or connected to <b>DDSB Workplace Connection</b> on your ILP laptop.</p><ol>' +
+    '<li>Open the IT Service Desk and choose <b>Student Password Reset</b> in the top menu.<br><a class="btn ghost" style="margin-top:6px" href="' + RESET_URL + '" target="_blank" rel="noopener">Open IT Service Desk</a></li>' +
+    '<li>Search by the student\'s <b>first name</b>: <code>' + esc(s.first) + '</code> <button class="chipbtn" type="button" data-copy="' + esc(s.first) + '">Copy</button><br><span class="small muted">If there are too many matches, use % as a wildcard: <code>%' + esc(s.last + ', ' + s.first) + '%</code> <button class="chipbtn" type="button" data-copy="' + esc('%' + s.last + ', ' + s.first + '%') + '">Copy</button>. Leaving the search empty lists the whole school. Results can take up to a minute.</span></li>' +
+    '<li>Select <b>' + esc(s.first + ' ' + s.last) + '</b> in the results and submit the reset.</li>' +
+    '<li>The password goes back to the default (' + (young ? '<b>student#ddsb</b> for K–3' : '<b>student#YYYYMMDD@ddsb</b> for Grades 4–12') + '). Use <b>Show login</b> above to see it. The reset can take up to <b>30 minutes</b>.</li>' +
+    '<li>When the student signs in, they\'ll be asked to choose a new password.</li></ol></details>';
 }
 /* the server makes the final check; this only decides whether to offer the button */
 function canSeeLogin(hr) {
@@ -1640,7 +1658,6 @@ async function showLogin(idx, btn) {
     if (r.missing) return show('<p class="small muted">No student number for ' + esc(s.first) + ' on the Logins tab yet.</p>');
     const line = (label, v) => '<div class="cred"><div style="min-width:0"><span class="small muted">' + label + '</span><br><code>' + esc(v) + '</code></div><button class="chipbtn" type="button" data-copy="' + esc(v) + '">Copy</button></div>';
     show(line('Username', r.username) + (r.password ? line('Default password', r.password) : '<p class="small muted">No birth date on the Logins tab, so the Grade 4–8 password can\'t be made.</p>') + '<p class="small muted">' + (r.demo ? 'Demo values. ' : '') + 'This is the default password. If the student changed it, it won\'t work. Views are logged.</p>');
-    document.getElementById('loginbox').addEventListener('click', e => { const c = e.target.closest('[data-copy]'); if (!c) return; try { navigator.clipboard.writeText(c.dataset.copy).then(() => { c.textContent = 'Copied'; }, () => {}); } catch (x) {} });
   } catch (e) {
     show('<p class="small muted">' + (e.message === 'login_not_allowed' ? 'Only this student\'s teachers, the office and admins can see their login.' : 'Couldn\'t load the login. ' + (isAdmin() ? '(' + esc(e.message) + ')' : 'Try again in a moment.')) + '</p>');
   }
