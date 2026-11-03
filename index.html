@@ -91,6 +91,24 @@ a{color:var(--accent)}
 .photo-card{background:var(--surface);color:var(--ink);border-radius:var(--r);padding:18px;width:min(300px,100%);display:grid;gap:10px;justify-items:center;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.35)}
 .photo-card img{width:100%;max-width:220px;aspect-ratio:2/3;object-fit:cover;border-radius:12px;background:var(--sunk)}
 .photo-card h2{font-size:22px}
+.pcard{background:var(--surface);color:var(--ink);border-radius:var(--r);width:min(440px,100%);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;box-shadow:0 20px 40px rgba(0,0,0,.35);display:grid;gap:14px;padding:18px}
+.pcard .who{display:flex;gap:14px;align-items:center}
+.pcard .who .pic{width:84px;height:112px;border-radius:12px;background:var(--accent-soft);flex:none;display:grid;place-items:center;font:800 28px var(--f-display);color:var(--ink);overflow:hidden;padding:0}
+.pcard .who .pic.round{width:72px;height:72px;border-radius:50%}
+.pcard .who .pic img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
+.pcard .who h2{font-size:22px;overflow-wrap:anywhere}
+.pcard .who .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.pcard dl{margin:0;display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:15px}
+.pcard dt{color:var(--muted);font-size:13px;font-weight:700;padding-top:2px}
+.pcard dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.pcard .nowbox{background:var(--accent-soft);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
+.pcard .nowbox b{font-size:16px}
+.pcard .acts{display:flex;flex-wrap:wrap;gap:8px}
+.pcard .acts>*{flex:1 1 auto}
+.list .main button.pname{all:unset;cursor:pointer;display:block}
+.list .main button.pname:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.list .main button.pname b{text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.list .main button.pname:hover b{text-decoration-color:var(--accent)}
 .linkbtn{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:2px}
 .search{position:relative}
 .search input{padding-left:38px}
@@ -150,6 +168,18 @@ a.btn{display:inline-block;text-decoration:none}
 .tt li.now+li{border-top-color:transparent}
 .tt .linkbtn{font-weight:600}
 .tt-pick{display:grid;gap:10px}
+.prep .what{display:flex;flex-wrap:wrap;gap:6px}
+.prep .chipbtn{padding:5px 10px;font-size:13px}
+.prep .count{font-size:12px;color:var(--muted);font-weight:700}
+.prepwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table.preptab{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}
+.preptab th,.preptab td{border-bottom:1px solid var(--line);border-left:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.preptab th:first-child,.preptab td:first-child{border-left:0;position:sticky;left:0;background:var(--surface);z-index:1;min-width:74px}
+.preptab thead th{background:var(--sunk);font-weight:800}
+.preptab tr.brk td{background:var(--sunk);color:var(--muted);font-weight:700;padding:3px 8px}
+.preptab td.cur,.preptab th.cur{background:var(--accent-soft)}
+.preptab .linkbtn{font-weight:600;display:block;text-align:left;line-height:1.5}
+.preptab .tm{display:block;font-size:12px}
 .tt-pick select{width:100%}
 /* duty */
 .duty-block{display:grid;gap:6px}
@@ -1109,6 +1139,40 @@ function ttGrid(rows, date, mode) {
     return '<li class="' + cls + '">' + when + '<span class="what">' + body + '</span></li>';
   }).join('') + '</ul>';
 }
+/* staff who teach (appear on the Schedules tab) and have no class in a slot */
+function freeStaff(date, sl) {
+  const ix = ttIndex();
+  return ix.staff.filter(p => !ix.teach.get(staffKey(p)).some(r => dayMatches(r.day, date) && toMins(r.start) < sl.e && (toMins(r.end) || toMins(r.start) + 1) > sl.s));
+}
+const initName = n => { const w = String(n || '').replace(TITLE, '').trim().split(/\s+/); return w.length > 1 ? w[0][0] + '. ' + w.slice(1).join(' ') : w[0] || ''; };
+function prepView(opts, t0) {
+  const all = ui.ttDay === 'all', sel = all ? null : pickDay(ui.ttDay), live = isSchoolDay(t0), n = nowMins();
+  let h = '<div class="seg" role="group" aria-label="Day">' + opts.map(o => '<button type="button" data-act="ttDay" data-arg="' + o.key + '" aria-pressed="' + (!all && o.key === sel.key) + '">' + o.label + (dkey(o.date) === dkey(t0) ? ' •' : '') + '</button>').join('') + '<button type="button" data-act="ttDay" data-arg="all" aria-pressed="' + all + '">All</button></div></div>';
+  h += '<p class="small muted">Staff with no class scheduled, for quick coverage. Tap a name for their card.</p>';
+  if (all) {
+    const todayKey = opts.find(o => dkey(o.date) === dkey(t0));
+    h += '<div class="prepwrap"><table class="preptab"><thead><tr><th>Period</th>' + opts.map(o => '<th' + (todayKey === o ? ' class="cur"' : '') + '>' + esc(o.label) + (todayKey === o ? ' (today)' : '') + '</th>').join('') + '</tr></thead><tbody>';
+    DAY_PLAN.forEach(sl => {
+      if (sl.brk) { h += '<tr class="brk"><td colspan="' + (opts.length + 1) + '">' + esc(sl.label) + ' · ' + short(sl.start) + '–' + short(sl.end) + '</td></tr>'; return; }
+      const nowRow = live && n >= sl.s && n < sl.e;
+      h += '<tr><td' + (nowRow ? ' class="cur"' : '') + '><b>' + esc(sl.label) + '</b><span class="tm">' + short(sl.start) + '–' + short(sl.end) + '</span></td>' + opts.map(o => {
+        const f = freeStaff(o.date, sl), cur = nowRow && todayKey === o;
+        return '<td' + (cur ? ' class="cur"' : '') + '>' + (f.length ? f.map(p => '<button class="linkbtn" type="button" data-act="staff" data-arg="' + D.staff.indexOf(p) + '">' + esc(initName(p.name)) + '</button>').join('') : '<span class="muted">—</span>') + '</td>';
+      }).join('') + '</tr>';
+    });
+    return h + '</tbody></table></div>';
+  }
+  const isToday = dkey(sel.date) === dkey(t0);
+  h += '<p class="small muted">' + (isToday ? 'Today, ' : 'Next ' + (useCycle() ? sel.label + ': ' : '')) + DAYS[sel.date.getDay()] + ', ' + MON[sel.date.getMonth()] + ' ' + sel.date.getDate() + (isToday && useCycle() ? ' · ' + sel.label : '') + '</p>';
+  h += '<section class="card"><ul class="tt prep">' + DAY_PLAN.map(sl => {
+    const cls = isToday && live ? (n >= sl.s && n < sl.e ? 'now' : n >= sl.e ? 'past' : '') : '';
+    const when = '<span class="when"><b>' + esc(sl.brk ? '' : sl.label) + (cls === 'now' ? ' <span class="pill info" style="padding:1px 7px;font-size:11px">Now</span>' : '') + '</b><span>' + short(sl.start) + '–' + short(sl.end) + '</span></span>';
+    if (sl.brk) return '<li class="brk ' + cls + '">' + when + '<span class="what">' + esc(sl.label) + '</span></li>';
+    const f = freeStaff(sel.date, sl);
+    return '<li class="' + cls + '">' + when + '<span class="what">' + (f.length ? f.map(p => '<button class="chipbtn" type="button" data-act="staff" data-arg="' + D.staff.indexOf(p) + '">' + esc(p.name) + '</button>').join('') : '<span class="free">No one free</span>') + '</span></li>';
+  }).join('') + '</ul></section>';
+  return h;
+}
 function viewTimetables() {
   const ix = ttIndex(), t0 = today0(), closed = noSchoolReason(t0), cd = cycleDay(t0);
   if (!ui.ttMode) {
@@ -1125,7 +1189,8 @@ function viewTimetables() {
   h += '<div class="stack">' + demoBanner();
   if (!D.schedules.length) return h + '<div class="card"><p class="empty">No timetables yet. Add them to the Schedules tab in the Sheet.</p></div></div>';
   const me = myTimetable();
-  h += '<div class="tt-pick"><div class="seg" role="group" aria-label="Show timetable for"><button type="button" data-act="ttMode" data-arg="class" aria-pressed="' + (mode === 'class') + '">Class</button><button type="button" data-act="ttMode" data-arg="staff" aria-pressed="' + (mode === 'staff') + '">Staff</button></div>';
+  h += '<div class="tt-pick"><div class="seg" role="group" aria-label="Show timetable for"><button type="button" data-act="ttMode" data-arg="class" aria-pressed="' + (mode === 'class') + '">Class</button><button type="button" data-act="ttMode" data-arg="staff" aria-pressed="' + (mode === 'staff') + '">Staff</button><button type="button" data-act="ttMode" data-arg="prep" aria-pressed="' + (mode === 'prep') + '">Preps</button></div>';
+  if (mode === 'prep') return h + prepView(opts, t0) + '</div>';
   h += '<div class="field"><label class="label sr-only" for="tt-sel">' + (mode === 'class' ? 'Class' : 'Staff member') + '</label><select id="tt-sel" data-change="ttSel">' +
     (mode === 'class' ? ix.hrs.map(x => '<option value="' + esc(x) + '"' + (x === hr ? ' selected' : '') + '>' + esc(classLabel(x)) + '</option>').join('')
       : ix.staff.map(p => '<option value="' + esc(staffKey(p)) + '"' + (person && staffKey(p) === staffKey(person) ? ' selected' : '') + '>' + esc(p.name + (me && staffKey(p) === staffKey(me) ? ' (you)' : '')) + '</option>').join('')) +
@@ -1162,7 +1227,7 @@ function lookupResults() {
     if (!q) return '<p class="empty">Type a name to find a student\'s class and teacher.</p>';
     const res = D.students.filter(s => (s.first + ' ' + s.last + ' ' + s.last + ' ' + s.homeroom + ' grade ' + s.grade).toLowerCase().includes(q)).slice(0, 60);
     if (!res.length) return '<p class="empty">No student matches "' + esc(ui.q) + '".</p>';
-    return '<ul class="list">' + res.map(s => '<li>' + studentAvatar(s) + '<span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade || '?') + ' · ' + esc(teacherOf(s.homeroom) || 'No teacher listed') + '</small></span><button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button></li>').join('') + '</ul>';
+    return '<ul class="list">' + res.map(s => '<li>' + studentAvatar(s) + '<span class="main"><button class="pname" type="button" data-act="student" data-arg="' + s.idx + '"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade || '?') + ' · ' + esc(teacherOf(s.homeroom) || 'No teacher listed') + '</small></button></span><button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button></li>').join('') + '</ul>';
   }
   if (ui.lookup === 'staff') {
     const res = D.staff.filter(s => !q || (s.name + ' ' + s.role + ' ' + s.room + ' ' + s.homeroom + ' ' + s.assignment).toLowerCase().includes(q));
@@ -1171,7 +1236,7 @@ function lookupResults() {
     const onNow = dutiesFor(today0(), false).filter(r => toMins(r.start) <= n && n < toMins(r.end));
     return '<ul class="list">' + res.map(s => {
       const duty = onNow.find(r => isPerson(r.staff, s));
-      return '<li><span class="avatar">' + esc(initials(s.name)) + '</span><span class="main"><b>' + esc(s.name) + '</b><small>' + esc([s.assignment || s.role, s.room && (/^\d/.test(s.room) ? 'Room ' + s.room : s.room), s.ext && 'ext. ' + s.ext].filter(Boolean).join(' · ')) + '</small>' + (duty ? '<span class="pill warn" style="margin-top:4px">On duty: ' + esc(duty.location) + '</span>' : '') + '</span>' + (s.homeroom ? '<button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button>' : '') + '</li>';
+      return '<li><button class="avatar" type="button" data-act="staff" data-arg="' + D.staff.indexOf(s) + '" aria-label="Details for ' + esc(s.name) + '">' + esc(initials(s.name)) + '</button><span class="main"><button class="pname" type="button" data-act="staff" data-arg="' + D.staff.indexOf(s) + '"><b>' + esc(s.name) + '</b><small>' + esc([s.assignment || s.role, s.room && (/^\d/.test(s.room) ? 'Room ' + s.room : s.room), s.ext && 'ext. ' + s.ext].filter(Boolean).join(' · ')) + '</small></button>' + (duty ? '<span class="pill warn" style="margin-top:4px">On duty: ' + esc(duty.location) + '</span>' : '') + '</span>' + (s.homeroom ? '<button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(s.homeroom) + '">' + esc(s.homeroom) + '</button>' : '') + '</li>';
     }).join('') + '</ul>';
   }
   return '<ul class="list">' + homerooms().map(hr => '<li><span class="main"><b>' + esc(hr) + '</b><small>' + esc((gradesOf(hr) ? 'Grade ' + gradesOf(hr) + ' · ' : '') + (teacherOf(hr) || 'No teacher listed')) + '</small></span><span class="muted small num">' + roster(hr).length + ' students</span><button class="chipbtn" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Open</button></li>').join('') + '</ul>';
@@ -1182,7 +1247,7 @@ function viewClass(hr) {
   h += '<div class="stack"><div class="row wrapflex">' + (showAtt() ? '<button class="btn" type="button" data-act="checkClass" data-arg="' + esc(hr) + '">Take attendance</button>' : '') + '<button class="btn ghost" type="button" data-act="toolsClass" data-arg="' + esc(hr) + '">Use in Tools</button></div>';
   h += '<div class="seg" role="group" aria-label="Class view"><button type="button" data-act="clsView" data-arg="roster" aria-pressed="' + (ui.clsView === 'roster') + '">Class list (' + list.length + ')</button><button type="button" data-act="clsView" data-arg="sched" aria-pressed="' + (ui.clsView === 'sched') + '">Timetable</button></div>';
   if (ui.clsView === 'roster') {
-    h += '<section class="card">' + (list.length ? '<ul class="list">' + list.map(s => '<li>' + studentAvatar(s) + '<span class="main"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade) + '</small></span></li>').join('') + '</ul>' : '<p class="empty">No students listed for this class.</p>') + '</section>';
+    h += '<section class="card">' + (list.length ? '<ul class="list">' + list.map(s => '<li>' + studentAvatar(s) + '<span class="main"><button class="pname" type="button" data-act="student" data-arg="' + s.idx + '"><b>' + esc(s.first + ' ' + s.last) + '</b><small>Grade ' + esc(s.grade) + '</small></button></span></li>').join('') + '</ul>' : '<p class="empty">No students listed for this class.</p>') + '</section>';
   } else {
     const sched = D.schedules.filter(s => s.homeroom === hr && dayMatches(s.day, sel.date)).sort((a, b) => toMins(a.start) - toMins(b.start));
     h += '<div class="seg" role="group" aria-label="Day">' + dayOptions().map(o => '<button type="button" data-act="clsDay" data-arg="' + o.key + '" aria-pressed="' + (o.key === sel.key) + '">' + o.label + '</button>').join('') + '</div>';
@@ -1479,7 +1544,7 @@ function studentAvatar(s) {
   const ini = esc(initials(s.first + ' ' + s.last));
   if (!s.photo) return '<span class="avatar">' + ini + '</span>';
   const src = photoCache[s.photo];
-  return '<button class="avatar photo" type="button" data-act="bigPhoto" data-arg="' + s.idx + '" data-photo="' + esc(s.photo) + '" aria-label="Show photo of ' + esc(s.first + ' ' + s.last) + '">' + (src ? '<img src="' + src + '" alt="">' : ini) + '</button>';
+  return '<button class="avatar photo" type="button" data-act="student" data-arg="' + s.idx + '" data-photo="' + esc(s.photo) + '" aria-label="Details for ' + esc(s.first + ' ' + s.last) + '">' + (src ? '<img src="' + src + '" alt="">' : ini) + '</button>';
 }
 function hydratePhotos() {
   if (DEMO) return;
@@ -1493,11 +1558,98 @@ function hydratePhotos() {
     }).catch(() => keys.forEach(k => photoPending.delete(k)));
   }
 }
+/* ---------- person cards (Lookup) ---------- */
+function nowSlot() {
+  const t0 = today0(); if (!isSchoolDay(t0)) return null;
+  const n = nowMins(); return DAY_PLAN.find(sl => n >= sl.s && n < sl.e) || (n < DAY_PLAN[0].s ? 'before' : 'after');
+}
+function nowRows(rows) {
+  const sl = nowSlot(); if (!sl || typeof sl === 'string' || sl.brk) return [];
+  const t0 = today0();
+  return rows.filter(r => dayMatches(r.day, t0) && toMins(r.start) < sl.e && (toMins(r.end) || toMins(r.start) + 1) > sl.s);
+}
+function nowBox(rows, mode, dutyNow) {
+  const sl = nowSlot();
+  let main, sub = '';
+  if (!sl) main = 'No school today';
+  else if (sl === 'before') main = 'Before school';
+  else if (sl === 'after') main = 'After school';
+  else {
+    const here = nowRows(rows);
+    if (sl.brk) main = sl.label;
+    else if (here.length) {
+      const r = here[0];
+      main = r.subject || 'Class';
+      sub = mode === 'staff' ? [r.homeroom, fmtRoom(r.room) !== r.homeroom && fmtRoom(r.room)].filter(Boolean).join(' · ') : [r.teacher, fmtRoom(r.room)].filter(Boolean).join(' · ');
+    } else main = mode === 'staff' ? 'No class this period' : '—';
+    sub = (sl.brk ? '' : sl.label + ' · ') + nice(sl.start) + '–' + nice(sl.end) + (sub ? ' · ' + sub : '');
+  }
+  if (dutyNow) { sub = (main ? main + (sub ? ' · ' + sub : '') : sub); main = 'On duty: ' + dutyNow.location; }
+  return '<div class="nowbox"><span class="label">Right now</span><b>' + esc(main) + '</b>' + (sub ? '<span class="small muted">' + esc(sub) + '</span>' : '') + '</div>';
+}
+function openCard(html, label) {
+  closePhoto();
+  const m = document.createElement('div'); m.className = 'photo-modal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', label);
+  m.innerHTML = '<div class="pcard">' + html + '<button class="btn block" type="button" id="photoClose">Close</button></div>';
+  m.addEventListener('click', e => {
+    if (e.target === m || e.target.id === 'photoClose') return closePhoto();
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const fn = ACTIONS[b.dataset.act]; if (!fn) return;
+    if (!['student', 'staff', 'bigPhoto'].includes(b.dataset.act)) closePhoto();
+    fn(b.dataset.arg, b);
+  });
+  document.body.appendChild(m); document.getElementById('photoClose').focus();
+  hydratePhotos();
+}
+function staffLink(name) {
+  const p = name && D.staff.find(x => isPerson(name, x));
+  return p ? '<button class="linkbtn" type="button" data-act="staff" data-arg="' + D.staff.indexOf(p) + '">' + esc(p.name) + '</button>' : esc(name || '');
+}
+function showStudent(idx) {
+  const s = D.students[+idx]; if (!s) return;
+  const name = s.first + ' ' + s.last, hr = s.homeroom, src = s.photo && photoCache[s.photo];
+  const pic = s.photo ? '<button class="pic" type="button" data-act="bigPhoto" data-arg="' + s.idx + '" data-photo="' + esc(s.photo) + '" aria-label="Larger photo">' + (src ? '<img src="' + src + '" alt="">' : esc(initials(name))) + '</button>' : '<span class="pic">' + esc(initials(name)) + '</span>';
+  const teachers = D.staff.filter(x => x.homeroom === hr);
+  const sched = D.schedules.filter(r => r.homeroom === hr);
+  let h = '<div class="who">' + pic + '<div style="min-width:0"><h2>' + esc(name) + '</h2><div class="sub">Student · Grade ' + esc(s.grade || '?') + '</div></div></div>';
+  if (sched.length) h += nowBox(sched, 'class');
+  h += '<dl><dt>Grade</dt><dd>' + esc(s.grade || '—') + '</dd><dt>Homeroom</dt><dd>' + esc(hr || '—') + (gradesOf(hr) ? ' <span class="muted small">(Gr ' + esc(gradesOf(hr)) + ', ' + roster(hr).length + ' students)</span>' : '') + '</dd>';
+  h += '<dt>' + (teachers.length > 1 ? 'Teachers' : 'Teacher') + '</dt><dd>' + (teachers.length ? teachers.map(t => staffLink(t.name) + (t.role && t.role !== 'Teacher' ? ' <span class="muted small">(' + esc(t.role) + ')</span>' : '')).join('<br>') : '—') + '</dd>';
+  const ext = teachers.map(t => t.ext).filter(Boolean)[0];
+  if (ext) h += '<dt>Class ext.</dt><dd>' + esc(ext) + '</dd>';
+  h += '</dl>';
+  h += '<div class="acts">' + (hr ? '<button class="btn ghost" type="button" data-act="openClass" data-arg="' + esc(hr) + '">Class list</button>' : '') + (sched.length ? '<button class="btn ghost" type="button" data-act="ttGo" data-arg="class|' + esc(hr) + '">Timetable</button>' : '') + '</div>';
+  openCard(h, name);
+}
+function showStaff(i) {
+  const p = D.staff[+i]; if (!p) return;
+  const ix = ttIndex(), rows = ix.teach.get(staffKey(p)) || [];
+  const n = nowMins(), t0 = today0();
+  const today = isSchoolDay(t0) ? dutiesFor(t0, false).filter(r => isPerson(r.staff, p)).sort((a, b) => toMins(a.start) - toMins(b.start)) : [];
+  const dutyNow = today.find(r => toMins(r.start) <= n && n < toMins(r.end));
+  const room = fmtRoom(p.room);
+  let h = '<div class="who"><span class="pic round">' + esc(initials(p.name)) + '</span><div style="min-width:0"><h2>' + esc(p.name) + '</h2><div class="sub">' + esc([p.role, p.assignment].filter(Boolean).join(' · ')) + '</div></div></div>';
+  if (rows.length || dutyNow) h += nowBox(rows, 'staff', dutyNow);
+  h += '<dl><dt>Role</dt><dd>' + esc(p.role || '—') + '</dd>';
+  if (p.assignment) h += '<dt>Assignment</dt><dd>' + esc(p.assignment) + '</dd>';
+  if (p.homeroom) h += '<dt>Homeroom</dt><dd><button class="linkbtn" type="button" data-act="openClass" data-arg="' + esc(p.homeroom) + '">' + esc(p.homeroom) + '</button>' + (roster(p.homeroom).length ? ' <span class="muted small">(' + (gradesOf(p.homeroom) ? 'Gr ' + esc(gradesOf(p.homeroom)) + ', ' : '') + roster(p.homeroom).length + ' students)</span>' : '') + '</dd>';
+  const co = p.homeroom ? D.staff.filter(x => x !== p && x.homeroom === p.homeroom) : [];
+  if (co.length) h += '<dt>Shares with</dt><dd>' + co.map(x => staffLink(x.name)).join('<br>') + '</dd>';
+  if (room && room !== p.homeroom) h += '<dt>Room</dt><dd>' + esc(room) + '</dd>';
+  if (p.ext) h += '<dt>Extension</dt><dd>' + esc(p.ext) + '</dd>';
+  if (p.email) h += '<dt>Email</dt><dd><a class="linkbtn" href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a></dd>';
+  const classes = Array.from(new Set(rows.map(r => r.homeroom))).sort(natural);
+  if (classes.length) h += '<dt>Teaches</dt><dd>' + classes.map(c => '<button class="linkbtn" type="button" data-act="ttGo" data-arg="class|' + esc(c) + '">' + esc(c) + '</button>').join(', ') + '</dd>';
+  h += '<dt>Duty today</dt><dd>' + (today.length ? today.map(r => esc(r.location) + ' <span class="muted small">' + nice(r.start) + '–' + nice(r.end) + (r.covering && r.covering !== r.staff ? ' · covering for ' + esc(r.covering) : '') + '</span>').join('<br>') : '<span class="muted">' + (isSchoolDay(t0) ? 'None' : 'No school today') + '</span>') + '</dd>';
+  h += '</dl>';
+  h += '<div class="acts">' + (rows.length ? '<button class="btn ghost" type="button" data-act="ttGo" data-arg="staff|' + esc(staffKey(p)) + '">Timetable</button>' : '') + (p.homeroom ? '<button class="btn ghost" type="button" data-act="openClass" data-arg="' + esc(p.homeroom) + '">Class list</button>' : '') + '</div>';
+  openCard(h, p.name);
+}
 function showPhoto(idx) {
   const s = D.students[+idx]; if (!s) return; closePhoto();
   const m = document.createElement('div'); m.className = 'photo-modal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', s.first + ' ' + s.last);
-  m.innerHTML = '<div class="photo-card"><img data-big="' + esc(s.photo) + '" src="' + (photoCache[s.photo] || '') + '" alt="Photo of ' + esc(s.first + ' ' + s.last) + '"><h2>' + esc(s.first + ' ' + s.last) + '</h2><p class="muted">Grade ' + esc(s.grade || '?') + ' · ' + esc(s.homeroom) + (teacherOf(s.homeroom) ? ' · ' + esc(teacherOf(s.homeroom)) : '') + '</p><button class="btn block" type="button" id="photoClose">Close</button></div>';
-  m.addEventListener('click', e => { if (e.target === m || e.target.id === 'photoClose') closePhoto(); });
+  m.innerHTML = '<div class="photo-card"><img data-big="' + esc(s.photo) + '" src="' + (photoCache[s.photo] || '') + '" alt="Photo of ' + esc(s.first + ' ' + s.last) + '"><h2>' + esc(s.first + ' ' + s.last) + '</h2><div class="row wrapflex" style="justify-content:center"><button class="btn ghost" type="button" data-back="' + s.idx + '">Details</button><button class="btn" type="button" id="photoClose">Close</button></div></div>';
+  m.addEventListener('click', e => { if (e.target.dataset.back) return showStudent(e.target.dataset.back); if (e.target === m || e.target.id === 'photoClose') closePhoto(); });
   document.body.appendChild(m); document.getElementById('photoClose').focus();
 }
 function closePhoto() { const m = document.querySelector('.photo-modal'); if (m) m.remove(); }
@@ -1531,6 +1683,8 @@ tabsEl.addEventListener('click', e => {
 function resetCheck() { ui.point = null; ui.count = null; ui.disc = null; ui.alarm = false; ui.adjOpen = null; }
 const ACTIONS = {
   bigPhoto: a => showPhoto(a),
+  student: a => showStudent(a),
+  staff: a => showStaff(a),
   setCycle: a => { const d = dkey(nextSchoolDay(today0())); adminOps([{ type: 'setting', key: 'Cycle Anchor Date', value: d }, { type: 'setting', key: 'Cycle Anchor Day', value: a }], fmtDate(d) + ' is now Day ' + a); },
   addDuty: () => {
     const dc = ui.dc, slot = dc.slot === '' ? null : dutySlotsFor(dc.date)[+dc.slot];
